@@ -24,7 +24,10 @@
 #include <imgui/imgui_impl_opengl3.h>
 #include <stb_image/stb_image.h>
 
+#include "tests/Test.h"
 #include "tests/TestClearColor.h"
+#include "tests/TestTexture2D.h"
+#include "tests/TestRotatingCube.h"
 
 int main(void)
 {
@@ -36,7 +39,7 @@ int main(void)
         glfwTerminate();
         return -1;
     }
-    
+
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -76,24 +79,42 @@ int main(void)
         const char* glsl_version = "#version 130";
         ImGui_ImplOpenGL3_Init(glsl_version);
 
-        test::TestClearColor test;
+        //test::Test test;
+        test::Test* currentTest = nullptr;
+        test::TestMenu* testMenu = new test::TestMenu(currentTest);
+        currentTest = testMenu;
+        
+        testMenu->RegisterTest<test::TestClearColor>("Clear Color");
+        testMenu->RegisterTest<test::TestTexture2D>("Texture 2D");
+        testMenu->RegisterTest<test::TestRotatingCube>("Rotating Cube");
 
         while (!glfwWindowShouldClose(window))
         {
             // Render here 
             renderer.Clear();
 
-            test.OnUpdate(0.0f);
-            test.OnRender();
-
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-            test.OnImGuiRender();
 
+            if (currentTest)
+            {
+                currentTest->OnUpdate(0.0f);
+                currentTest->OnRender();
+                ImGui::Begin("Test");
+                if (currentTest != testMenu && ImGui::Button("<-")) {
+                    delete currentTest;
+                    currentTest = testMenu;
+                    renderer.SetClearColor();
+                }
+                currentTest->OnImGuiRender();
+                ImGui::End();
+            }
+
+            ImGui::EndFrame();
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-            
+
             GLCall(glfwSwapBuffers(window));
             GLCall(glfwPollEvents());
         }
@@ -104,4 +125,4 @@ int main(void)
     ImGui::DestroyContext();
     glfwTerminate();
     return 0;
-}
+};
