@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 #include "VertexArray.h"
 #include "IndexBuffer.h"
@@ -21,9 +22,16 @@ bool GLLogCall(const char* function, const char* file, int line);
 class Renderer
 {
 private:
-
+    GLFWwindow** window;
 public:
     void Clear() const;
     void SetClearColor() const;
     void Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const;
+    GLFWwindow** GetWindow() {
+        return window;
+    }
+
+    void SetWindow(GLFWwindow* windoww) {
+        *window = windoww;
+    }
 };

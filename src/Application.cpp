@@ -1,5 +1,5 @@
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+//#include <GL/glew.h>
+//#include <GLFW/glfw3.h>
 
 #include <iostream>
 #include <fstream>
@@ -46,7 +46,7 @@ int main(void)
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     // Create a windowed mode window and its OpenGL context
-    window = glfwCreateWindow(860, 609, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(1290, 913, "Hello World", NULL, NULL);
 
     if (!window)
     {
@@ -71,6 +71,8 @@ int main(void)
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
         Renderer renderer;
+
+        renderer.SetWindow(window);
 
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;

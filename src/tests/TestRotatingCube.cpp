@@ -1,6 +1,5 @@
 #include "TestRotatingCube.h"
 
-#include "Renderer.h"
 #include <imgui/imgui.h>
 
 #include "glm/glm.hpp"
@@ -8,46 +7,53 @@
 
 namespace test
 {
-    TestRotatingCube::TestRotatingCube()
+    TestRotatingCube::TestRotatingCube(GLFWwindow* window)
         : m_Proj(glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, -500.0f, 500.0f)),
-        m_View(glm::translate(glm::mat4(1.0f), glm::vec3(200, 200, 0)))
+        //m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 200, 0))),
+        m_View(glm::lookAt(glm::vec3(0.0f, 0.0f, 0.3f),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f))),
+        camera{ glm::vec3(0.0f, 0.0f, 3.0f),
+        glm::vec3(0.0f, 0.0f, -1.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f),
+        0.05f }
 	{
         float positions[] = {
-            //front blue
-              -100.0f,  100.0f, -100.0f, 0.0f, 0.0f, 1.0f, //Left Top
-              -100.0f, -100.0f, -100.0f, 0.0f, 0.0f, 1.0f, //Left Bottom
-               100.0f, -100.0f, -100.0f, 0.0f, 0.0f, 1.0f, //Right Bottom
-               100.0f,  100.0f, -100.0f, 0.0f, 0.0f, 1.0f, //Right Top
+            //front
+              -100.0f,  100.0f, -100.0f, 0.0f,  0.0f, -100.0f, //Left Top
+              -100.0f, -100.0f, -100.0f, 0.0f,  0.0f, -100.0f, //Left Bottom
+               100.0f, -100.0f, -100.0f, 0.0f,  0.0f, -100.0f, //Right Bottom
+               100.0f,  100.0f, -100.0f, 0.0f,  0.0f, -100.0f, //Right Top
 
-            //top white
-              -100.0f,  100.0f,  100.0f, 1.0f, 1.0f, 1.0f, //Left Back
-              -100.0f,  100.0f, -100.0f, 1.0f, 1.0f, 1.0f, //Left Front
-               100.0f,  100.0f, -100.0f, 1.0f, 1.0f, 1.0f, //Right Front
-               100.0f,  100.0f,  100.0f, 1.0f, 1.0f, 1.0f, //Right Back
+            //top
+              -100.0f,  100.0f,  100.0f, 0.0f,  0.0f,  100.0f, //Left Back
+              -100.0f,  100.0f, -100.0f, 0.0f,  0.0f,  100.0f, //Left Front
+               100.0f,  100.0f, -100.0f, 0.0f,  0.0f,  100.0f, //Right Front
+               100.0f,  100.0f,  100.0f, 0.0f,  0.0f,  100.0f, //Right Back
 
-            //back green
-              -100.0f,  100.0f,  100.0f, 0.0f, 0.5f, 0.0f, //Left Top
-              -100.0f, -100.0f,  100.0f, 0.0f, 0.5f, 0.0f, //Left Bottom
-               100.0f, -100.0f,  100.0f, 0.0f, 0.5f, 0.0f, //Right Bottom
-               100.0f,  100.0f,  100.0f, 0.0f, 0.5f, 0.0f, //Right Top
+            //back
+              -100.0f,  100.0f,  100.0f, -100.0f,  0.0f,  0.0f, //Left Top
+              -100.0f, -100.0f,  100.0f, -100.0f,  0.0f,  0.0f, //Left Bottom
+               100.0f, -100.0f,  100.0f, -100.0f,  0.0f,  0.0f, //Right Bottom
+               100.0f,  100.0f,  100.0f, -100.0f,  0.0f,  0.0f, //Right Top
 
-            //bottom yellow
-              -100.0f, -100.0f,  100.0f, 1.0f, 1.0f, 0.0f, //Left Back
-              -100.0f, -100.0f, -100.0f, 1.0f, 1.0f, 0.0f, //Left Front
-               100.0f, -100.0f, -100.0f, 1.0f, 1.0f, 0.0f, //Right Front
-               100.0f, -100.0f,  100.0f, 1.0f, 1.0f, 0.0f, //Right Back
+            //bottom
+              -100.0f, -100.0f,  100.0f,  100.0f,  0.0f,  0.0f, //Left Back
+              -100.0f, -100.0f, -100.0f,  100.0f,  0.0f,  0.0f, //Left Front
+               100.0f, -100.0f, -100.0f,  100.0f,  0.0f,  0.0f, //Right Front
+               100.0f, -100.0f,  100.0f,  100.0f,  0.0f,  0.0f, //Right Back
             
-            //left red
-              -100.0f,  100.0f,  100.0f, 1.0f, 0.0f, 0.0f, //Top Back
-              -100.0f, -100.0f,  100.0f, 1.0f, 0.0f, 0.0f, //Bottom Back
-              -100.0f, -100.0f, -100.0f, 1.0f, 0.0f, 0.0f, //Bottom Front
-              -100.0f,  100.0f, -100.0f, 1.0f, 0.0f, 0.0f, //Top Front
+            //left
+              -100.0f,  100.0f,  100.0f, 0.0f, -100.0f,  0.0f, //Top Back
+              -100.0f, -100.0f,  100.0f, 0.0f, -100.0f,  0.0f, //Bottom Back
+              -100.0f, -100.0f, -100.0f, 0.0f, -100.0f,  0.0f, //Bottom Front
+              -100.0f,  100.0f, -100.0f, 0.0f, -100.0f,  0.0f, //Top Front
 
-            //right orange
-               100.0f,  100.0f,  100.0f, 1.0f, 0.5f, 0.1f, //Top Back
-               100.0f, -100.0f,  100.0f, 1.0f, 0.5f, 0.1f, //Bottom Back
-               100.0f, -100.0f, -100.0f, 1.0f, 0.5f, 0.1f, //Bottom Front
-               100.0f,  100.0f, -100.0f, 1.0f, 0.5f, 0.1f  //Top Front
+            //right
+               100.0f,  100.0f,  100.0f, 0.0f,  100.0f,  0.0f, //Top Back
+               100.0f, -100.0f,  100.0f, 0.0f,  100.0f,  0.0f, //Bottom Back
+               100.0f, -100.0f, -100.0f, 0.0f,  100.0f,  0.0f, //Bottom Front
+               100.0f,  100.0f, -100.0f, 0.0f,  100.0f,  0.0f  //Top Front
         };
 
         unsigned int indices[]{
@@ -106,12 +112,34 @@ namespace test
         model = glm::rotate(model, glm::radians(angley), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 mvp = m_Proj * m_View * glm::mat4(model);
         glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        glm::vec3 lightPos = glm::vec3(300, 200, 200);
+        glm::vec3 lightPos = glm::vec3(200, 200, 200);
+        glm::vec3 objectColor = glm::vec3(0.5f, 0.2f, 0.0f);
+
+        glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+        glm::vec3 cameraDir = glm::normalize(camera.Position - cameraTarget);
+        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+        glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDir));
+        //glm::vec3 cameraUp = glm::cross(cameraRight, cameraDir);
+
+        const float radius = 10.0f;
+
+        float camXY = sin(glfwGetTime()) * radius;
+        float camZ = cos(glfwGetTime()) * radius;
+
+        camera.Position = ProcessInput(&renderer.GetWindow(), camera).Position;
+
+        /*m_View = glm::lookAt(glm::vec3(camXY, camXY, camZ),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f));*/
+        m_View = glm::lookAt(camera.Position, camera.Position + camera.Front, camera.Up);
 
         m_Shader->Bind();
         m_Shader->SetUniformMat4f("u_MVP", mvp);
+        m_Shader->SetUniformMat4f("u_Model", model);
         m_Shader->SetUniform3f("lightColor", lightColor);
         m_Shader->SetUniform3f("lightPos", lightPos);
+        m_Shader->SetUniform3f("viewPos", camera.Position);
+        m_Shader->SetUniform3f("objectColor", objectColor);
 
         renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
 	}

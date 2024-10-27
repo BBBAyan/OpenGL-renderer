@@ -5,7 +5,7 @@
 
 namespace test
 {
-	TestClearColor::TestClearColor()
+	TestClearColor::TestClearColor(GLFWwindow* window)
 		: m_ClearColor { 0.2f, 0.3f, 0.8f, 1.0f }
 	{
 	}

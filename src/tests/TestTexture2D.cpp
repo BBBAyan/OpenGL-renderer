@@ -8,7 +8,7 @@
 
 namespace test
 {
-    TestTexture2D::TestTexture2D()
+    TestTexture2D::TestTexture2D(GLFWwindow* window)
         : m_Proj(glm::ortho(0.0f, 860.0f, 0.0f, 609.0f, -1.0f, 1.0f)), 
         m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0))), 
         m_TranslationA(400, 400, 0), m_TranslationB(200, 200, 0)
