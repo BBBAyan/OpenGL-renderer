@@ -1,11 +1,14 @@
 #pragma once
 
+#include "Renderer.h"
+
 #include <iostream>
 #include <vector>
 #include <string>
 #include <functional>
 
 namespace test {
+	extern bool isEscapeClicked;
 	class Test
 	{
 	public:
@@ -25,11 +28,11 @@ namespace test {
 		void OnImGuiRender() override;
 
 		template<typename T>
-		void RegisterTest(const std::string& name)
+		void RegisterTest(const std::string& name, GLFWwindow* window)
 		{
 			std::cout << "Registering test: " << name << std::endl;
 
-			m_Tests.push_back(std::make_pair(name, [GLFWwindow* window]() { return new T(GLFWwindow* window); }));
+			m_Tests.push_back(std::make_pair(name, [window]() { return new T(window); }));
 		}
 	private:
 		std::vector<std::pair<std::string, std::function<Test* ()>>> m_Tests;

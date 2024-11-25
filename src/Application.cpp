@@ -6,7 +6,7 @@
 #include <string>
 #include <sstream>
 
-#include "Renderer.h"
+//#include "Renderer.h"
 
 #include "VertexBufferLayout.h"
 #include "VertexBuffer.h"
@@ -72,8 +72,6 @@ int main(void)
 
         Renderer renderer;
 
-        renderer.SetWindow(window);
-
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         ImGui::StyleColorsDark();
@@ -86,9 +84,9 @@ int main(void)
         test::TestMenu* testMenu = new test::TestMenu(currentTest);
         currentTest = testMenu;
         
-        testMenu->RegisterTest<test::TestClearColor>("Clear Color");
-        testMenu->RegisterTest<test::TestTexture2D>("Texture 2D");
-        testMenu->RegisterTest<test::TestRotatingCube>("Rotating Cube");
+        testMenu->RegisterTest<test::TestClearColor>("Clear Color", window);
+        testMenu->RegisterTest<test::TestTexture2D>("Texture 2D", window);
+        testMenu->RegisterTest<test::TestRotatingCube>("Rotating Cube", window);
 
         while (!glfwWindowShouldClose(window))
         {
@@ -119,6 +117,8 @@ int main(void)
 
             GLCall(glfwSwapBuffers(window));
             GLCall(glfwPollEvents());
+            if (test::isEscapeClicked)
+                break;
         }
     }
 

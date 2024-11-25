@@ -3,6 +3,7 @@
 
 namespace test
 {
+	bool isEscapeClicked = 0;
 	TestMenu::TestMenu(Test*& currentTestPointer)
 		: m_CurrentTest(currentTestPointer)
 	{

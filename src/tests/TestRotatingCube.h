@@ -2,13 +2,11 @@
 
 #include "Test.h"
 
-#include "Renderer.h"
 #include "glm/glm.hpp"
 #include "vertexBuffer.h"
 #include "vertexBufferLayout.h"
 
 namespace test {
-
 	struct Camera
 	{
 		glm::vec3 Position;
@@ -26,18 +24,7 @@ namespace test {
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
 		void OnImGuiRender() override;
-
-		Camera ProcessInput(GLFWwindow* &window, Camera f_camera) {
-			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-				f_camera.Position += f_camera.Speed * f_camera.Front;
-			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-				f_camera.Position -= f_camera.Speed * f_camera.Front;
-			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-				f_camera.Position -= glm::normalize(glm::cross(f_camera.Front, f_camera.Up)) * f_camera.Speed;
-			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-				f_camera.Position += glm::normalize(glm::cross(f_camera.Front, f_camera.Up)) * f_camera.Speed;
-			return f_camera;
-		}
+		test::Camera ProcessInput(Camera f_camera);
 	private:
 		glm::mat4 m_Proj, m_View;
 
