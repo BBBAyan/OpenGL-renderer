@@ -176,7 +176,7 @@ namespace test
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
             f_camera.Position += f_camera.Speed * f_camera.Up;
         if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-            f_camera.Position -= f_camera.Speed * f_camera.Up;a
+            f_camera.Position -= f_camera.Speed * f_camera.Up;
 
         return f_camera;
     }
