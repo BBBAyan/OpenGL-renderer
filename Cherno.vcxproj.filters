@@ -77,7 +77,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\Basic.shader" />
+    <None Include="res\shaders\Basic.Shader" />
     <None Include="Dependencies\GLEW\doc\advanced.html" />
     <None Include="Dependencies\GLEW\doc\basic.html" />
     <None Include="Dependencies\GLEW\doc\build.html" />
@@ -503,6 +503,7 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="res\shaders\Cube.Shader" />
+    <None Include="res\shaders\Lighting.Shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLEW\include\GL\eglew.h">

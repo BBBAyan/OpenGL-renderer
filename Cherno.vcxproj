@@ -167,8 +167,9 @@
     <None Include="Dependencies\GLEW\doc\install.html" />
     <None Include="Dependencies\GLEW\doc\log.html" />
     <None Include="Dependencies\GLEW\doc\wglew.html" />
-    <None Include="res\shaders\Basic.shader" />
+    <None Include="res\shaders\Basic.Shader" />
     <None Include="res\shaders\Cube.Shader" />
+    <None Include="res\shaders\Lighting.Shader" />
     <None Include="src\vendor\glm\detail\func_common.inl" />
     <None Include="src\vendor\glm\detail\func_common_simd.inl" />
     <None Include="src\vendor\glm\detail\func_exponential.inl" />

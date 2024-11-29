@@ -33,40 +33,40 @@ namespace test
     {
         float positions[] = {
             //front
-              -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -0.5f, //Left Top
-              -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -0.5f, //Left Bottom
-               0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -0.5f, //Right Bottom
-               0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -0.5f, //Right Top
+              -0.5f,  0.5f, -0.5f,  0.0f,  0.0f,  0.5f, //Left Top
+              -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,  0.5f, //Left Bottom
+               0.5f, -0.5f, -0.5f,  0.0f,  0.0f,  0.5f, //Right Bottom
+               0.5f,  0.5f, -0.5f,  0.0f,  0.0f,  0.5f, //Right Top
 
             //top
-              -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 0.5f, //Left Back
-              -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, 0.5f, //Left Front
-               0.5f,  0.5f, -0.5f,  0.0f,  0.0f, 0.5f, //Right Front
-               0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 0.5f, //Right Back
+              -0.5f,  0.5f,  0.5f,  0.0f,  0.5f,  0.0f, //Left Back
+              -0.5f,  0.5f, -0.5f,  0.0f,  0.5f,  0.0f, //Left Front
+               0.5f,  0.5f, -0.5f,  0.0f,  0.5f,  0.0f, //Right Front
+               0.5f,  0.5f,  0.5f,  0.0f,  0.5f,  0.0f, //Right Back
 
             //back
-              -0.5f,  0.5f,  0.5f, -0.5f,  0.0f, 0.0f, //Left Top
-              -0.5f, -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, //Left Bottom
-               0.5f, -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, //Right Bottom
-               0.5f,  0.5f,  0.5f, -0.5f,  0.0f, 0.0f, //Right Top
+              -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, -0.5f, //Left Top
+              -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, -0.5f, //Left Bottom
+               0.5f, -0.5f,  0.5f,  0.0f,  0.0f, -0.5f, //Right Bottom
+               0.5f,  0.5f,  0.5f,  0.0f,  0.0f, -0.5f, //Right Top
 
             //bottom
-              -0.5f, -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, //Left Back
-              -0.5f, -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, //Left Front
-               0.5f, -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, //Right Front
-               0.5f, -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, //Right Back
+              -0.5f, -0.5f,  0.5f,  0.0f, -0.5f, 0.0f, //Left Back
+              -0.5f, -0.5f, -0.5f,  0.0f, -0.5f, 0.0f, //Left Front
+               0.5f, -0.5f, -0.5f,  0.0f, -0.5f, 0.0f, //Right Front
+               0.5f, -0.5f,  0.5f,  0.0f, -0.5f, 0.0f, //Right Back
 
             //left
-              -0.5f,  0.5f,  0.5f,  0.0f, -0.5f,  0.0f, //Top Back
-              -0.5f, -0.5f,  0.5f,  0.0f, -0.5f,  0.0f, //Bottom Back
-              -0.5f, -0.5f, -0.5f,  0.0f, -0.5f,  0.0f, //Bottom Front
-              -0.5f,  0.5f, -0.5f,  0.0f, -0.5f,  0.0f, //Top Front
+              -0.5f,  0.5f,  0.5f, -0.5f,  0.0f,  0.0f, //Top Back
+              -0.5f, -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, //Bottom Back
+              -0.5f, -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, //Bottom Front
+              -0.5f,  0.5f, -0.5f, -0.5f,  0.0f,  0.0f, //Top Front
 
             //right
-               0.5f,  0.5f,  0.5f,  0.0f,  0.5f,  0.0f, //Top Back
-               0.5f, -0.5f,  0.5f,  0.0f,  0.5f,  0.0f, //Bottom Back
-               0.5f, -0.5f, -0.5f,  0.0f,  0.5f,  0.0f, //Bottom Front
-               0.5f,  0.5f, -0.5f,  0.0f,  0.5f,  0.0f  //Top Front
+               0.5f,  0.5f,  0.5f,  0.5f,  0.0f,  0.0f, //Top Back
+               0.5f, -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, //Bottom Back
+               0.5f, -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, //Bottom Front
+               0.5f,  0.5f, -0.5f,  0.5f,  0.0f,  0.0f  //Top Front
         };
 
         unsigned int indices[]{
@@ -99,6 +99,7 @@ namespace test
         TestRotatingCube::window = window;
         m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 3 * 2 * 6);
         m_Shader = std::make_unique<Shader>("res/shaders/Cube.shader");
+        m_ShaderLight = std::make_unique<Shader>("res/shaders/Lighting.shader");
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         GLCall(glEnable(GL_DEPTH_TEST));
@@ -119,12 +120,16 @@ namespace test
 
         Renderer renderer;
 
-        auto model = glm::mat4(1.0f);
-        model = glm::rotate(model, glm::radians(anglex), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(angley), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 model_light = glm::mat4(1.0f);
+        float lightX = 1.5f * cos(glfwGetTime());
+        float lightY = 1.5f * sin(glfwGetTime());
+        float lightZ = 0.0f;
+        glm::vec3 lightPos = glm::vec3(lightX, lightY, lightZ);
+        model_light = glm::translate(model_light, lightPos);
+        model_light = glm::scale(model_light, glm::vec3(0.2f));
 
         glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        glm::vec3 lightPos = glm::vec3(200, 200, 200);
         glm::vec3 objectColor = glm::vec3(0.5f, 0.2f, 0.0f);
 
         glm::vec3 cameraDir{};
@@ -152,12 +157,17 @@ namespace test
         m_Shader->SetUniform3f("objectColor", objectColor);
 
         renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
+
+        m_ShaderLight->Bind();
+        m_ShaderLight->SetUniformMat4f("u_Model", model_light);
+        m_ShaderLight->SetUniformMat4f("u_View", m_View);
+        m_ShaderLight->SetUniformMat4f("u_Proj", m_Proj);
+
+        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderLight);
     }
 
     void TestRotatingCube::OnImGuiRender()
     {
-        ImGui::SliderFloat("Angle X", &anglex, -500.0f, 500.0f);
-        ImGui::SliderFloat("Angle Y", &angley, -500.0f, 500.0f);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     }
 

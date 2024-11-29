@@ -28,15 +28,13 @@ namespace test {
 	private:
 		glm::mat4 m_Proj, m_View;
 
-		float angley{ 0.5f };
-		float anglex{ 0.5f };
-
 		Camera camera;
 
 		GLFWwindow* window;
 
 		std::unique_ptr<VertexArray> m_VAO;
 		std::unique_ptr<Shader> m_Shader;
+		std::unique_ptr<Shader> m_ShaderLight;
 		std::unique_ptr<IndexBuffer> m_IndexBuffer;
 		std::unique_ptr<VertexBuffer> m_VertexBuffer;
 	};
