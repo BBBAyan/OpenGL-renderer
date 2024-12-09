@@ -627,6 +627,10 @@
     <ClInclude Include="src\VertexBufferLayout.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\textures\container.png" />
+    <Image Include="res\textures\container_specular.png" />
+    <Image Include="res\textures\container_specular_color.png" />
+    <Image Include="res\textures\matrix.jpg" />
     <Image Include="res\textures\sekiro.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

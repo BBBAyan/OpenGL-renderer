@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Test.h"
+#include <Texture.h>
 
 #include "glm/glm.hpp"
 #include "vertexBuffer.h"
@@ -35,6 +36,9 @@ namespace test {
 		std::unique_ptr<VertexArray> m_VAO;
 		std::unique_ptr<Shader> m_Shader;
 		std::unique_ptr<Shader> m_ShaderLight;
+		std::unique_ptr<Texture> m_Texture;
+		std::unique_ptr<Texture> m_Texture_Specular;
+		std::unique_ptr<Texture> m_Texture_Matrix;
 		std::unique_ptr<IndexBuffer> m_IndexBuffer;
 		std::unique_ptr<VertexBuffer> m_VertexBuffer;
 	};

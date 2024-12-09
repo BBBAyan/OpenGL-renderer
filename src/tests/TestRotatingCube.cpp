@@ -33,40 +33,40 @@ namespace test
     {
         float positions[] = {
             //front
-              -0.5f,  0.5f, -0.5f,  0.0f,  0.0f,  0.5f, //Left Top
-              -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,  0.5f, //Left Bottom
-               0.5f, -0.5f, -0.5f,  0.0f,  0.0f,  0.5f, //Right Bottom
-               0.5f,  0.5f, -0.5f,  0.0f,  0.0f,  0.5f, //Right Top
+              -0.5f,  0.5f, -0.5f,  0.0f,  0.0f,  0.5f, 0.0f, 1.0f, //Left Top
+              -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,  0.5f, 0.0f, 0.0f, //Left Bottom
+               0.5f, -0.5f, -0.5f,  0.0f,  0.0f,  0.5f, 1.0f, 0.0f, //Right Bottom
+               0.5f,  0.5f, -0.5f,  0.0f,  0.0f,  0.5f, 1.0f, 1.0f, //Right Top
 
             //top
-              -0.5f,  0.5f,  0.5f,  0.0f,  0.5f,  0.0f, //Left Back
-              -0.5f,  0.5f, -0.5f,  0.0f,  0.5f,  0.0f, //Left Front
-               0.5f,  0.5f, -0.5f,  0.0f,  0.5f,  0.0f, //Right Front
-               0.5f,  0.5f,  0.5f,  0.0f,  0.5f,  0.0f, //Right Back
+              -0.5f,  0.5f,  0.5f,  0.0f,  0.5f,  0.0f, 0.0f, 1.0f, //Left Back
+              -0.5f,  0.5f, -0.5f,  0.0f,  0.5f,  0.0f, 0.0f, 0.0f, //Left Front
+               0.5f,  0.5f, -0.5f,  0.0f,  0.5f,  0.0f, 1.0f, 0.0f, //Right Front
+               0.5f,  0.5f,  0.5f,  0.0f,  0.5f,  0.0f, 1.0f, 1.0f, //Right Back
 
             //back
-              -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, -0.5f, //Left Top
-              -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, -0.5f, //Left Bottom
-               0.5f, -0.5f,  0.5f,  0.0f,  0.0f, -0.5f, //Right Bottom
-               0.5f,  0.5f,  0.5f,  0.0f,  0.0f, -0.5f, //Right Top
+              -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, -0.5f, 0.0f, 1.0f, //Left Top
+              -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, -0.5f, 0.0f, 0.0f, //Left Bottom
+               0.5f, -0.5f,  0.5f,  0.0f,  0.0f, -0.5f, 1.0f, 0.0f, //Right Bottom
+               0.5f,  0.5f,  0.5f,  0.0f,  0.0f, -0.5f, 1.0f, 1.0f, //Right Top
 
             //bottom
-              -0.5f, -0.5f,  0.5f,  0.0f, -0.5f, 0.0f, //Left Back
-              -0.5f, -0.5f, -0.5f,  0.0f, -0.5f, 0.0f, //Left Front
-               0.5f, -0.5f, -0.5f,  0.0f, -0.5f, 0.0f, //Right Front
-               0.5f, -0.5f,  0.5f,  0.0f, -0.5f, 0.0f, //Right Back
+              -0.5f, -0.5f,  0.5f,  0.0f, -0.5f, 0.0f, 0.0f, 1.0f, //Left Back
+              -0.5f, -0.5f, -0.5f,  0.0f, -0.5f, 0.0f, 0.0f, 0.0f, //Left Front
+               0.5f, -0.5f, -0.5f,  0.0f, -0.5f, 0.0f, 1.0f, 0.0f, //Right Front
+               0.5f, -0.5f,  0.5f,  0.0f, -0.5f, 0.0f, 1.0f, 1.0f, //Right Back
 
             //left
-              -0.5f,  0.5f,  0.5f, -0.5f,  0.0f,  0.0f, //Top Back
-              -0.5f, -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, //Bottom Back
-              -0.5f, -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, //Bottom Front
-              -0.5f,  0.5f, -0.5f, -0.5f,  0.0f,  0.0f, //Top Front
+              -0.5f,  0.5f,  0.5f, -0.5f,  0.0f,  0.0f, 0.0f, 1.0f, //Top Back
+              -0.5f, -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, 0.0f, 0.0f, //Bottom Back
+              -0.5f, -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, 1.0f, 0.0f, //Bottom Front
+              -0.5f,  0.5f, -0.5f, -0.5f,  0.0f,  0.0f, 1.0f, 1.0f, //Top Front
 
             //right
-               0.5f,  0.5f,  0.5f,  0.5f,  0.0f,  0.0f, //Top Back
-               0.5f, -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, //Bottom Back
-               0.5f, -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, //Bottom Front
-               0.5f,  0.5f, -0.5f,  0.5f,  0.0f,  0.0f  //Top Front
+               0.5f,  0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 0.0f, 1.0f, //Top Back
+               0.5f, -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 0.0f, 0.0f, //Bottom Back
+               0.5f, -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, 0.0f, //Bottom Front
+               0.5f,  0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, 1.0f  //Top Front
         };
 
         unsigned int indices[]{
@@ -89,17 +89,21 @@ namespace test
         GLCall(glBindVertexArray(vao));
 
         m_VAO = std::make_unique<VertexArray>();
-        m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 6 * 4 * 6 * sizeof(float));
+        m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 8 * 4 * 6 * sizeof(float));
 
         VertexBufferLayout layout;
         layout.Push<float>(3);
         layout.Push<float>(3);
+        layout.Push<float>(2);
         m_VAO->AddBuffer(*m_VertexBuffer, layout);
 
         TestRotatingCube::window = window;
         m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 3 * 2 * 6);
         m_Shader = std::make_unique<Shader>("res/shaders/Cube.shader");
         m_ShaderLight = std::make_unique<Shader>("res/shaders/Lighting.shader");
+        m_Texture = std::make_unique<Texture>("res/textures/container.png");
+        m_Texture_Specular = std::make_unique<Texture>("res/textures/container_specular.png");
+        m_Texture_Matrix = std::make_unique<Texture>("res/textures/matrix.jpg");
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         GLCall(glEnable(GL_DEPTH_TEST));
@@ -116,20 +120,31 @@ namespace test
     void TestRotatingCube::OnRender()
     {
         GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-        GLCall(glClearColor(0.2f, 0.6f, 0.3f, 1.0f));
+        GLCall(glClearColor(0.2f, 0.2f, 0.1f, 1.0f));
 
         Renderer renderer;
+        struct Light {
+            glm::vec3 position;
 
+            glm::vec3 ambient;
+            glm::vec3 diffuse;
+            glm::vec3 specular;
+        };
+        struct Light light;
+        
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 model_light = glm::mat4(1.0f);
-        float lightX = 1.5f * cos(glfwGetTime());
-        float lightY = 1.5f * sin(glfwGetTime());
-        float lightZ = 0.0f;
-        glm::vec3 lightPos = glm::vec3(lightX, lightY, lightZ);
-        model_light = glm::translate(model_light, lightPos);
+
+        light.position = glm::vec3(1.0f, 1.0f, 1.0f);
+
+        model_light = glm::translate(model_light, light.position);
         model_light = glm::scale(model_light, glm::vec3(0.2f));
 
         glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        light.diffuse = lightColor * glm::vec3(0.5f);
+        light.ambient = light.diffuse * glm::vec3(0.5f);
+        light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+
         glm::vec3 objectColor = glm::vec3(0.5f, 0.2f, 0.0f);
 
         glm::vec3 cameraDir{};
@@ -137,6 +152,8 @@ namespace test
         cameraDir.y = sin(glm::radians(pitch));
         cameraDir.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
         camera.Front = glm::normalize(cameraDir);
+
+        float shininess = 51.2f;
 
         float lastX = SCR_WIDTH / 2, lastY = SCR_HEIGHT / 2;
 
@@ -151,10 +168,19 @@ namespace test
         m_Shader->SetUniformMat4f("u_Model", model);
         m_Shader->SetUniformMat4f("u_View", m_View);
         m_Shader->SetUniformMat4f("u_Proj", m_Proj);
-        m_Shader->SetUniform3f("lightColor", lightColor);
-        m_Shader->SetUniform3f("lightPos", lightPos);
         m_Shader->SetUniform3f("viewPos", camera.Position);
-        m_Shader->SetUniform3f("objectColor", objectColor);
+        m_Texture->Bind(0);
+        m_Shader->SetUniform1i("material.diffuse", 0);
+        m_Texture_Specular->Bind(1);
+        m_Shader->SetUniform1i("material.specular", 1);
+        m_Texture_Matrix->Bind(2);
+        m_Shader->SetUniform1i("material.emission", 2);
+        m_Shader->SetUniform1f("time", glfwGetTime());
+        m_Shader->SetUniform1f("material.shininess", shininess);
+        m_Shader->SetUniform3f("light.position", light.position);
+        m_Shader->SetUniform3f("light.ambient", light.ambient);
+        m_Shader->SetUniform3f("light.diffuse", light.diffuse);
+        m_Shader->SetUniform3f("light.specular", light.specular);
 
         renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
 

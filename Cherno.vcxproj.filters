@@ -1456,5 +1456,17 @@
     <Image Include="res\textures\sekiro.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\textures\container.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\container_specular.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\container_specular_color.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\matrix.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
