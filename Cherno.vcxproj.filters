@@ -504,6 +504,7 @@
     </None>
     <None Include="res\shaders\Cube.Shader" />
     <None Include="res\shaders\Lighting.Shader" />
+    <None Include="res\shaders\Land.Shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLEW\include\GL\eglew.h">
@@ -1462,10 +1463,16 @@
     <Image Include="res\textures\container_specular.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\textures\container_specular_color.png">
+    <Image Include="res\textures\matrix.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\textures\matrix.jpg">
+    <Image Include="res\textures\glowstone.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\dirt.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\smile.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

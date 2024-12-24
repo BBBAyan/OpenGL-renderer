@@ -169,6 +169,7 @@
     <None Include="Dependencies\GLEW\doc\wglew.html" />
     <None Include="res\shaders\Basic.Shader" />
     <None Include="res\shaders\Cube.Shader" />
+    <None Include="res\shaders\Land.Shader" />
     <None Include="res\shaders\Lighting.Shader" />
     <None Include="src\vendor\glm\detail\func_common.inl" />
     <None Include="src\vendor\glm\detail\func_common_simd.inl" />
@@ -629,9 +630,11 @@
   <ItemGroup>
     <Image Include="res\textures\container.png" />
     <Image Include="res\textures\container_specular.png" />
-    <Image Include="res\textures\container_specular_color.png" />
+    <Image Include="res\textures\dirt.jpg" />
+    <Image Include="res\textures\glowstone.jpg" />
     <Image Include="res\textures\matrix.jpg" />
     <Image Include="res\textures\sekiro.png" />
+    <Image Include="res\textures\smile.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

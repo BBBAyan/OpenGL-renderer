@@ -32,41 +32,42 @@ namespace test
         0.1f }
     {
         float positions[] = {
+             //position             //normals           //texCoord
             //front
-              -0.5f,  0.5f, -0.5f,  0.0f,  0.0f,  0.5f, 0.0f, 1.0f, //Left Top
-              -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,  0.5f, 0.0f, 0.0f, //Left Bottom
-               0.5f, -0.5f, -0.5f,  0.0f,  0.0f,  0.5f, 1.0f, 0.0f, //Right Bottom
-               0.5f,  0.5f, -0.5f,  0.0f,  0.0f,  0.5f, 1.0f, 1.0f, //Right Top
+              -0.5f,  0.5f,  -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, //Left Top
+              -0.5f, -0.5f,  -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, //Left Bottom
+               0.5f, -0.5f,  -0.5f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, //Right Bottom
+               0.5f,  0.5f,  -0.5f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, //Right Top
 
             //top
-              -0.5f,  0.5f,  0.5f,  0.0f,  0.5f,  0.0f, 0.0f, 1.0f, //Left Back
-              -0.5f,  0.5f, -0.5f,  0.0f,  0.5f,  0.0f, 0.0f, 0.0f, //Left Front
-               0.5f,  0.5f, -0.5f,  0.0f,  0.5f,  0.0f, 1.0f, 0.0f, //Right Front
-               0.5f,  0.5f,  0.5f,  0.0f,  0.5f,  0.0f, 1.0f, 1.0f, //Right Back
+              -0.5f,  0.5f,   0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, //Left Back
+              -0.5f,  0.5f,  -0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, //Left Front
+               0.5f,  0.5f,  -0.5f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, //Right Front
+               0.5f,  0.5f,   0.5f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, //Right Back
 
             //back
-              -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, -0.5f, 0.0f, 1.0f, //Left Top
-              -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, -0.5f, 0.0f, 0.0f, //Left Bottom
-               0.5f, -0.5f,  0.5f,  0.0f,  0.0f, -0.5f, 1.0f, 0.0f, //Right Bottom
-               0.5f,  0.5f,  0.5f,  0.0f,  0.0f, -0.5f, 1.0f, 1.0f, //Right Top
+              -0.5f,  0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, //Left Top
+              -0.5f, -0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, //Left Bottom
+               0.5f, -0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, //Right Bottom
+               0.5f,  0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, //Right Top
 
             //bottom
-              -0.5f, -0.5f,  0.5f,  0.0f, -0.5f, 0.0f, 0.0f, 1.0f, //Left Back
-              -0.5f, -0.5f, -0.5f,  0.0f, -0.5f, 0.0f, 0.0f, 0.0f, //Left Front
-               0.5f, -0.5f, -0.5f,  0.0f, -0.5f, 0.0f, 1.0f, 0.0f, //Right Front
-               0.5f, -0.5f,  0.5f,  0.0f, -0.5f, 0.0f, 1.0f, 1.0f, //Right Back
+              -0.5f, -0.5f,   0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, //Left Back
+              -0.5f, -0.5f,  -0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, //Left Front
+               0.5f, -0.5f,  -0.5f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, //Right Front
+               0.5f, -0.5f,   0.5f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, //Right Back
 
             //left
-              -0.5f,  0.5f,  0.5f, -0.5f,  0.0f,  0.0f, 0.0f, 1.0f, //Top Back
-              -0.5f, -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, 0.0f, 0.0f, //Bottom Back
-              -0.5f, -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, 1.0f, 0.0f, //Bottom Front
-              -0.5f,  0.5f, -0.5f, -0.5f,  0.0f,  0.0f, 1.0f, 1.0f, //Top Front
+              -0.5f,  0.5f,   0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, //Top Back
+              -0.5f, -0.5f,   0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, //Bottom Back
+              -0.5f, -0.5f,  -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, //Bottom Front
+              -0.5f,  0.5f,  -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, //Top Front
 
             //right
-               0.5f,  0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 0.0f, 1.0f, //Top Back
-               0.5f, -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 0.0f, 0.0f, //Bottom Back
-               0.5f, -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, 0.0f, //Bottom Front
-               0.5f,  0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, 1.0f  //Top Front
+               0.5f,  0.5f,   0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, //Top Back
+               0.5f, -0.5f,   0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, //Bottom Back
+               0.5f, -0.5f,  -0.5f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, //Bottom Front
+               0.5f,  0.5f,  -0.5f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f //Top Front
         };
 
         unsigned int indices[]{
@@ -84,18 +85,38 @@ namespace test
             20, 23, 22
         };
 
+        float land[] = {
+            -1.0f, -0.5f, -1.0f, 0.0f,  0.5f,  0.0f, 0.0f, 0.0f, //Left Back
+             1.0f, -0.5f, -1.0f, 0.0f,  0.5f,  0.0f, 1.0f, 0.0f, //Right Back
+             1.0f, -0.5f,  1.0f, 0.0f,  0.5f,  0.0f, 1.0f, 1.0f, //Right Front
+            -1.0f, -0.5f,  1.0f, 0.0f,  0.5f,  0.0f, 0.0f, 1.0f  //Left Front
+        };
+
+        unsigned int landIndices[] = {
+            0, 1, 2,
+            2, 3, 0
+        };
+
         unsigned int vao;
         GLCall(glGenVertexArrays(1, &vao));
         GLCall(glBindVertexArray(vao));
 
         m_VAO = std::make_unique<VertexArray>();
+        m_VAO_Land = std::make_unique<VertexArray>();
         m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 8 * 4 * 6 * sizeof(float));
+        m_VertexBuffer_Land = std::make_unique<VertexBuffer>(land, 8 * 4 * sizeof(float));
 
         VertexBufferLayout layout;
         layout.Push<float>(3);
         layout.Push<float>(3);
         layout.Push<float>(2);
         m_VAO->AddBuffer(*m_VertexBuffer, layout);
+
+        VertexBufferLayout layoutLand;
+        layoutLand.Push<float>(3);
+        layoutLand.Push<float>(3);
+        layoutLand.Push<float>(2);
+        m_VAO_Land->AddBuffer(*m_VertexBuffer_Land, layoutLand);
 
         TestRotatingCube::window = window;
         m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 3 * 2 * 6);
@@ -104,7 +125,12 @@ namespace test
         m_Texture = std::make_unique<Texture>("res/textures/container.png");
         m_Texture_Specular = std::make_unique<Texture>("res/textures/container_specular.png");
         m_Texture_Matrix = std::make_unique<Texture>("res/textures/matrix.jpg");
+        m_Texture_Light = std::make_unique<Texture>("res/textures/glowstone.jpg");
 
+        m_IndexBuffer_Land = std::make_unique<IndexBuffer>(landIndices, 3 * 2);
+        m_Shader_Land = std::make_unique<Shader>("res/shaders/Land.shader");
+        m_Texture_Land = std::make_unique<Texture>("res/textures/dirt.jpg");
+        m_Texture_Spotlight = std::make_unique<Texture>("res/textures/smile.png");
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         GLCall(glEnable(GL_DEPTH_TEST));
     }
@@ -120,32 +146,24 @@ namespace test
     void TestRotatingCube::OnRender()
     {
         GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-        GLCall(glClearColor(0.2f, 0.2f, 0.1f, 1.0f));
+        //clearColor = { 0.1f, 0.1f, 0.1f };
+        GLCall(glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f));
 
         Renderer renderer;
-        struct Light {
-            glm::vec3 position;
-
-            glm::vec3 ambient;
-            glm::vec3 diffuse;
-            glm::vec3 specular;
-        };
-        struct Light light;
+        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         
         glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 model_light = glm::mat4(1.0f);
+        glm::mat4 model_Light = glm::mat4(1.0f);
+        glm::mat4 model_Land = glm::mat4(1.0f);
 
-        light.position = glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec3 lightPos = glm::vec3(5.0f, 5.0f, 2.0f);
 
-        model_light = glm::translate(model_light, light.position);
-        model_light = glm::scale(model_light, glm::vec3(0.2f));
-
+        model_Light = glm::translate(model_Light, glm::vec3(3.0f, 6.0f, -3.0f));
+        model_Light = glm::scale(model_Light, glm::vec3(1.0f));
+        model_Land = glm::translate(model_Land, glm::vec3(0.0f, -3.0f, 0.0f));
+        model_Land = glm::scale(model_Land, glm::vec3(10.0f));
+        
         glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        light.diffuse = lightColor * glm::vec3(0.5f);
-        light.ambient = light.diffuse * glm::vec3(0.5f);
-        light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
-
-        glm::vec3 objectColor = glm::vec3(0.5f, 0.2f, 0.0f);
 
         glm::vec3 cameraDir{};
         cameraDir.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
@@ -173,27 +191,75 @@ namespace test
         m_Shader->SetUniform1i("material.diffuse", 0);
         m_Texture_Specular->Bind(1);
         m_Shader->SetUniform1i("material.specular", 1);
-        m_Texture_Matrix->Bind(2);
-        m_Shader->SetUniform1i("material.emission", 2);
-        m_Shader->SetUniform1f("time", glfwGetTime());
         m_Shader->SetUniform1f("material.shininess", shininess);
-        m_Shader->SetUniform3f("light.position", light.position);
-        m_Shader->SetUniform3f("light.ambient", light.ambient);
-        m_Shader->SetUniform3f("light.diffuse", light.diffuse);
-        m_Shader->SetUniform3f("light.specular", light.specular);
+        m_Shader->SetUniform3f("light.position", camera.Position);
+        m_Shader->SetUniform3f("light.direction", camera.Front);
+        m_Shader->SetUniform1f("light.cutOff", glm::cos(glm::radians(12.5f)));
+        m_Shader->SetUniform1f("light.outercutOff", glm::cos(glm::radians(17.5f)));
+        m_Shader->SetUniform3f("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        m_Shader->SetUniform3f("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        m_Shader->SetUniform3f("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        m_Shader->SetUniform1f("light.constant", 1.0f);
+        m_Shader->SetUniform1f("light.linear", 0.09f);
+        m_Shader->SetUniform1f("light.quadratic", 0.032f);
+        m_Texture_Spotlight->Bind(4);
+        m_Shader->SetUniform1i("light.spotlightTex", 4);
 
-        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
+        glm::vec3 cubePositions[] = {
+            glm::vec3(0.0f,  0.0f,  0.0f),
+            glm::vec3(2.0f,  5.0f, -15.0f),
+            glm::vec3(-1.5f, -2.2f, -2.5f),
+            glm::vec3(-3.8f, -2.0f, -12.3f),
+            glm::vec3(2.4f, -0.4f, -3.5f),
+            glm::vec3(-1.7f,  3.0f, -7.5f),
+            glm::vec3(1.3f, -2.0f, -2.5f),
+            glm::vec3(1.5f,  2.0f, -2.5f),
+            glm::vec3(1.5f,  0.2f, -1.5f),
+            glm::vec3(-1.3f,  1.0f, -1.5f)
+        };
+
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            m_Shader->Bind();
+            m_Shader->SetUniformMat4f("u_Model", model);
+            m_Shader->SetUniform3f("viewPos", camera.Position);
+
+            renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
+        }
 
         m_ShaderLight->Bind();
-        m_ShaderLight->SetUniformMat4f("u_Model", model_light);
+        m_ShaderLight->SetUniformMat4f("u_Model", model_Light);
         m_ShaderLight->SetUniformMat4f("u_View", m_View);
         m_ShaderLight->SetUniformMat4f("u_Proj", m_Proj);
+        m_Texture_Light->Bind(2);
+        m_ShaderLight->SetUniform1i("u_Texture", 2);
 
         renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderLight);
+
+        m_Shader_Land->Bind();
+        m_Shader_Land->SetUniformMat4f("u_Model", model_Land);
+        m_Shader_Land->SetUniformMat4f("u_View", m_View);
+        m_Shader_Land->SetUniformMat4f("u_Proj", m_Proj);
+        m_Shader_Land->SetUniform3f("viewPos", camera.Position);
+        m_Shader_Land->SetUniform3f("light.position", lightPos);
+        m_Shader_Land->SetUniform3f("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        m_Shader_Land->SetUniform3f("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        m_Shader_Land->SetUniform3f("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        m_Texture_Land->Bind(3);
+        m_Shader_Land->SetUniform1i("u_Texture", 3);
+
+        renderer.Draw(*m_VAO_Land, *m_IndexBuffer_Land, *m_Shader_Land);
     }
 
     void TestRotatingCube::OnImGuiRender()
     {
+        ImGui::Text("Mouse Pos: (%.1f, %.1f)", ImGui::GetIO().MousePos.x, ImGui::GetIO().MousePos.y);
+        ImGui::Button("Click Me");
+        ImGui::SliderFloat3("Clear Color", &clearColor.r, 0.0f, 1.0f);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     }
 
@@ -226,22 +292,30 @@ namespace test
             firstFrame = false;
         }
 
-        float xoffset = xpos - lastX;
-        float yoffset = lastY - ypos;
-        lastX = xpos;
-        lastY = ypos;
+        if (!ImGui::GetIO().WantCaptureMouse) {
 
-        float sensitivity = 0.1f;
-        xoffset *= sensitivity;
-        yoffset *= sensitivity;
+            float xoffset = xpos - lastX;
+            float yoffset = lastY - ypos;
+            lastX = xpos;
+            lastY = ypos;
 
-        yaw += xoffset;
-        pitch += yoffset;
 
-        if (pitch > 89.0f)
-            pitch = 89.0f;
-        if (pitch < -89.0f)
-            pitch = -89.0f;
+            float sensitivity = 0.1f;
+            xoffset *= sensitivity;
+            yoffset *= sensitivity;
+
+            yaw += xoffset;
+            pitch += yoffset;
+
+            if (pitch > 89.0f)
+                pitch = 89.0f;
+            if (pitch < -89.0f)
+                pitch = -89.0f;
+        }
+        else {
+            lastX = xpos;
+            lastY = ypos;
+        }
     }
 
     void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)

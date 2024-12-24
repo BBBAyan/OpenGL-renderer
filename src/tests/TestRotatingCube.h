@@ -28,9 +28,12 @@ namespace test {
 		test::Camera ProcessInput(Camera f_camera);
 	private:
 		glm::mat4 m_Proj, m_View;
+		struct ClearColor {
+			float r, g, b;
+		};
+		ClearColor clearColor = { 0.1f, 0.1f, 0.1f };
 
 		Camera camera;
-
 		GLFWwindow* window;
 
 		std::unique_ptr<VertexArray> m_VAO;
@@ -39,7 +42,15 @@ namespace test {
 		std::unique_ptr<Texture> m_Texture;
 		std::unique_ptr<Texture> m_Texture_Specular;
 		std::unique_ptr<Texture> m_Texture_Matrix;
+		std::unique_ptr<Texture> m_Texture_Light;
 		std::unique_ptr<IndexBuffer> m_IndexBuffer;
 		std::unique_ptr<VertexBuffer> m_VertexBuffer;
+
+		std::unique_ptr<VertexArray> m_VAO_Land;
+		std::unique_ptr<Shader> m_Shader_Land;
+		std::unique_ptr<Texture> m_Texture_Land;
+		std::unique_ptr<Texture> m_Texture_Spotlight;
+		std::unique_ptr<IndexBuffer> m_IndexBuffer_Land;
+		std::unique_ptr<VertexBuffer> m_VertexBuffer_Land;
 	};
 };
