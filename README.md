@@ -1,2 +1,3 @@
 # Cherno
-This branch has an object in the middle, ability to fly around the scene and constantly circling lighting object that gives light to the main object.
+Scene with a spotlight and container boxes
+[![Watch the video](https://img.youtube.com/vi/4znRVCy2tK0/maxresdefault.jpg)](https://youtu.be/4znRVCy2tK0)
