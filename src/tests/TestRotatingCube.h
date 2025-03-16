@@ -28,10 +28,16 @@ namespace test {
 		test::Camera ProcessInput(Camera f_camera);
 	private:
 		glm::mat4 m_Proj, m_View;
-		struct ClearColor {
+		enum FocusState {
+			CAMERA,
+			UI
+		};
+		struct Color {
 			float r, g, b;
 		};
-		ClearColor clearColor = { 0.1f, 0.1f, 0.1f };
+		FocusState curState = UI;
+		Color clearColor = { 0.1f, 0.1f, 0.1f };
+		Color lightColor = { 1.0f, 1.0f, 1.0f };
 
 		Camera camera;
 		GLFWwindow* window;

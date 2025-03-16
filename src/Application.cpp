@@ -96,6 +96,7 @@ int main(void)
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
+            ImGui::SetWindowSize(ImVec2(400.0f, 250.0f));
 
             if (currentTest)
             {

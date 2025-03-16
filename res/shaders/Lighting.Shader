@@ -23,10 +23,10 @@ layout(location = 0) out vec4 fragColor;
 
 in vec2 TexCoords;
 
-uniform sampler2D u_Texture;
+uniform vec3 pointLightColor;
 
 void main()
 {
-    fragColor = texture(u_Texture, TexCoords);
+    fragColor = vec4(pointLightColor, 1.0);
     //fragColor = vec4(0.9, 0.9, 0.9, 1.0);
 }

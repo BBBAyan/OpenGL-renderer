@@ -21,6 +21,8 @@ namespace test
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
 
+    float dirlightIntensity = 1.0f;
+
     TestRotatingCube::TestRotatingCube(GLFWwindow* window)
         : m_Proj(glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f)),
         m_View(glm::lookAt(glm::vec3(0.0f, 0.0f, 0.3f),
@@ -133,6 +135,8 @@ namespace test
         m_Texture_Spotlight = std::make_unique<Texture>("res/textures/smile.png");
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         GLCall(glEnable(GL_DEPTH_TEST));
+
+        ImGui::SetWindowSize(ImVec2(480.0f, 250.0f));
     }
 
     TestRotatingCube::~TestRotatingCube()
@@ -162,8 +166,6 @@ namespace test
         model_Light = glm::scale(model_Light, glm::vec3(1.0f));
         model_Land = glm::translate(model_Land, glm::vec3(0.0f, -3.0f, 0.0f));
         model_Land = glm::scale(model_Land, glm::vec3(10.0f));
-        
-        glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
         glm::vec3 cameraDir{};
         cameraDir.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
@@ -182,6 +184,13 @@ namespace test
         m_Proj = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         m_View = glm::lookAt(camera.Position, camera.Position + camera.Front, camera.Up);
 
+        glm::vec3 pointLightPositions[] = {
+            glm::vec3(0.7f,  0.2f,  2.0f),
+            glm::vec3(2.3f, -3.3f, -4.0f),
+            glm::vec3(-4.0f,  2.0f, -12.0f),
+            glm::vec3(0.0f,  0.0f, -3.0f)
+        };
+
         m_Shader->Bind();
         m_Shader->SetUniformMat4f("u_Model", model);
         m_Shader->SetUniformMat4f("u_View", m_View);
@@ -192,18 +201,44 @@ namespace test
         m_Texture_Specular->Bind(1);
         m_Shader->SetUniform1i("material.specular", 1);
         m_Shader->SetUniform1f("material.shininess", shininess);
-        m_Shader->SetUniform3f("light.position", camera.Position);
-        m_Shader->SetUniform3f("light.direction", camera.Front);
-        m_Shader->SetUniform1f("light.cutOff", glm::cos(glm::radians(12.5f)));
-        m_Shader->SetUniform1f("light.outercutOff", glm::cos(glm::radians(17.5f)));
-        m_Shader->SetUniform3f("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        m_Shader->SetUniform3f("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        m_Shader->SetUniform3f("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        m_Shader->SetUniform1f("light.constant", 1.0f);
-        m_Shader->SetUniform1f("light.linear", 0.09f);
-        m_Shader->SetUniform1f("light.quadratic", 0.032f);
-        m_Texture_Spotlight->Bind(4);
-        m_Shader->SetUniform1i("light.spotlightTex", 4);
+        m_Shader->SetUniform3f("dirLight.direction", glm::normalize(glm::vec3(0.1f, -1.0f, 0.0f)));
+        m_Shader->SetUniform3f("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        m_Shader->SetUniform3f("dirLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        m_Shader->SetUniform3f("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        m_Shader->SetUniform1f("dirLight.intensity", dirlightIntensity);
+        m_Shader->SetUniform3f("pointLightColor", glm::vec3(lightColor.r, lightColor.g, lightColor.b));
+        for (int i = 0; i < 4; i++) {
+            m_Shader->SetUniform3f("pointLight[" + std::to_string(i) + "].position", pointLightPositions[i]);
+            m_Shader->SetUniform3f("pointLight[" + std::to_string(i) + "].ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+            m_Shader->SetUniform3f("pointLight[" + std::to_string(i) + "].diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+            m_Shader->SetUniform3f("pointLight[" + std::to_string(i) + "].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+            m_Shader->SetUniform1f("pointLight[" + std::to_string(i) + "].constant", 1.0f);
+            m_Shader->SetUniform1f("pointLight[" + std::to_string(i) + "].linear", 0.09f);
+            m_Shader->SetUniform1f("pointLight[" + std::to_string(i) + "].quadratic", 0.032f);
+        }
+        m_Shader->SetUniform3f("spotLight.position", camera.Position);
+        m_Shader->SetUniform3f("spotLight.direction", camera.Front);
+        m_Shader->SetUniform1f("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        m_Shader->SetUniform1f("spotLight.outercutOff", glm::cos(glm::radians(15.0f)));
+        m_Shader->SetUniform3f("spotLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        m_Shader->SetUniform3f("spotLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        m_Shader->SetUniform3f("spotLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        m_Shader->SetUniform1f("spotLight.constant", 1.0f);
+        m_Shader->SetUniform1f("spotLight.linear", 0.09f);
+        m_Shader->SetUniform1f("spotLight.quadratic", 0.032f);
+
+        for (unsigned int i = 0; i < 4; i++) {
+            m_ShaderLight->Bind();
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, pointLightPositions[i]);
+            model = glm::scale(model, glm::vec3(0.5f));
+            m_ShaderLight->SetUniformMat4f("u_Model", model);
+            m_ShaderLight->SetUniformMat4f("u_View", m_View);
+            m_ShaderLight->SetUniformMat4f("u_Proj", m_Proj);
+            m_ShaderLight->SetUniform3f("pointLightColor", glm::vec3(lightColor.r, lightColor.g, lightColor.b));
+
+            renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderLight);
+        }
 
         glm::vec3 cubePositions[] = {
             glm::vec3(0.0f,  0.0f,  0.0f),
@@ -231,15 +266,6 @@ namespace test
             renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
         }
 
-        m_ShaderLight->Bind();
-        m_ShaderLight->SetUniformMat4f("u_Model", model_Light);
-        m_ShaderLight->SetUniformMat4f("u_View", m_View);
-        m_ShaderLight->SetUniformMat4f("u_Proj", m_Proj);
-        m_Texture_Light->Bind(2);
-        m_ShaderLight->SetUniform1i("u_Texture", 2);
-
-        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderLight);
-
         m_Shader_Land->Bind();
         m_Shader_Land->SetUniformMat4f("u_Model", model_Land);
         m_Shader_Land->SetUniformMat4f("u_View", m_View);
@@ -258,8 +284,13 @@ namespace test
     void TestRotatingCube::OnImGuiRender()
     {
         ImGui::Text("Mouse Pos: (%.1f, %.1f)", ImGui::GetIO().MousePos.x, ImGui::GetIO().MousePos.y);
-        ImGui::Button("Click Me");
         ImGui::SliderFloat3("Clear Color", &clearColor.r, 0.0f, 1.0f);
+        ImGui::SliderFloat3("Light Color", &lightColor.r, 0.0f, 1.0f);
+        ImGui::SliderFloat("DirLight Intensity", &dirlightIntensity, 0.0f, 2.0f);
+        ImGui::Text("Desert BgColor: (0.75, 0.55, 0.3); LColor: (1.0, 1.0, 1.0)");
+        ImGui::Text("Factory Color: (0.1, 0.1, 0.15); LColor: (0.2, 0.2, 0.6)");
+        ImGui::Text("Horror Color: (0.6, 0.5, 0.2); LColor: (x.x, x.x, x.x)");
+        ImGui::Text("Biochemical Lab Color: (0.6, 0.5, 0.2); LColor: (x.x, x.x, x.x)");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     }
 
