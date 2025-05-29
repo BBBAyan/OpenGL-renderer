@@ -1,21 +1,15 @@
 #pragma once
 
 #include "Test.h"
-#include <Texture.h>
+#include "Texture.h"
+#include "Camera.h"
+#include "Control.h"
 
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 #include "vertexBuffer.h"
 #include "vertexBufferLayout.h"
 
 namespace test {
-	struct Camera
-	{
-		glm::vec3 Position;
-		glm::vec3 Front;
-		glm::vec3 Up;
-		float Speed;
-	};
-
 	class TestRotatingCube : public Test
 	{
 	public:
@@ -38,9 +32,11 @@ namespace test {
 		FocusState curState = UI;
 		Color clearColor = { 0.1f, 0.1f, 0.1f };
 		Color lightColor = { 1.0f, 1.0f, 1.0f };
+		float dirlightIntensity = 1.0f;
 
-		Camera camera;
-		GLFWwindow* window;
+		Control m_controls;
+		Camera m_camera;
+		GLFWwindow* m_window;
 
 		std::unique_ptr<VertexArray> m_VAO;
 		std::unique_ptr<Shader> m_Shader;

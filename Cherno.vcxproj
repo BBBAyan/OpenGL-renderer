@@ -70,6 +70,14 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(ShortProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(ShortProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -110,13 +118,16 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_STATIC;_WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>src;src\vendor;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Dependencies\GLEW\include;$(SolutionDir)Dependencies\assimp\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLFW\lib-vc2022;$(SolutionDir)Dependencies\GLEW\lib\Release\x64;$(SolutionDir)Dependencies\assimp\lib\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;assimp-vc143-mtd.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -125,24 +136,31 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_STATIC;_WIN64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>src;src\vendor;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Dependencies\GLEW\include;$(SolutionDir)Dependencies\assimp\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLFW\lib-vc2022;$(SolutionDir)Dependencies\GLEW\lib\Release\x64;$(SolutionDir)Dependencies\assimp\lib\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;assimp-vc143-mtd.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\Control.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
+    <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\tests\Test.cpp" />
     <ClCompile Include="src\tests\TestClearColor.cpp" />
+    <ClCompile Include="src\tests\TestModel.cpp" />
     <ClCompile Include="src\tests\TestRotatingCube.cpp" />
     <ClCompile Include="src\tests\TestTexture2D.cpp" />
     <ClCompile Include="src\Texture.cpp" />
@@ -159,6 +177,14 @@
     <ClCompile Include="src\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Dependencies\assimp\include\assimp\color4.inl" />
+    <None Include="Dependencies\assimp\include\assimp\material.inl" />
+    <None Include="Dependencies\assimp\include\assimp\matrix3x3.inl" />
+    <None Include="Dependencies\assimp\include\assimp\matrix4x4.inl" />
+    <None Include="Dependencies\assimp\include\assimp\quaternion.inl" />
+    <None Include="Dependencies\assimp\include\assimp\SmoothingGroups.inl" />
+    <None Include="Dependencies\assimp\include\assimp\vector2.inl" />
+    <None Include="Dependencies\assimp\include\assimp\vector3.inl" />
     <None Include="Dependencies\GLEW\doc\advanced.html" />
     <None Include="Dependencies\GLEW\doc\basic.html" />
     <None Include="Dependencies\GLEW\doc\build.html" />
@@ -173,6 +199,7 @@
     <None Include="res\shaders\Cube.Shader" />
     <None Include="res\shaders\Land.Shader" />
     <None Include="res\shaders\Lighting.Shader" />
+    <None Include="res\shaders\Model.Shader" />
     <None Include="src\vendor\glm\detail\func_common.inl" />
     <None Include="src\vendor\glm\detail\func_common_simd.inl" />
     <None Include="src\vendor\glm\detail\func_exponential.inl" />
@@ -313,17 +340,106 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dependencies\assimp\include\assimp\aabb.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\ai_assert.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\anim.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\AssertHandler.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\Base64.hpp" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\BaseImporter.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\Bitmap.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\BlobIOSystem.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\ByteSwapper.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\camera.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\cexport.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\cfileio.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\cimport.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\ColladaMetaData.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\color4.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\commonMetaData.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\Compiler\poppack1.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\Compiler\pstdint.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\Compiler\pushpack1.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\config.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\CreateAnimMesh.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\DefaultIOStream.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\DefaultIOSystem.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\DefaultLogger.hpp" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\defs.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\Exceptional.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\Exporter.hpp" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\fast_atof.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\GenericProperty.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\GltfMaterial.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\Hash.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\Importer.hpp" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\importerdesc.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\IOStream.hpp" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\IOStreamBuffer.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\IOSystem.hpp" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\light.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\LineSplitter.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\LogAux.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\Logger.hpp" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\LogStream.hpp" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\material.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\MathFunctions.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\matrix3x3.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\matrix4x4.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\MemoryIOWrapper.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\mesh.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\metadata.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\NullLogger.hpp" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\ObjMaterial.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\ParsingUtils.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\pbrmaterial.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\port\AndroidJNI\AndroidJNIIOSystem.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\port\AndroidJNI\BundledAssetIOSystem.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\postprocess.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\Profiler.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\ProgressHandler.hpp" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\qnan.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\quaternion.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\RemoveComments.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\revision.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\scene.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\SceneCombiner.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\SGSpatialSort.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\SkeletonMeshBuilder.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\SmallVector.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\SmoothingGroups.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\SpatialSort.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\StandardShapes.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\StreamReader.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\StreamWriter.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\StringComparison.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\StringUtils.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\Subdivision.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\texture.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\TinyFormatter.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\types.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\vector2.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\vector3.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\version.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\Vertex.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\XmlParser.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\XMLTools.h" />
+    <ClInclude Include="Dependencies\assimp\include\assimp\ZipArchiveIOSystem.h" />
     <ClInclude Include="Dependencies\GLEW\include\GL\eglew.h" />
     <ClInclude Include="Dependencies\GLEW\include\GL\glew.h" />
     <ClInclude Include="Dependencies\GLEW\include\GL\glxew.h" />
     <ClInclude Include="Dependencies\GLEW\include\GL\wglew.h" />
     <ClInclude Include="Dependencies\GLFW\include\GLFW\glfw3.h" />
     <ClInclude Include="Dependencies\GLFW\include\GLFW\glfw3native.h" />
+    <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\Control.h" />
     <ClInclude Include="src\IndexBuffer.h" />
+    <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\tests\Test.h" />
     <ClInclude Include="src\tests\TestClearColor.h" />
+    <ClInclude Include="src\tests\TestModel.h" />
     <ClInclude Include="src\tests\TestRotatingCube.h" />
     <ClInclude Include="src\tests\TestTexture2D.h" />
     <ClInclude Include="src\Texture.h" />

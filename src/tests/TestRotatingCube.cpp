@@ -1,37 +1,20 @@
 #include "TestRotatingCube.h"
 
 #include <imgui/imgui.h>
-
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-
-const unsigned int SCR_WIDTH = 1290;
-const unsigned int SCR_HEIGHT = 913;
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace test
 {
-    void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-    void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-    bool firstFrame = 1;
-    float yaw = -90.0f, pitch = 0.0f;
-    float lastX = SCR_WIDTH / 2.0;
-    float lastY = SCR_HEIGHT / 2.0;
-    float fov = 45.0f;
-
-    float deltaTime = 0.0f;
-    float lastFrame = 0.0f;
-
-    float dirlightIntensity = 1.0f;
-
     TestRotatingCube::TestRotatingCube(GLFWwindow* window)
-        : m_Proj(glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f)),
+        : m_Proj(glm::perspective(glm::radians(45.0f), SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f)),
         m_View(glm::lookAt(glm::vec3(0.0f, 0.0f, 0.3f),
             glm::vec3(0.0f, 0.0f, 0.0f),
             glm::vec3(0.0f, 1.0f, 0.0f))),
-        camera{ glm::vec3(0.0f, 0.0f, 3.0f),
+        m_camera{ glm::vec3(0.0f, 0.0f, 3.0f),
         glm::vec3(0.0f, 0.0f, -1.0f),
         glm::vec3(0.0f, 1.0f, 0.0f),
-        0.1f }
+        0.1f }, m_controls(Control(SCR_WIDTH, SCR_HEIGHT)),
+        m_window(window)
     {
         float positions[] = {
              //position             //normals           //texCoord
@@ -98,7 +81,6 @@ namespace test
             0, 1, 2,
             2, 3, 0
         };
-
         unsigned int vao;
         GLCall(glGenVertexArrays(1, &vao));
         GLCall(glBindVertexArray(vao));
@@ -120,7 +102,10 @@ namespace test
         layoutLand.Push<float>(2);
         m_VAO_Land->AddBuffer(*m_VertexBuffer_Land, layoutLand);
 
-        TestRotatingCube::window = window;
+        glfwSetWindowUserPointer(window, &m_controls);
+        glfwSetCursorPosCallback(window, Control::handleMouse);
+        glfwSetScrollCallback(window, Control::handleScroll);
+
         m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 3 * 2 * 6);
         m_Shader = std::make_unique<Shader>("res/shaders/Cube.shader");
         m_ShaderLight = std::make_unique<Shader>("res/shaders/Lighting.shader");
@@ -141,6 +126,7 @@ namespace test
 
     TestRotatingCube::~TestRotatingCube()
     {
+        glfwSetWindowUserPointer(m_window, nullptr);
     }
 
     void TestRotatingCube::OnUpdate(float deltaTime)
@@ -157,10 +143,10 @@ namespace test
         ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         
         glm::mat4 model = glm::mat4(1.0f);
+        glm::vec3 lightPos = glm::vec3(5.0f, 5.0f, 2.0f);
+
         glm::mat4 model_Light = glm::mat4(1.0f);
         glm::mat4 model_Land = glm::mat4(1.0f);
-
-        glm::vec3 lightPos = glm::vec3(5.0f, 5.0f, 2.0f);
 
         model_Light = glm::translate(model_Light, glm::vec3(3.0f, 6.0f, -3.0f));
         model_Light = glm::scale(model_Light, glm::vec3(1.0f));
@@ -168,21 +154,21 @@ namespace test
         model_Land = glm::scale(model_Land, glm::vec3(10.0f));
 
         glm::vec3 cameraDir{};
-        cameraDir.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        cameraDir.y = sin(glm::radians(pitch));
-        cameraDir.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        camera.Front = glm::normalize(cameraDir);
+        cameraDir.x = cos(glm::radians(m_controls.getYaw())) * cos(glm::radians(m_controls.getPitch()));
+        cameraDir.y = sin(glm::radians(m_controls.getPitch()));
+        cameraDir.z = sin(glm::radians(m_controls.getYaw())) * cos(glm::radians(m_controls.getPitch()));
+        m_camera.Front = glm::normalize(cameraDir);
 
         float shininess = 51.2f;
 
         float lastX = SCR_WIDTH / 2, lastY = SCR_HEIGHT / 2;
 
-        TestRotatingCube::camera.Position = ProcessInput(camera).Position;
-        glfwSetCursorPosCallback(window, mouse_callback);
-        glfwSetScrollCallback(window, scroll_callback);
+        TestRotatingCube::m_camera.Position = ProcessInput(m_camera).Position;
+        //glfwSetCursorPosCallback(window, m_controls::handleMouse);
+        //glfwSetScrollCallback(window, m_controls::handleScroll);
 
-        m_Proj = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        m_View = glm::lookAt(camera.Position, camera.Position + camera.Front, camera.Up);
+        m_Proj = glm::perspective(glm::radians(m_controls.getFov()), SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
+        m_View = glm::lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
 
         glm::vec3 pointLightPositions[] = {
             glm::vec3(0.7f,  0.2f,  2.0f),
@@ -195,7 +181,7 @@ namespace test
         m_Shader->SetUniformMat4f("u_Model", model);
         m_Shader->SetUniformMat4f("u_View", m_View);
         m_Shader->SetUniformMat4f("u_Proj", m_Proj);
-        m_Shader->SetUniform3f("viewPos", camera.Position);
+        m_Shader->SetUniform3f("viewPos", m_camera.Position);
         m_Texture->Bind(0);
         m_Shader->SetUniform1i("material.diffuse", 0);
         m_Texture_Specular->Bind(1);
@@ -216,8 +202,8 @@ namespace test
             m_Shader->SetUniform1f("pointLight[" + std::to_string(i) + "].linear", 0.09f);
             m_Shader->SetUniform1f("pointLight[" + std::to_string(i) + "].quadratic", 0.032f);
         }
-        m_Shader->SetUniform3f("spotLight.position", camera.Position);
-        m_Shader->SetUniform3f("spotLight.direction", camera.Front);
+        m_Shader->SetUniform3f("spotLight.position", m_camera.Position);
+        m_Shader->SetUniform3f("spotLight.direction", m_camera.Front);
         m_Shader->SetUniform1f("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
         m_Shader->SetUniform1f("spotLight.outercutOff", glm::cos(glm::radians(15.0f)));
         m_Shader->SetUniform3f("spotLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
@@ -261,7 +247,7 @@ namespace test
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             m_Shader->Bind();
             m_Shader->SetUniformMat4f("u_Model", model);
-            m_Shader->SetUniform3f("viewPos", camera.Position);
+            m_Shader->SetUniform3f("viewPos", m_camera.Position);
 
             renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
         }
@@ -270,7 +256,7 @@ namespace test
         m_Shader_Land->SetUniformMat4f("u_Model", model_Land);
         m_Shader_Land->SetUniformMat4f("u_View", m_View);
         m_Shader_Land->SetUniformMat4f("u_Proj", m_Proj);
-        m_Shader_Land->SetUniform3f("viewPos", camera.Position);
+        m_Shader_Land->SetUniform3f("viewPos", m_camera.Position);
         m_Shader_Land->SetUniform3f("light.position", lightPos);
         m_Shader_Land->SetUniform3f("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
         m_Shader_Land->SetUniform3f("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
@@ -295,66 +281,34 @@ namespace test
     }
 
     test::Camera TestRotatingCube::ProcessInput(Camera f_camera) {
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             isEscapeClicked = 1;
 
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
             f_camera.Position += f_camera.Speed * f_camera.Front;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
             f_camera.Position -= f_camera.Speed * f_camera.Front;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
             f_camera.Position -= glm::normalize(glm::cross(f_camera.Front, f_camera.Up)) * f_camera.Speed;
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
             f_camera.Position += glm::normalize(glm::cross(f_camera.Front, f_camera.Up)) * f_camera.Speed;
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        if (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
             f_camera.Position += f_camera.Speed * f_camera.Up;
-        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
             f_camera.Position -= f_camera.Speed * f_camera.Up;
 
         return f_camera;
     }
-
-    void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-    {
-        if (firstFrame)
-        {
-            lastX = xpos;
-            lastY = ypos;
-            firstFrame = false;
-        }
-
-        if (!ImGui::GetIO().WantCaptureMouse) {
-
-            float xoffset = xpos - lastX;
-            float yoffset = lastY - ypos;
-            lastX = xpos;
-            lastY = ypos;
-
-
-            float sensitivity = 0.1f;
-            xoffset *= sensitivity;
-            yoffset *= sensitivity;
-
-            yaw += xoffset;
-            pitch += yoffset;
-
-            if (pitch > 89.0f)
-                pitch = 89.0f;
-            if (pitch < -89.0f)
-                pitch = -89.0f;
-        }
-        else {
-            lastX = xpos;
-            lastY = ypos;
-        }
-    }
-
-    void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-    {
-        fov -= (float)yoffset;
-        if (fov < 1.0f)
-            fov = 1.0f;
-        if (fov > 45.0f)
-            fov = 45.0f;
-    }
 }
+/*
+    void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+        if (m_controls) {
+            m_controls->handleMouse(window, xpos, ypos);
+        }
+    }
+
+    void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+        if (m_controls) {
+            m_controls->handleScroll(window, xoffset, yoffset);
+        }
+    }*/

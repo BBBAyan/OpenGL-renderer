@@ -8,6 +8,8 @@
 #include <functional>
 
 namespace test {
+	const float SCR_WIDTH = 1290.0f;
+	const float SCR_HEIGHT = 913.0f;
 	extern bool isEscapeClicked;
 	class Test
 	{

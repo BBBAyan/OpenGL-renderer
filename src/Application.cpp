@@ -15,12 +15,12 @@
 #include "Shader.h"
 #include "Texture.h"
 
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
-#include "imgui/imgui.h"
-#include "imgui/imgui_internal.h"
-#include "imgui/imgui_impl_glfw.h"
+#include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
+#include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 #include <stb_image/stb_image.h>
 
@@ -28,6 +28,7 @@
 #include "tests/TestClearColor.h"
 #include "tests/TestTexture2D.h"
 #include "tests/TestRotatingCube.h"
+#include "tests/TestModel.h"
 
 int main(void)
 {
@@ -87,6 +88,7 @@ int main(void)
         testMenu->RegisterTest<test::TestClearColor>("Clear Color", window);
         testMenu->RegisterTest<test::TestTexture2D>("Texture 2D", window);
         testMenu->RegisterTest<test::TestRotatingCube>("Rotating Cube", window);
+        testMenu->RegisterTest<test::TestModel>("Importing Model", window);
 
         while (!glfwWindowShouldClose(window))
         {
