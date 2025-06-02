@@ -4,6 +4,8 @@
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
+#include <imgui/imgui_impl_opengl3.h>
+#include <imgui/imgui_impl_glfw.h>
 
 namespace test
 {
@@ -16,7 +18,7 @@ namespace test
         glm::vec3(0.0f, 0.0f, -1.0f),
         glm::vec3(0.0f, 1.0f, 0.0f),
         0.1f }, m_controls(Control(SCR_WIDTH, SCR_HEIGHT)),
-        m_window(window)
+        m_window(window), currentIndex(2)
     {
         float positions[] = {
             //position             //normals           //texCoord
@@ -78,7 +80,7 @@ namespace test
         GLCall(glBindVertexArray(vao));
 
         m_VAO = std::make_unique<VertexArray>();
-        m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 8 * 4 * 6 * sizeof(float));
+        m_VertexBuffer = std::make_unique<VertexBuffer>(positions, static_cast<unsigned int>(8 * 4 * 6 * sizeof(float)));
 
         VertexBufferLayout layout;
         layout.Push<float>(3);
@@ -98,7 +100,8 @@ namespace test
         glfwSetCursorPosCallback(window, Control::handleMouse);
         glfwSetScrollCallback(window, Control::handleScroll);
 
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         GLCall(glEnable(GL_DEPTH_TEST));
         ImGui::SetWindowSize(ImVec2(480.0f, 250.0f));
     }
@@ -137,8 +140,8 @@ namespace test
         m_View = glm::lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
 
         //lightPos change;
-        lightPos.x = 6 * std::sin(glfwGetTime());
-        lightPos.z = 6 * std::cos(glfwGetTime());
+        lightPos.x = 6 * (float) std::sin(glfwGetTime());
+        lightPos.z = 6 * (float) std::cos(glfwGetTime());
 
         //Backpack Object
         m_Shader->Bind();
@@ -177,6 +180,20 @@ namespace test
         ImGui::SliderFloat3("Light Position", &lightPos.x, -5.0f, 5.0f);
         ImGui::SliderFloat("DirLight Intensity", &dirlightIntensity, 0.0f, 2.0f);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::Begin("Objects");
+        ImGui::SetWindowSize(ImVec2(400.0f, 250.0f));
+        /*if (ImGui::BeginCombo("Input Mode", inputModeNames[currentIndex])) {
+            for (int n = 0; n < IM_ARRAYSIZE(inputModeNames); n++)
+            {
+                bool is_selected = (currentIndex == n);
+                if (ImGui::Selectable(inputModeNames[n], is_selected))
+                    currentIndex = n;
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }*/
+        ImGui::End();
     }
 
     test::Camera TestModel::ProcessInput(Camera f_camera) {
@@ -198,114 +215,4 @@ namespace test
 
         return f_camera;
     }
-
-    /*void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-    {
-        if (firstFrame)
-        {
-            lastX = xpos;
-            lastY = ypos;
-            firstFrame = false;
-        }
-
-        if (!ImGui::GetIO().WantCaptureMouse) {
-
-            float xoffset = xpos - lastX;
-            float yoffset = lastY - ypos;
-            lastX = xpos;
-            lastY = ypos;
-
-
-            float sensitivity = 0.1f;
-            xoffset *= sensitivity;
-            yoffset *= sensitivity;
-
-            yaw += xoffset;
-            pitch += yoffset;
-
-            if (pitch > 89.0f)
-                pitch = 89.0f;
-            if (pitch < -89.0f)
-                pitch = -89.0f;
-        }
-        else {
-            lastX = xpos;
-            lastY = ypos;
-        }
-    }
-
-    void TestModel::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-    {
-        fov -= (float)yoffset;
-        if (fov < 1.0f)
-            fov = 1.0f;
-        if (fov > 45.0f)
-            fov = 45.0f;
-    }
-    void TestModel::StaticMouseCallback(GLFWwindow* window, double xpos, double ypos) {
-        TestModel* instance = static_cast<TestModel*>(glfwGetWindowUserPointer(window));
-        if (instance) {
-            instance->HandleMouseMovement(xpos, ypos);
-        }
-    }
-
-    // Static Scroll Callback Implementation (The "Receptionist")
-    void TestModel::StaticScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-        TestModel* instance = static_cast<TestModel*>(glfwGetWindowUserPointer(window));
-        if (instance) {
-            instance->HandleMouseScroll(xoffset, yoffset);
-        }
-    }
-
-    // Non-static (Instance) Mouse Handler (The actual "Office Desk Phone" logic)
-    void TestModel::HandleMouseMovement(double xpos, double ypos) {
-        if (firstFrame) { // Use member m_firstFrame
-            lastX = (float)xpos; // Use member m_lastX
-            lastY = (float)ypos; // Use member m_lastY
-            firstFrame = false;
-        }
-
-        if (!ImGui::GetIO().WantCaptureMouse) {
-            float xoffset = (float)xpos - lastX;
-            float yoffset = lastY - (float)ypos; // Reversed for typical camera controls
-            lastX = (float)xpos;
-            lastY = (float)ypos;
-
-            float sensitivity = 0.1f;
-            xoffset *= sensitivity;
-            yoffset *= sensitivity;
-
-            yaw += xoffset;   // Use member m_yaw
-            pitch += yoffset; // Use member m_pitch
-
-            if (pitch > 89.0f) pitch = 89.0f;
-            if (pitch < -89.0f) pitch = -89.0f;
-
-            // Update camera's Front vector based on new yaw and pitch
-            glm::vec3 front;
-            front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-            front.y = sin(glm::radians(pitch));
-            front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-            this->camera.Front = glm::normalize(front); // Update member camera
-        }
-        else {
-            // If ImGui wants the mouse, we might still want to update lastX/lastY
-            // to avoid a jump when ImGui releases mouse focus.
-            lastX = (float)xpos;
-            lastY = (float)ypos;
-        }
-    }
-
-    // Non-static (Instance) Scroll Handler
-    void TestModel::HandleMouseScroll(double xoffset, double yoffset) {
-        if (!ImGui::GetIO().WantCaptureMouse) { // Good to check here too
-            fov -= (float)yoffset; // Use member m_fov
-            if (fov < 1.0f) fov = 1.0f;
-            if (fov > 45.0f) fov = 45.0f; // Or a wider range if desired
-
-            // Update projection matrix if FoV changes
-            m_Proj = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        }
-    }
-    */
 }

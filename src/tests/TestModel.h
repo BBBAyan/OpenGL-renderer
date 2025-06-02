@@ -36,6 +36,19 @@ namespace test {
 		glm::vec3 lightPos = { 1.0f, 2.0f, 2.0f };
 		float dirlightIntensity = 1.0f;
 
+		const char* inputModeNames[3] = {
+			"GLFW_CURSOR_NORMAL",
+			"GLFW_CURSOR_HIDDEN",
+			"GLFW_CURSOR_DISABLED"
+		};
+
+		const int inputModeValues[3] = {
+			GLFW_CURSOR_NORMAL,
+			GLFW_CURSOR_HIDDEN,
+			GLFW_CURSOR_DISABLED
+		};
+		int currentIndex;
+
 		Control m_controls;
 		Camera m_camera;
 		GLFWwindow* m_window;
