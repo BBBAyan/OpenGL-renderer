@@ -36,18 +36,8 @@ namespace test {
 		glm::vec3 lightPos = { 1.0f, 2.0f, 2.0f };
 		float dirlightIntensity = 1.0f;
 
-		const char* inputModeNames[3] = {
-			"GLFW_CURSOR_NORMAL",
-			"GLFW_CURSOR_HIDDEN",
-			"GLFW_CURSOR_DISABLED"
-		};
-
-		const int inputModeValues[3] = {
-			GLFW_CURSOR_NORMAL,
-			GLFW_CURSOR_HIDDEN,
-			GLFW_CURSOR_DISABLED
-		};
 		int currentIndex;
+		int modelIndex;
 
 		Control m_controls;
 		Camera m_camera;
@@ -59,5 +49,27 @@ namespace test {
 		std::unique_ptr<VertexArray> m_VAO;
 		std::unique_ptr<VertexBuffer> m_VertexBuffer;
 		std::unique_ptr<IndexBuffer> m_IndexBuffer;
+		const char* inputModeNames[3] = {
+			"GLFW_CURSOR_NORMAL",
+			"GLFW_CURSOR_HIDDEN",
+			"GLFW_CURSOR_DISABLED"
+		};
+
+		const int inputModeValues[3] = {
+			GLFW_CURSOR_NORMAL,
+			GLFW_CURSOR_HIDDEN,
+			GLFW_CURSOR_DISABLED
+		};
+
+		const char* modelNames[3] = {
+			"None",
+			"backpack",
+			"sponza"
+		};
+
+		/*const int modelValues[2] = {
+			" ",
+			" "
+		};*/
 	};
 };

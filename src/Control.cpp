@@ -4,7 +4,7 @@
 
 Control::Control(float SCR_WIDTH, float SCR_HEIGHT)
     : firstFrame(1), yaw(-90.0f), pitch(0.0f),
-    lastX(SCR_WIDTH / 2.0), lastY(SCR_HEIGHT / 2.0), fov(45.0f)
+    lastX(SCR_WIDTH / 2), lastY(SCR_HEIGHT / 2), fov(45.0f)
     //deltaTime(0.0f), lastFrame(0.0f)
 {
 }

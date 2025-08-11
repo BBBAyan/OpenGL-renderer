@@ -93,12 +93,14 @@ int main(void)
         while (!glfwWindowShouldClose(window))
         {
             // Render here 
+            renderer.SetClearColor();
             renderer.Clear();
 
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-            ImGui::SetWindowSize(ImVec2(400.0f, 250.0f));
+            ImGui::SetNextWindowSize(ImVec2(400.0f, 250.0f));
+            ImGui::SetNextWindowPos(ImVec2(50.0f, 100.0f));
 
             if (currentTest)
             {
