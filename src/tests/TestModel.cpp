@@ -89,21 +89,22 @@ namespace test
         m_VAO->AddBuffer(*m_VertexBuffer, layout);
 
         m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 3 * 2 * 6);
-        m_ShaderLight = std::make_unique<Shader>("res/shaders/Lighting.shader");
+        m_Shader = std::make_unique<Shader>("res/shaders/Model.Shader");
+        m_ShaderLight = std::make_unique<Shader>("res/shaders/Lighting.Shader");
+        m_ShaderBorder = std::make_unique<Shader>("res/shaders/Border.Shader");
+
 
         // Backpack Object
         //m_Model = std::make_unique<Model>("res/objects/city/uploads_files_2720101_BusGameMap.obj");
         //m_Model = std::make_unique<Model>("res/objects/backpack/backpack.obj");
-        m_Shader = std::make_unique<Shader>("res/shaders/Model.Shader");
 
         glfwSetWindowUserPointer(window, &m_controls);
         glfwSetCursorPosCallback(window, Control::handleMouse);
         glfwSetScrollCallback(window, Control::handleScroll);
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        GLCall(glEnable(GL_STENCIL_TEST));
         //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        GLCall(glEnable(GL_DEPTH_TEST));
-        //GLCall(glEnable(GL_STENCIL_TEST));
         ImGui::SetWindowSize(ImVec2(480.0f, 250.0f));
     }
 
@@ -118,17 +119,19 @@ namespace test
 
     void TestModel::OnRender()
     {
-        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-        //GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
-        //clearColor = { 0.1f, 0.1f, 0.1f };
+        GLCall(glEnable(GL_DEPTH_TEST));
+        GLCall(glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE));
+
+        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
         GLCall(glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f));
+
+        GLCall(glStencilMask(0x00));
 
         Renderer renderer;
         ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.02f));
 
 
         glm::vec3 cameraDir{};
@@ -145,13 +148,44 @@ namespace test
         lightPos.x = 6 * (float) std::sin(glfwGetTime());
         lightPos.z = 6 * (float) std::cos(glfwGetTime());
 
+        GLCall(glStencilFunc(GL_ALWAYS, 1, 0xFF));
+        GLCall(glStencilMask(0xFF));
+
+        // Light Object
+        m_ShaderLight->Bind();
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(lightPos.x, 0.0f, lightPos.z));
+        model = glm::scale(model, glm::vec3(0.5f));
+        m_ShaderLight->SetUniformMat4f("u_Model", model);
+        m_ShaderLight->SetUniformMat4f("u_View", m_View);
+        m_ShaderLight->SetUniformMat4f("u_Proj", m_Proj);
+        m_ShaderLight->SetUniform3f("pointLightColor", glm::vec3(lightColor.r, lightColor.g, lightColor.b));
+        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderLight);
+
+        GLCall(glStencilFunc(GL_NOTEQUAL, 1, 0xFF));
+        GLCall(glStencilMask(0x00));
+        GLCall(glDisable(GL_DEPTH_TEST));
+        //model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f));
+        model = glm::scale(model, glm::vec3(1.1f));
+        m_ShaderBorder->Bind();
+        m_ShaderBorder->SetUniformMat4f("u_Model", model);
+        m_ShaderBorder->SetUniformMat4f("u_View", m_View);
+        m_ShaderBorder->SetUniformMat4f("u_Proj", m_Proj);
+        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderBorder);
+        GLCall(glStencilFunc(GL_ALWAYS, 1, 0xFF));
+        GLCall(glStencilMask(0xFF));
+        GLCall(glEnable(GL_DEPTH_TEST));
+
         switch (modelIndex) {
         case 0:
             break;
         case 1:
-            if (!m_Model || m_Model->directory != "res/objects/backpack") {
-                m_Model = std::make_unique<Model>("res/objects/backpack/backpack.obj");
+            if (!m_Model || m_Model->directory != "res/objects/dice") {
+                this->m_Model = std::make_unique<Model>("res/objects/dice/dice.obj");
             }
+            model = glm::mat4(1.0f);
+            model = glm::scale(model, glm::vec3(0.2f));
             //Backpack Object
             m_Shader->Bind();
             m_Shader->SetUniformMat4f("u_Model", model);
@@ -173,9 +207,37 @@ namespace test
             m_Model->Draw(*m_Shader);
             break;
         case 2:
-            if (!m_Model || m_Model->directory != "res/objects/sponza"){
-                m_Model = std::make_unique<Model>("res/objects/sponza/sponza.obj");
+            if (!m_Model || m_Model->directory != "res/objects/backpack") {
+                this->m_Model = std::make_unique<Model>("res/objects/backpack/backpack.obj");
             }
+            model = glm::mat4(1.0f);
+            model = glm::scale(model, glm::vec3(1.0f));
+            //Backpack Object
+            m_Shader->Bind();
+            m_Shader->SetUniformMat4f("u_Model", model);
+            m_Shader->SetUniformMat4f("u_View", m_View);
+            m_Shader->SetUniformMat4f("u_Proj", m_Proj);
+            m_Shader->SetUniform3f("dirLight.direction", glm::normalize(glm::vec3(0.1f, -1.0f, 0.0f)));
+            m_Shader->SetUniform3f("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+            m_Shader->SetUniform3f("dirLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+            m_Shader->SetUniform3f("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+            m_Shader->SetUniform1f("dirLight.intensity", 1.0f);
+            m_Shader->SetUniform3f("pointLight.position", glm::vec3(lightPos.x, lightPos.y, lightPos.z));
+            m_Shader->SetUniform3f("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+            m_Shader->SetUniform3f("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+            m_Shader->SetUniform3f("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+            m_Shader->SetUniform1f("pointLight.constant", 1.0f);
+            m_Shader->SetUniform1f("pointLight.linear", 0.09f);
+            m_Shader->SetUniform1f("pointLight.quadratic", 0.032f);
+            m_Shader->SetUniform3f("viewPos", m_camera.Position);
+            m_Model->Draw(*m_Shader);
+            break;
+        case 3:
+            if (!m_Model || m_Model->directory != "res/objects/sponza"){
+                this->m_Model = std::make_unique<Model>("res/objects/sponza/sponza.obj");
+            }
+            model = glm::mat4(1.0f);
+            model = glm::scale(model, glm::vec3(0.02f));
             //Backpack Object
             m_Shader->Bind();
             m_Shader->SetUniformMat4f("u_Model", model);
@@ -197,18 +259,24 @@ namespace test
             m_Model->Draw(*m_Shader);
             break;
         }
-
-        // Light Object
-        m_ShaderLight->Bind();
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(lightPos.x, 0.0f, lightPos.z));
-        model = glm::scale(model, glm::vec3(0.5f));
-        m_ShaderLight->SetUniformMat4f("u_Model", model);
-        m_ShaderLight->SetUniformMat4f("u_View", m_View);
-        m_ShaderLight->SetUniformMat4f("u_Proj", m_Proj);
-        m_ShaderLight->SetUniform3f("pointLightColor", glm::vec3(lightColor.r, lightColor.g, lightColor.b));
-
-        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderLight);
+        
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+        glDisable(GL_DEPTH_TEST);
+        //model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f));
+        model = glm::scale(model, glm::vec3(1.1f));
+        m_ShaderBorder->Bind();
+        m_ShaderBorder->SetUniformMat4f("u_Model", model);
+        m_ShaderBorder->SetUniformMat4f("u_View", m_View);
+        m_ShaderBorder->SetUniformMat4f("u_Proj", m_Proj);
+        //renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderBorder);
+        if (m_Model) {
+            m_Model->Draw(*m_ShaderBorder);
+        }
+        glStencilMask(0xFF);
+        glStencilFunc(GL_ALWAYS, 0, 0xFF);
+        glEnable(GL_DEPTH_TEST);
     }
 
     void TestModel::OnImGuiRender()

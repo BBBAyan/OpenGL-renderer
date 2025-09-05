@@ -46,6 +46,7 @@ namespace test {
 		std::unique_ptr<Model> m_Model;
 		std::unique_ptr<Shader> m_Shader;
 		std::unique_ptr<Shader> m_ShaderLight;
+		std::unique_ptr<Shader> m_ShaderBorder;
 		std::unique_ptr<VertexArray> m_VAO;
 		std::unique_ptr<VertexBuffer> m_VertexBuffer;
 		std::unique_ptr<IndexBuffer> m_IndexBuffer;
@@ -61,8 +62,9 @@ namespace test {
 			GLFW_CURSOR_DISABLED
 		};
 
-		const char* modelNames[3] = {
+		const char* modelNames[4] = {
 			"None",
+			"dice",
 			"backpack",
 			"sponza"
 		};

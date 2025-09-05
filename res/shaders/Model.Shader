@@ -65,16 +65,16 @@ void main()
     vec3 viewDir = normalize(viewPos - fragPos);
 
     vec3 output = vec3(0.0);
-    output += 10 * CalcDirLight(dirLight, normal, viewDir);
+    output += CalcDirLight(dirLight, normal, viewDir);
     output += CalcPointLight(pointLight, normal, viewDir);
     vec4 textureColour = texture(texture_diffuse1, TexCoords);
     //if (textureColour.a < 0.5) discard;
-    //FragColor = vec4(output, 1.0);
+    FragColor = vec4(output, 1.0);
     float near = 0.1;
     float far = 100.0;
     float ndc = gl_FragCoord.z * 2.0 - 1.0;
     float linearDepth = (2.0 * near * far) * (far + near - ndc * (far - near));
-    FragColor = vec4(vec3(1 - linearDepth / far), 1.0);
+    //FragColor = vec4(vec3(1 - linearDepth / far), 1.0);
 }
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir){

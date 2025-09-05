@@ -542,6 +542,7 @@
     <None Include="Dependencies\assimp\include\assimp\vector3.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="res\shaders\Border.Shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLEW\include\GL\eglew.h">
