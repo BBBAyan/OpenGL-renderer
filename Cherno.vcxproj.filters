@@ -543,6 +543,8 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="res\shaders\Border.Shader" />
+    <None Include="res\shaders\Transparent.Shader" />
+    <None Include="res\shaders\Square.Shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLEW\include\GL\eglew.h">
@@ -1778,6 +1780,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="res\textures\smile.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\grass.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\blending_transparent_window.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

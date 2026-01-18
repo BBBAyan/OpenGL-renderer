@@ -13,7 +13,7 @@ namespace test
         m_camera{ glm::vec3(0.0f, 0.0f, 3.0f),
         glm::vec3(0.0f, 0.0f, -1.0f),
         glm::vec3(0.0f, 1.0f, 0.0f),
-        0.1f }, m_controls(Control(SCR_WIDTH, SCR_HEIGHT)),
+        0.1f }, m_controls(window, SCR_WIDTH, SCR_HEIGHT, m_camera),
         m_window(window)
     {
         float positions[] = {
@@ -96,13 +96,14 @@ namespace test
         layout.Push<float>(2);
         m_VAO->AddBuffer(*m_VertexBuffer, layout);
 
-        VertexBufferLayout layoutLand;
+        /*VertexBufferLayout layoutLand;
         layoutLand.Push<float>(3);
         layoutLand.Push<float>(3);
-        layoutLand.Push<float>(2);
-        m_VAO_Land->AddBuffer(*m_VertexBuffer_Land, layoutLand);
+        layoutLand.Push<float>(2);*/
+        m_VAO_Land->AddBuffer(*m_VertexBuffer_Land, layout);
 
         glfwSetWindowUserPointer(window, &m_controls);
+        glfwSetKeyCallback(window, Control::handleKeyboard);
         glfwSetCursorPosCallback(window, Control::handleMouse);
         glfwSetScrollCallback(window, Control::handleScroll);
 
@@ -126,6 +127,7 @@ namespace test
 
     TestRotatingCube::~TestRotatingCube()
     {
+        isPauseClicked = 0;
         glfwSetWindowUserPointer(m_window, nullptr);
     }
 
@@ -136,7 +138,6 @@ namespace test
     void TestRotatingCube::OnRender()
     {
         GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-        //clearColor = { 0.1f, 0.1f, 0.1f };
         GLCall(glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f));
 
         Renderer renderer;
@@ -163,10 +164,14 @@ namespace test
 
         float lastX = SCR_WIDTH / 2, lastY = SCR_HEIGHT / 2;
 
-        TestRotatingCube::m_camera.Position = ProcessInput(m_camera).Position;
+        if (isPauseClicked)
+            glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        else
+            glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         //glfwSetCursorPosCallback(window, m_controls::handleMouse);
         //glfwSetScrollCallback(window, m_controls::handleScroll);
 
+        ProcessInput(m_camera);
         m_Proj = glm::perspective(glm::radians(m_controls.getFov()), SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
         m_View = glm::lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
 
@@ -213,8 +218,8 @@ namespace test
         m_Shader->SetUniform1f("spotLight.linear", 0.09f);
         m_Shader->SetUniform1f("spotLight.quadratic", 0.032f);
 
+        m_ShaderLight->Bind();
         for (unsigned int i = 0; i < 4; i++) {
-            m_ShaderLight->Bind();
             model = glm::mat4(1.0f);
             model = glm::translate(model, pointLightPositions[i]);
             model = glm::scale(model, glm::vec3(0.5f));
@@ -278,26 +283,42 @@ namespace test
         ImGui::Text("Horror Color: (0.6, 0.5, 0.2); LColor: (x.x, x.x, x.x)");
         ImGui::Text("Biochemical Lab Color: (0.6, 0.5, 0.2); LColor: (x.x, x.x, x.x)");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+        if (isPauseClicked) {
+            ImGui::SetNextWindowSize(ImVec2(250.0f, 150.0f));
+            ImGui::SetNextWindowPos(ImVec2(650.0f, 350.0f));
+            ImGui::Begin("Pause");
+            ImGui::Text("Pause");
+            ImGui::End();
+        }
     }
 
-    test::Camera TestRotatingCube::ProcessInput(Camera f_camera) {
-        if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    void TestRotatingCube::ProcessInput(Camera &camera) {
+        auto& keys = getControls().getKeyMap();
+        if (keys[GLFW_KEY_ESCAPE].isDown)
             isEscapeClicked = 1;
+        if (keys[GLFW_KEY_P].isDown && !keys[GLFW_KEY_P].wasDown){
+            isPauseClicked = !isPauseClicked;
+            getControls().getCameraMode() = !getControls().getCameraMode();
+        }
 
-        if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
-            f_camera.Position += f_camera.Speed * f_camera.Front;
-        if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
-            f_camera.Position -= f_camera.Speed * f_camera.Front;
-        if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
-            f_camera.Position -= glm::normalize(glm::cross(f_camera.Front, f_camera.Up)) * f_camera.Speed;
-        if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
-            f_camera.Position += glm::normalize(glm::cross(f_camera.Front, f_camera.Up)) * f_camera.Speed;
-        if (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            f_camera.Position += f_camera.Speed * f_camera.Up;
-        if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-            f_camera.Position -= f_camera.Speed * f_camera.Up;
+        if (!isPauseClicked) {
+            if (keys[GLFW_KEY_W].isDown)
+                camera.Position += camera.Speed * camera.Front;
+            if (keys[GLFW_KEY_S].isDown)
+                camera.Position -= camera.Speed * camera.Front;
+            if (keys[GLFW_KEY_A].isDown)
+                camera.Position -= glm::normalize(glm::cross(camera.Front, camera.Up)) * camera.Speed;
+            if (keys[GLFW_KEY_D].isDown)
+                camera.Position += glm::normalize(glm::cross(camera.Front, camera.Up)) * camera.Speed;
+            if (keys[GLFW_KEY_LEFT_SHIFT].isDown)
+                camera.Position += camera.Speed * camera.Up;
+            if (keys[GLFW_KEY_Z].isDown)
+                camera.Position -= camera.Speed * camera.Up;
+        }
 
-        return f_camera;
+        for (auto& [k, st] : keys)
+            st.wasDown = st.isDown;
     }
 }
 /*

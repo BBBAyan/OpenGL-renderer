@@ -20,35 +20,42 @@ namespace test {
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
 		void OnImGuiRender() override;
-		test::Camera ProcessInput(Camera f_camera);
+		Control& getControls() { return m_controls; }
+		void ProcessInput(Camera& camera);
 	private:
 		glm::mat4 m_Proj, m_View;
-		enum FocusState {
-			CAMERA,
-			UI
-		};
 		struct Color {
 			float r, g, b;
 		};
-		FocusState curState = UI;
 		Color clearColor = { 0.1f, 0.1f, 0.1f };
-		Color lightColor = { 1.0f, 1.0f, 1.0f };
+		Color lightColor = { 0.54f, 0.0f, 1.0f };
 		glm::vec3 lightPos = { 1.0f, 2.0f, 2.0f };
 		float dirlightIntensity = 1.0f;
+		float m_lastTime;
+		float m_animationTime;
 
 		int currentIndex;
 		int modelIndex;
 
+		//std::map<int, bool> &m_keymap;
 		Control m_controls;
 		Camera m_camera;
 		GLFWwindow* m_window;
 
 		std::unique_ptr<Model> m_Model;
+		std::unique_ptr<Model> m_Model_Land;
 		std::unique_ptr<Shader> m_Shader;
+		std::unique_ptr<Shader> m_ShaderLand;
 		std::unique_ptr<Shader> m_ShaderLight;
 		std::unique_ptr<Shader> m_ShaderBorder;
+		std::unique_ptr<Shader> m_ShaderTransparent;
+		std::unique_ptr<Shader> m_ShaderSquare;
+		std::unique_ptr<Texture> m_TextureGrass;
+		std::unique_ptr<Texture> m_TextureWindow;
 		std::unique_ptr<VertexArray> m_VAO;
+		std::unique_ptr<VertexArray> m_VAO_Square;
 		std::unique_ptr<VertexBuffer> m_VertexBuffer;
+		std::unique_ptr<VertexBuffer> m_VertexBuffer_Square;
 		std::unique_ptr<IndexBuffer> m_IndexBuffer;
 		const char* inputModeNames[3] = {
 			"GLFW_CURSOR_NORMAL",
@@ -62,9 +69,10 @@ namespace test {
 			GLFW_CURSOR_DISABLED
 		};
 
-		const char* modelNames[4] = {
+		const char* modelNames[5] = {
 			"None",
 			"dice",
+			"gojo",
 			"backpack",
 			"sponza"
 		};

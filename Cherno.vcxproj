@@ -209,6 +209,8 @@
     <None Include="res\shaders\Land.Shader" />
     <None Include="res\shaders\Lighting.Shader" />
     <None Include="res\shaders\Model.Shader" />
+    <None Include="res\shaders\Square.Shader" />
+    <None Include="res\shaders\Transparent.Shader" />
     <None Include="src\vendor\glm\detail\func_common.inl" />
     <None Include="src\vendor\glm\detail\func_common_simd.inl" />
     <None Include="src\vendor\glm\detail\func_exponential.inl" />
@@ -755,10 +757,12 @@
     <ClInclude Include="src\VertexBufferLayout.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\textures\blending_transparent_window.png" />
     <Image Include="res\textures\container.png" />
     <Image Include="res\textures\container_specular.png" />
     <Image Include="res\textures\dirt.jpg" />
     <Image Include="res\textures\glowstone.jpg" />
+    <Image Include="res\textures\grass.png" />
     <Image Include="res\textures\matrix.jpg" />
     <Image Include="res\textures\sekiro.png" />
     <Image Include="res\textures\smile.png" />

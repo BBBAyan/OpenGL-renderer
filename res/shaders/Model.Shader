@@ -68,7 +68,8 @@ void main()
     output += CalcDirLight(dirLight, normal, viewDir);
     output += CalcPointLight(pointLight, normal, viewDir);
     vec4 textureColour = texture(texture_diffuse1, TexCoords);
-    //if (textureColour.a < 0.5) discard;
+    if (textureColour.a < 0.5) discard;
+
     FragColor = vec4(output, 1.0);
     float near = 0.1;
     float far = 100.0;
