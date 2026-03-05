@@ -206,6 +206,8 @@
     <None Include="res\shaders\Basic.Shader" />
     <None Include="res\shaders\Border.Shader" />
     <None Include="res\shaders\Cube.Shader" />
+    <None Include="res\shaders\CubeTestModel.Shader" />
+    <None Include="res\shaders\FramebufferScreen.Shader" />
     <None Include="res\shaders\Land.Shader" />
     <None Include="res\shaders\Lighting.Shader" />
     <None Include="res\shaders\Model.Shader" />

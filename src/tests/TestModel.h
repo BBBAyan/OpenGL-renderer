@@ -36,12 +36,15 @@ namespace test {
 
 		int currentIndex;
 		int modelIndex;
+		unsigned int fbo, textureColorBuffer;
+		unsigned int quadVAO, quadVBO;
 
 		//std::map<int, bool> &m_keymap;
 		Control m_controls;
 		Camera m_camera;
 		GLFWwindow* m_window;
 
+		Shader screenShader;
 		std::unique_ptr<Model> m_Model;
 		std::unique_ptr<Model> m_Model_Land;
 		std::unique_ptr<Shader> m_Shader;
@@ -50,6 +53,10 @@ namespace test {
 		std::unique_ptr<Shader> m_ShaderBorder;
 		std::unique_ptr<Shader> m_ShaderTransparent;
 		std::unique_ptr<Shader> m_ShaderSquare;
+		std::unique_ptr<Shader> m_ShaderCube;
+		std::unique_ptr<Shader> m_ShaderFramebuffer;
+		std::unique_ptr<Texture> m_Texture;
+		std::unique_ptr<Texture> m_TextureSpecular;
 		std::unique_ptr<Texture> m_TextureGrass;
 		std::unique_ptr<Texture> m_TextureWindow;
 		std::unique_ptr<VertexArray> m_VAO;

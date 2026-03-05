@@ -19,7 +19,7 @@ void Model::loadModel(const std::string &path)
 		return;
 	}
 	directory = path.substr(0, path.find_last_of('/'));
-	std::cout << "For the sake of debug" << directory << std::endl;
+	std::cout << "Loaded object model path: " << directory << std::endl;
 
 	processNode(scene->mRootNode, scene);
 }

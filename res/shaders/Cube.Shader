@@ -84,7 +84,9 @@ void main()
     vec3 normal = normalize(Normal);
     vec3 viewDir = normalize(viewPos - fragPos);
 
+
     vec3 output = vec3(0.0);
+    output += pointLight[0].ambient * vec3(texture(material.diffuse, TexCoords));
     output += CalcDirLight(dirLight, normal, viewDir) * dirLight.intensity;
     for (int i = 0; i < 4; i++){
         output += CalcPointLight(pointLight[i], normal, viewDir);
@@ -94,8 +96,6 @@ void main()
 }
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
-    vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
-
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(normal, lightDir), 0.0);
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
@@ -104,7 +104,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
 
-    return ambient + diffuse + specular;
+    return diffuse + specular;
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 viewDir) {

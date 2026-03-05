@@ -545,6 +545,8 @@
     <None Include="res\shaders\Border.Shader" />
     <None Include="res\shaders\Transparent.Shader" />
     <None Include="res\shaders\Square.Shader" />
+    <None Include="res\shaders\CubeTestModel.Shader" />
+    <None Include="res\shaders\FramebufferScreen.Shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLEW\include\GL\eglew.h">
