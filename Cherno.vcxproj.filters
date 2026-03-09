@@ -87,6 +87,9 @@
     <ClCompile Include="src\Control.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\TextureCubemap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.Shader" />
@@ -547,6 +550,7 @@
     <None Include="res\shaders\Square.Shader" />
     <None Include="res\shaders\CubeTestModel.Shader" />
     <None Include="res\shaders\FramebufferScreen.Shader" />
+    <None Include="res\shaders\Cubemap.Shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLEW\include\GL\eglew.h">
@@ -1759,6 +1763,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TextureCubemap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

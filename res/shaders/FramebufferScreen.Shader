@@ -22,11 +22,11 @@ const float offset = 1.0/300.0;
 uniform sampler2D screenTexture;
 
 /*Regular
+*/
 void main()
 { 
     FragColor = texture(screenTexture, TexCoords);
 }
-*/
 /*Inversion
 void main()
 {
@@ -123,7 +123,6 @@ void main()
 }
 */
 /*Testing Kernels
-*/
 void main()
 {
     vec2 offsets[9] = vec2[9](
@@ -149,3 +148,4 @@ void main()
     }
     FragColor = vec4(sum, 1.0);
 }
+*/

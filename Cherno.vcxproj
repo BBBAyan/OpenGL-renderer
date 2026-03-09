@@ -172,6 +172,7 @@
     <ClCompile Include="src\tests\TestRotatingCube.cpp" />
     <ClCompile Include="src\tests\TestTexture2D.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\TextureCubemap.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_demo.cpp" />
@@ -206,6 +207,7 @@
     <None Include="res\shaders\Basic.Shader" />
     <None Include="res\shaders\Border.Shader" />
     <None Include="res\shaders\Cube.Shader" />
+    <None Include="res\shaders\Cubemap.Shader" />
     <None Include="res\shaders\CubeTestModel.Shader" />
     <None Include="res\shaders\FramebufferScreen.Shader" />
     <None Include="res\shaders\Land.Shader" />
@@ -456,6 +458,7 @@
     <ClInclude Include="src\tests\TestRotatingCube.h" />
     <ClInclude Include="src\tests\TestTexture2D.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\TextureCubemap.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_vector_decl.hpp" />
