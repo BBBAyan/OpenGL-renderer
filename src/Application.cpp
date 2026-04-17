@@ -29,12 +29,11 @@
 #include "tests/TestTexture2D.h"
 #include "tests/TestRotatingCube.h"
 #include "tests/TestModel.h"
+#include <tests/TestMain.h>
 
 int main(void)
 {
     GLFWwindow* window;
-    int fps_limit = 180 * 3;
-    int frameTime = 1000000000 / fps_limit;
 
     // Initialize the library
     if (!glfwInit()) {
@@ -92,6 +91,7 @@ int main(void)
         testMenu->RegisterTest<test::TestTexture2D>("Texture 2D", window);
         testMenu->RegisterTest<test::TestRotatingCube>("Rotating Cube", window);
         testMenu->RegisterTest<test::TestModel>("Importing Model", window);
+        testMenu->RegisterTest<test::TestMain>("Main Window", window);
 
         while (!glfwWindowShouldClose(window))
         {

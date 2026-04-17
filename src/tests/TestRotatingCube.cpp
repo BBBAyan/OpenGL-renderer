@@ -85,6 +85,13 @@ namespace test
         GLCall(glGenVertexArrays(1, &vao));
         GLCall(glBindVertexArray(vao));
 
+        GLCall(glGenBuffers(1, &ubo));
+        GLCall(glBindBuffer(GL_UNIFORM_BUFFER, ubo));
+        GLCall(glBufferData(GL_UNIFORM_BUFFER, 128, NULL, GL_STATIC_DRAW));
+        GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+
+        GLCall(glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo));
+
         m_VAO = std::make_unique<VertexArray>();
         m_VAO_Land = std::make_unique<VertexArray>();
         m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 8 * 4 * 6 * sizeof(float));
@@ -121,6 +128,7 @@ namespace test
         m_Texture_Spotlight = std::make_unique<Texture>("res/textures/smile.png");
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         GLCall(glEnable(GL_DEPTH_TEST));
+        //GLCall(glEnable(GL_PROGRAM_POINT_SIZE));
 
         ImGui::SetWindowSize(ImVec2(480.0f, 250.0f));
     }
@@ -174,6 +182,11 @@ namespace test
         ProcessInput(m_camera);
         m_Proj = glm::perspective(glm::radians(m_controls.getFov()), SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
         m_View = glm::lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
+
+        GLCall(glBindBuffer(GL_UNIFORM_BUFFER, ubo));
+        GLCall(glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &m_Proj));
+        GLCall(glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &m_View));
+        GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 
         glm::vec3 pointLightPositions[] = {
             glm::vec3(0.7f,  0.2f,  2.0f),
@@ -229,6 +242,7 @@ namespace test
             m_ShaderLight->SetUniform3f("pointLightColor", glm::vec3(lightColor.r, lightColor.g, lightColor.b));
 
             renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderLight);
+            //glDrawArrays(GL_POINTS, 0, 3);
         }
 
         glm::vec3 cubePositions[] = {

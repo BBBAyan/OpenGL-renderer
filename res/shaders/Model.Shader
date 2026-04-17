@@ -1,5 +1,5 @@
 #shader vertex 
-#version 330 core
+#version 420 core
 
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
@@ -9,9 +9,12 @@ out vec2 TexCoords;
 out vec3 Normal;
 out vec3 fragPos;
 
+layout(std140, binding = 0) uniform Matrices
+{
+    mat4 u_Proj; //16*4
+    mat4 u_View; //16*4
+};
 uniform mat4 u_Model;
-uniform mat4 u_View;
-uniform mat4 u_Proj;
 
 void main()
 {
@@ -21,7 +24,7 @@ void main()
 }
 
 #shader fragment
-#version 330 core
+#version 420 core
 
 out vec4 FragColor;
 

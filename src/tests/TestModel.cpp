@@ -17,7 +17,7 @@ namespace test
         m_camera{ glm::vec3(0.0f, 0.0f, 3.0f),
         glm::vec3(0.0f, 0.0f, -1.0f),
         glm::vec3(0.0f, 1.0f, 0.0f),
-        0.1f }, m_controls(window, SCR_WIDTH, SCR_HEIGHT, m_camera),
+        0.1f }, m_controls(window, SCR_WIDTH, SCR_HEIGHT, m_camera), draw_cubemap(1),
         m_window(window), currentIndex(2), modelIndex(0), m_animationTime(0.0f), m_lastTime(glfwGetTime())
     {
         float positions[] = {
@@ -131,17 +131,6 @@ namespace test
              1.0f, -1.0f,  1.0f
         };
         
-        float quadVertices[] = {
-            // positions   // texCoords
-            -1.0f,  1.0f,  0.0f, 1.0f,
-            -1.0f, -1.0f,  0.0f, 0.0f,
-             1.0f, -1.0f,  1.0f, 0.0f,
-
-            -1.0f,  1.0f,  0.0f, 1.0f,
-             1.0f, -1.0f,  1.0f, 0.0f,
-             1.0f,  1.0f,  1.0f, 1.0f
-        };
-
         GLCall(glGenVertexArrays(1, &cubemapVAO));
         GLCall(glGenBuffers(1, &cubemapVBO));
 
@@ -151,43 +140,18 @@ namespace test
         GLCall(glEnableVertexAttribArray(0));
         GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
 
-        GLCall(glGenVertexArrays(1, &quadVAO));
-        GLCall(glGenBuffers(1, &quadVBO));
+        GLCall(glGenBuffers(1, &ubo));
+        GLCall(glBindBuffer(GL_UNIFORM_BUFFER, ubo));
+        GLCall(glBufferData(GL_UNIFORM_BUFFER, 128, NULL, GL_STATIC_DRAW));
+        GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 
-        GLCall(glBindVertexArray(quadVAO));
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, quadVBO));
-        GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW));
-        GLCall(glEnableVertexAttribArray(0));
-        GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0));
-        GLCall(glEnableVertexAttribArray(1));
-        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float))));
-
-        GLCall(glGenFramebuffers(1, &fbo));
-        GLCall(glBindFramebuffer(GL_FRAMEBUFFER, fbo));
-
-        GLCall(glGenTextures(1, &textureColorBuffer));
-        GLCall(glBindTexture(GL_TEXTURE_2D, textureColorBuffer));
-        GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
-        GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-        GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-        GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0));
-
-        unsigned int rbo;
-        GLCall(glGenRenderbuffers(1, &rbo));
-
-        GLCall(glBindRenderbuffer(GL_RENDERBUFFER, rbo));
-        GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT));
-        GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo));
-
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            std::cout << "GL_FRAMEBUFFER_INCOMPLETE" << std::endl;
-
-        GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+        GLCall(glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo));
 
         m_VAO = std::make_unique<VertexArray>();
         m_VAO_Square = std::make_unique<VertexArray>();
-        m_VertexBuffer = std::make_unique<VertexBuffer>(positions, static_cast<unsigned int>(8 * 4 * 6 * sizeof(float)));
-        m_VertexBuffer_Square = std::make_unique<VertexBuffer>(square, static_cast<unsigned int>(8 * 4 * sizeof(float)));
+        m_VertexBuffer = std::make_unique<VertexBuffer>(positions, sizeof(positions));
+        m_VertexBuffer_Square = std::make_unique<VertexBuffer>(square, sizeof(square));
+        m_Framebuffer = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT);
 
         VertexBufferLayout layout;
         layout.Push<float>(3);
@@ -196,7 +160,7 @@ namespace test
         m_VAO->AddBuffer(*m_VertexBuffer, layout);
         m_VAO_Square->AddBuffer(*m_VertexBuffer_Square, layout);
 
-        m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 3 * 2 * 6);
+        m_IndexBuffer = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(unsigned int));
         m_Shader = std::make_unique<Shader>("res/shaders/Model.Shader");
         m_ShaderLand = std::make_unique<Shader>("res/shaders/Model.Shader");
         m_ShaderLight = std::make_unique<Shader>("res/shaders/Lighting.Shader");
@@ -214,6 +178,20 @@ namespace test
         m_TextureGrass = std::make_unique<Texture>("res/textures/grass.png");
         m_TextureWindow = std::make_unique<Texture>("res/textures/blending_transparent_window.png");
 
+        windows.push_back(glm::vec3(5.0f, 0.0f, 0.0f));
+        windows.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+        windows.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
+        windows.push_back(glm::vec3(0.0f, 0.0f, 2.0f));
+        windows.push_back(glm::vec3(0.0f, 0.0f, 3.0f));
+        windows.push_back(glm::vec3(0.0f, 0.0f, 4.0f));
+        windows.push_back(glm::vec3(0.0f, 0.0f, 5.0f));
+        windows.push_back(glm::vec3(0.0f, 0.0f, 6.0f));
+        windows.push_back(glm::vec3(0.0f, 0.0f, 7.0f));
+        windows.push_back(glm::vec3(0.0f, 0.0f, 8.0f));
+        windows.push_back(glm::vec3(0.0f, 0.0f, 9.0f));
+        windows.push_back(glm::vec3(0.0f, 0.0f, 10.0f));
+        windows.push_back(glm::vec3(0.0f, 0.0f, 11.0f));
+
         std::vector<std::string> textures_faces{
         "res/textures/skybox/right.jpg",
         "res/textures/skybox/left.jpg",
@@ -230,13 +208,10 @@ namespace test
         glfwSetCursorPosCallback(window, Control::handleMouse);
         glfwSetScrollCallback(window, Control::handleScroll);
 
-        //glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         GLCall(glEnable(GL_STENCIL_TEST));
         GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-        //GLCall(glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO));
-        //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         ImGui::SetWindowSize(ImVec2(480.0f, 250.0f));
     }
 
@@ -261,13 +236,13 @@ namespace test
 
     void TestModel::OnRender()
     {
-        GLCall(glBindFramebuffer(GL_FRAMEBUFFER, fbo));
+        m_Framebuffer->Bind();
         GLCall(glEnable(GL_DEPTH_TEST));
         GLCall(glDepthFunc(GL_LEQUAL));
         GLCall(glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE));
 
-        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
         GLCall(glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f));
+        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
         GLCall(glStencilMask(0x00));
 
@@ -292,89 +267,16 @@ namespace test
         m_Proj = glm::perspective(glm::radians(m_controls.getFov()), SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
         m_View = glm::lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
 
+        GLCall(glBindBuffer(GL_UNIFORM_BUFFER, ubo));
+        GLCall(glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &m_Proj));
+        GLCall(glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &m_View));
+        GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+
         GLCall(glStencilFunc(GL_ALWAYS, 1, 0xFF));
         GLCall(glStencilMask(0xFF));
 
-        // Grass Object
-        /*
-        m_ShaderTransparent->Bind();
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(1.0f));
-        m_ShaderTransparent->SetUniformMat4f("u_Model", model);
-        m_ShaderTransparent->SetUniformMat4f("u_View", m_View);
-        m_ShaderTransparent->SetUniformMat4f("u_Proj", m_Proj);
-        m_TextureGrass->Bind(0);
-        m_ShaderTransparent->SetUniform1i("u_Texture", 0);
-        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderTransparent);
-
-        model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
-        m_ShaderTransparent->SetUniformMat4f("u_Model", model);
-        renderer.Draw(*m_VAO_Square, *m_IndexBuffer, *m_ShaderTransparent);
-        */
-
-        //Window
-        /*
-        m_ShaderTransparent->Bind();
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(1.0f));
-        m_ShaderTransparent->SetUniformMat4f("u_Model", model);
-        m_ShaderTransparent->SetUniformMat4f("u_View", m_View);
-        m_ShaderTransparent->SetUniformMat4f("u_Proj", m_Proj);
-        m_TextureWindow->Bind(0);
-        m_ShaderTransparent->SetUniform1i("u_Texture", 0);
-        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderTransparent);
-
-        model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
-        m_ShaderTransparent->SetUniformMat4f("u_Model", model);
-        renderer.Draw(*m_VAO_Square, *m_IndexBuffer, *m_ShaderTransparent);
-        */
-
-        // Squares
-        /*
-        m_ShaderSquare->Bind();
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(1.0f));
-        m_ShaderSquare->SetUniformMat4f("u_Model", model);
-        m_ShaderSquare->SetUniformMat4f("u_View", m_View);
-        m_ShaderSquare->SetUniformMat4f("u_Proj", m_Proj);
-        m_ShaderSquare->SetUniform4f("u_Color", 1.0f, 0.0f, 0.0f, 1.0f);
-        renderer.Draw(*m_VAO_Square, *m_IndexBuffer, *m_ShaderSquare);
-
-        model = glm::translate(model, glm::vec3(-0.25f, -0.25f, 0.01f));
-        m_ShaderSquare->SetUniformMat4f("u_Model", model);
-        m_ShaderSquare->SetUniform4f("u_Color", 0.0f, 1.0f, 0.0f, 0.6f);
-        renderer.Draw(*m_VAO_Square, *m_IndexBuffer, *m_ShaderSquare);
-        */
-
         GLCall(glEnable(GL_CULL_FACE));
         GLCall(glFrontFace(GL_CW));
-        //GLCall(glCullFace(GL_BACK));
-        //Cube
-        /*
-        m_ShaderCube->Bind();
-        model = glm::translate(model, glm::vec3(-3.0f, 0.0f, 0.0f));
-        m_ShaderCube->SetUniformMat4f("u_Model", model);
-        m_ShaderCube->SetUniformMat4f("u_View", m_View);
-        m_ShaderCube->SetUniformMat4f("u_Proj", m_Proj);
-        m_ShaderCube->SetUniform3f("viewPos", m_camera.Position);
-        m_Texture->Bind(0);
-        m_ShaderCube->SetUniform1i("material.diffuse", 0);
-        m_TextureSpecular->Bind(1);
-        m_ShaderCube->SetUniform1i("material.specular", 1);
-        m_ShaderCube->SetUniform1f("material.shininess", 51.2f);
-        m_ShaderCube->SetUniform3f("pointLightColor", glm::vec3(lightColor.r, lightColor.g, lightColor.b));
-        m_ShaderCube->SetUniform3f("pointLight.position", glm::vec3(lightPos.x, 0.0f, lightPos.z));
-        m_ShaderCube->SetUniform3f("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        m_ShaderCube->SetUniform3f("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        m_ShaderCube->SetUniform3f("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        m_ShaderCube->SetUniform1f("pointLight.constant", 1.0f);
-        m_ShaderCube->SetUniform1f("pointLight.linear", 0.09f);
-        m_ShaderCube->SetUniform1f("pointLight.quadratic", 0.032f);
-        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderCube);
-        */
 
         //Reflective Cube
         m_ShaderReflectiveCube->Bind();
@@ -402,7 +304,6 @@ namespace test
         GLCall(glStencilFunc(GL_NOTEQUAL, 1, 0xFF));
         GLCall(glStencilMask(0x00));
         GLCall(glDisable(GL_DEPTH_TEST));
-        //model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f));
         model = glm::scale(model, glm::vec3(1.1f));
         m_ShaderBorder->Bind();
@@ -414,30 +315,6 @@ namespace test
         GLCall(glStencilMask(0xFF));
         GLCall(glEnable(GL_DEPTH_TEST));
 
-        /*
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -5.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(2.0f));
-        m_ShaderLand->Bind();
-        m_ShaderLand->SetUniformMat4f("u_Model", model);
-        m_ShaderLand->SetUniformMat4f("u_View", m_View);
-        m_ShaderLand->SetUniformMat4f("u_Proj", m_Proj);
-        m_ShaderLand->SetUniform3f("dirLight.direction", glm::normalize(glm::vec3(0.1f, -1.0f, 0.0f)));
-        m_ShaderLand->SetUniform3f("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        m_ShaderLand->SetUniform3f("dirLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        m_ShaderLand->SetUniform3f("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        m_ShaderLand->SetUniform1f("dirLight.intensity", 1.0f);
-        m_ShaderLand->SetUniform3f("pointLight.position", glm::vec3(lightPos.x, lightPos.y, lightPos.z));
-        m_ShaderLand->SetUniform3f("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        m_ShaderLand->SetUniform3f("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        m_ShaderLand->SetUniform3f("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        m_ShaderLand->SetUniform1f("pointLight.constant", 1.0f);
-        m_ShaderLand->SetUniform1f("pointLight.linear", 0.09f);
-        m_ShaderLand->SetUniform1f("pointLight.quadratic", 0.032f);
-        m_ShaderLand->SetUniform3f("viewPos", m_camera.Position);
-        m_Model_Land->Draw(*m_ShaderLand);
-        */
-
         switch (modelIndex) {
         case 0:
             break;
@@ -447,11 +324,10 @@ namespace test
             }
             model = glm::mat4(1.0f);
             model = glm::scale(model, glm::vec3(0.2f));
+            model = glm::translate(model, modelPos);
             //Backpack Object
             m_Shader->Bind();
             m_Shader->SetUniformMat4f("u_Model", model);
-            m_Shader->SetUniformMat4f("u_View", m_View);
-            m_Shader->SetUniformMat4f("u_Proj", m_Proj);
             m_Shader->SetUniform3f("dirLight.direction", glm::normalize(glm::vec3(0.1f, -1.0f, 0.0f)));
             m_Shader->SetUniform3f("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
             m_Shader->SetUniform3f("dirLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
@@ -473,11 +349,10 @@ namespace test
             }
             model = glm::mat4(1.0f);
             model = glm::scale(model, glm::vec3(0.01f));
+            model = glm::translate(model, modelPos);
             //Backpack Object
             m_Shader->Bind();
             m_Shader->SetUniformMat4f("u_Model", model);
-            m_Shader->SetUniformMat4f("u_View", m_View);
-            m_Shader->SetUniformMat4f("u_Proj", m_Proj);
             m_Shader->SetUniform3f("dirLight.direction", glm::normalize(glm::vec3(0.1f, -1.0f, 0.0f)));
             m_Shader->SetUniform3f("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
             m_Shader->SetUniform3f("dirLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
@@ -499,11 +374,10 @@ namespace test
             }
             model = glm::mat4(1.0f);
             model = glm::scale(model, glm::vec3(1.0f));
+            model = glm::translate(model, modelPos);
             //Backpack Object
             m_Shader->Bind();
             m_Shader->SetUniformMat4f("u_Model", model);
-            m_Shader->SetUniformMat4f("u_View", m_View);
-            m_Shader->SetUniformMat4f("u_Proj", m_Proj);
             m_Shader->SetUniform3f("dirLight.direction", glm::normalize(glm::vec3(0.1f, -1.0f, 0.0f)));
             m_Shader->SetUniform3f("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
             m_Shader->SetUniform3f("dirLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
@@ -525,11 +399,10 @@ namespace test
             }
             model = glm::mat4(1.0f);
             model = glm::scale(model, glm::vec3(0.02f));
+            model = glm::translate(model, modelPos);
             //Backpack Object
             m_Shader->Bind();
             m_Shader->SetUniformMat4f("u_Model", model);
-            m_Shader->SetUniformMat4f("u_View", m_View);
-            m_Shader->SetUniformMat4f("u_Proj", m_Proj);
             m_Shader->SetUniform3f("dirLight.direction", glm::normalize(glm::vec3(0.1f, -1.0f, 0.0f)));
             m_Shader->SetUniform3f("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
             m_Shader->SetUniform3f("dirLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
@@ -548,31 +421,18 @@ namespace test
         }
 
         //skybox
-        m_ShaderCubemap->Bind();
-        glm::mat4 cubemapView = glm::mat4(glm::mat3(glm::lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up)));
-        m_ShaderCubemap->SetUniformMat4f("u_Proj", m_Proj);
-        m_ShaderCubemap->SetUniformMat4f("u_View", cubemapView);
-        GLCall(glBindVertexArray(cubemapVAO));
-        m_TextureCubemap->Bind(0);
-        m_ShaderCubemap->SetUniform1i("skybox", 0);
-        GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+        if (draw_cubemap == true) {
+            m_ShaderCubemap->Bind();
+            glm::mat4 cubemapView = glm::mat4(glm::mat3(glm::lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up)));
+            m_ShaderCubemap->SetUniformMat4f("u_Proj", m_Proj);
+            m_ShaderCubemap->SetUniformMat4f("u_View", cubemapView);
+            GLCall(glBindVertexArray(cubemapVAO));
+            m_TextureCubemap->Bind(0);
+            m_ShaderCubemap->SetUniform1i("skybox", 0);
+            GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+        }
 
         //Windows
-        std::vector<glm::vec3> windows;
-        windows.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
-        windows.push_back(glm::vec3(5.0f, 0.0f, 0.0f));
-        windows.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
-        windows.push_back(glm::vec3(0.0f, 0.0f, 2.0f));
-        windows.push_back(glm::vec3(0.0f, 0.0f, 3.0f));
-        windows.push_back(glm::vec3(0.0f, 0.0f, 4.0f));
-        windows.push_back(glm::vec3(0.0f, 0.0f, 5.0f));
-        windows.push_back(glm::vec3(0.0f, 0.0f, 6.0f));
-        windows.push_back(glm::vec3(0.0f, 0.0f, 7.0f));
-        windows.push_back(glm::vec3(0.0f, 0.0f, 8.0f));
-        windows.push_back(glm::vec3(0.0f, 0.0f, 9.0f));
-        windows.push_back(glm::vec3(0.0f, 0.0f, 10.0f));
-        windows.push_back(glm::vec3(0.0f, 0.0f, 11.0f));
-
         std::map<float, glm::vec3> sorted;
         for (unsigned int i = 0; i < windows.size(); i++) {
             float distance = glm::length(m_camera.Position - windows[i]);
@@ -595,35 +455,28 @@ namespace test
         GLCall(glStencilFunc(GL_NOTEQUAL, 1, 0xFF));
         GLCall(glStencilMask(0x00));
         GLCall(glDisable(GL_DEPTH_TEST));
-        //model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f));
         model = glm::scale(model, glm::vec3(1.1f));
         m_ShaderBorder->Bind();
         m_ShaderBorder->SetUniformMat4f("u_Model", model);
         m_ShaderBorder->SetUniformMat4f("u_View", m_View);
         m_ShaderBorder->SetUniformMat4f("u_Proj", m_Proj);
-        //renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderBorder);
         if (m_Model) {
             m_Model->Draw(*m_ShaderBorder);
         }
 
         GLCall(glStencilMask(0xFF));
         GLCall(glStencilFunc(GL_ALWAYS, 0, 0xFF));
-        //GLCall(glEnable(GL_DEPTH_TEST));
 
-        GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-        //GLCall(glDisable(GL_DEPTH_TEST));
-        //GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
+        GLCall(glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f));
+        m_Framebuffer->Unbind();
         GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
         m_ShaderFramebuffer->Bind();
-        GLCall(glBindVertexArray(quadVAO));
         GLCall(glActiveTexture(GL_TEXTURE0));
-        GLCall(glBindTexture(GL_TEXTURE_2D, textureColorBuffer));
+        GLCall(glBindTexture(GL_TEXTURE_2D, m_Framebuffer->getTextureColorBuffer()));
 
-        GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
-        GLCall(glBindVertexArray(0));
-        //GLCall(glEnable(GL_DEPTH_TEST));
+        m_Framebuffer->Draw();
     }
 
     void TestModel::OnImGuiRender()
@@ -633,6 +486,7 @@ namespace test
         ImGui::SliderFloat3("Light Color", &lightColor.r, 0.0f, 1.0f);
         ImGui::SliderFloat3("Light Position", &lightPos.x, -5.0f, 5.0f);
         ImGui::SliderFloat("DirLight Intensity", &dirlightIntensity, 0.0f, 2.0f);
+        ImGui::Checkbox("Draw a Cubemap", &draw_cubemap);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::SetNextWindowSize(ImVec2(400.0f, 463.0f));
         ImGui::SetNextWindowPos(ImVec2(0.0f, 462.0f));
@@ -649,6 +503,8 @@ namespace test
             }
             ImGui::EndCombo();
         }
+        ImGui::Text("Model Position");
+        ImGui::SliderFloat3("", &modelPos.x, -10.0f, 10.0f);
         ImGui::End();
 
         if (isPauseClicked) {

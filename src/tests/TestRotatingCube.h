@@ -34,6 +34,7 @@ namespace test {
 		Color clearColor = { 0.1f, 0.1f, 0.1f };
 		Color lightColor = { 1.0f, 1.0f, 1.0f };
 		float dirlightIntensity = 1.0f;
+		unsigned int ubo; // uniform buffer object
 
 		Control m_controls;
 		Camera m_camera;
