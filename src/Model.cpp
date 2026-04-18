@@ -14,11 +14,12 @@ void Model::loadModel(const std::string &path)
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
-	if (!scene || scene->mFlags && AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cout << "ERROR::Assimp::" << importer.GetErrorString() << std::endl;
 		return;
 	}
 	directory = path.substr(0, path.find_last_of('/'));
+	std::cout << "Loaded object model path: " << directory << std::endl;
 
 	processNode(scene->mRootNode, scene);
 }
@@ -99,6 +100,8 @@ std::vector<meshTexture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureT
 		if (!skip) {
 			meshTexture texture;
 			texture.id = TextureFromFile(str.C_Str(), this->directory);
+			// FDASKFASKFASLFL:SAIFJAS:LFJASFIASFLJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ
+			std::cout << typeName << std::endl;
 			texture.type = typeName;
 			texture.path = str.C_Str();
 			textures.push_back(texture);
@@ -138,7 +141,7 @@ unsigned int TextureFromFile(const char* path, const std::string& directory, boo
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 

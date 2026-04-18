@@ -29,6 +29,7 @@
 #include "tests/TestTexture2D.h"
 #include "tests/TestRotatingCube.h"
 #include "tests/TestModel.h"
+#include <tests/TestMain.h>
 
 int main(void)
 {
@@ -47,7 +48,7 @@ int main(void)
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     // Create a windowed mode window and its OpenGL context
-    window = glfwCreateWindow(1290, 913, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(1490, 913, "Hello World", NULL, NULL);
 
     if (!window)
     {
@@ -83,12 +84,14 @@ int main(void)
         //test::Test test;
         test::Test* currentTest = nullptr;
         test::TestMenu* testMenu = new test::TestMenu(currentTest);
+
         currentTest = testMenu;
         
         testMenu->RegisterTest<test::TestClearColor>("Clear Color", window);
         testMenu->RegisterTest<test::TestTexture2D>("Texture 2D", window);
         testMenu->RegisterTest<test::TestRotatingCube>("Rotating Cube", window);
         testMenu->RegisterTest<test::TestModel>("Importing Model", window);
+        testMenu->RegisterTest<test::TestMain>("Main Window", window);
 
         while (!glfwWindowShouldClose(window))
         {
@@ -99,13 +102,14 @@ int main(void)
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-            ImGui::SetNextWindowSize(ImVec2(400.0f, 250.0f));
-            ImGui::SetNextWindowPos(ImVec2(50.0f, 100.0f));
+            ImGui::SetNextWindowSize(ImVec2(400.0f, 462.0f));
+            ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
 
             if (currentTest)
             {
-                currentTest->OnUpdate(0.0f);
+                currentTest->OnUpdate(glfwGetTime());
                 currentTest->OnRender();
+
                 ImGui::Begin("Test");
                 if (currentTest != testMenu && ImGui::Button("<-")) {
                     delete currentTest;
@@ -122,6 +126,7 @@ int main(void)
 
             GLCall(glfwSwapBuffers(window));
             GLCall(glfwPollEvents());
+
             if (test::isEscapeClicked)
                 break;
         }

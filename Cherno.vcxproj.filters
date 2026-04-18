@@ -87,6 +87,15 @@
     <ClCompile Include="src\Control.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\TextureCubemap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tests\TestMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.Shader" />
@@ -542,6 +551,12 @@
     <None Include="Dependencies\assimp\include\assimp\vector3.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="res\shaders\Border.Shader" />
+    <None Include="res\shaders\Transparent.Shader" />
+    <None Include="res\shaders\Square.Shader" />
+    <None Include="res\shaders\CubeTestModel.Shader" />
+    <None Include="res\shaders\FramebufferScreen.Shader" />
+    <None Include="res\shaders\Cubemap.Shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLEW\include\GL\eglew.h">
@@ -1756,6 +1771,15 @@
     <ClInclude Include="src\Control.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\TextureCubemap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tests\TestMain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Framebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\sekiro.png">
@@ -1777,6 +1801,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="res\textures\smile.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\grass.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\blending_transparent_window.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

@@ -19,7 +19,8 @@ namespace test {
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
 		void OnImGuiRender() override;
-		test::Camera ProcessInput(Camera f_camera);
+		Control& getControls() { return m_controls; }
+		void ProcessInput(Camera &camera);
 	private:
 		glm::mat4 m_Proj, m_View;
 		enum FocusState {
@@ -29,10 +30,11 @@ namespace test {
 		struct Color {
 			float r, g, b;
 		};
-		FocusState curState = UI;
+		FocusState curState = CAMERA;
 		Color clearColor = { 0.1f, 0.1f, 0.1f };
 		Color lightColor = { 1.0f, 1.0f, 1.0f };
 		float dirlightIntensity = 1.0f;
+		unsigned int ubo; // uniform buffer object
 
 		Control m_controls;
 		Camera m_camera;

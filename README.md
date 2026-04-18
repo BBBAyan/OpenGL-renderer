@@ -1,3 +1,3 @@
 # Cherno
-This branch adds a feature of loading object models into the scene. I also added basic lighting from moving point light there.
-[![Watch the video](https://img.youtube.com/vi/Q1cnApwna3A/maxresdefault.jpg)](https://youtu.be/Q1cnApwna3A)
+Testing Stencil Buffer. Created an outlining algorithm using it:
+[![Watch the video](https://img.youtube.com/vi/8inJ9_nE58U/maxresdefault.jpg)](https://youtu.be/8inJ9_nE58U)

@@ -161,6 +161,7 @@
   <ItemGroup>
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Control.cpp" />
+    <ClCompile Include="src\Framebuffer.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Model.cpp" />
@@ -168,10 +169,12 @@
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\tests\Test.cpp" />
     <ClCompile Include="src\tests\TestClearColor.cpp" />
+    <ClCompile Include="src\tests\TestMain.cpp" />
     <ClCompile Include="src\tests\TestModel.cpp" />
     <ClCompile Include="src\tests\TestRotatingCube.cpp" />
     <ClCompile Include="src\tests\TestTexture2D.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\TextureCubemap.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_demo.cpp" />
@@ -204,10 +207,16 @@
     <None Include="Dependencies\GLEW\doc\log.html" />
     <None Include="Dependencies\GLEW\doc\wglew.html" />
     <None Include="res\shaders\Basic.Shader" />
+    <None Include="res\shaders\Border.Shader" />
     <None Include="res\shaders\Cube.Shader" />
+    <None Include="res\shaders\Cubemap.Shader" />
+    <None Include="res\shaders\CubeTestModel.Shader" />
+    <None Include="res\shaders\FramebufferScreen.Shader" />
     <None Include="res\shaders\Land.Shader" />
     <None Include="res\shaders\Lighting.Shader" />
     <None Include="res\shaders\Model.Shader" />
+    <None Include="res\shaders\Square.Shader" />
+    <None Include="res\shaders\Transparent.Shader" />
     <None Include="src\vendor\glm\detail\func_common.inl" />
     <None Include="src\vendor\glm\detail\func_common_simd.inl" />
     <None Include="src\vendor\glm\detail\func_exponential.inl" />
@@ -440,6 +449,7 @@
     <ClInclude Include="Dependencies\GLFW\include\GLFW\glfw3native.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Control.h" />
+    <ClInclude Include="src\Framebuffer.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Model.h" />
@@ -447,10 +457,12 @@
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\tests\Test.h" />
     <ClInclude Include="src\tests\TestClearColor.h" />
+    <ClInclude Include="src\tests\TestMain.h" />
     <ClInclude Include="src\tests\TestModel.h" />
     <ClInclude Include="src\tests\TestRotatingCube.h" />
     <ClInclude Include="src\tests\TestTexture2D.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\TextureCubemap.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_vector_decl.hpp" />
@@ -754,10 +766,12 @@
     <ClInclude Include="src\VertexBufferLayout.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\textures\blending_transparent_window.png" />
     <Image Include="res\textures\container.png" />
     <Image Include="res\textures\container_specular.png" />
     <Image Include="res\textures\dirt.jpg" />
     <Image Include="res\textures\glowstone.jpg" />
+    <Image Include="res\textures\grass.png" />
     <Image Include="res\textures\matrix.jpg" />
     <Image Include="res\textures\sekiro.png" />
     <Image Include="res\textures\smile.png" />
