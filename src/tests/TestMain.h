@@ -7,8 +7,9 @@
 #include "Camera.h"
 #include "Control.h"
 
-#include "vertexBuffer.h"
-#include "vertexBufferLayout.h"
+#include "VertexBuffer.h"
+#include "VertexBufferLayout.h"
+#include "Framebuffer.h"
 
 namespace test {
 
@@ -35,28 +36,29 @@ namespace test {
 		float dirlightIntensity = 1.0f;
 		float m_lastTime;
 		float m_animationTime;
-		bool draw_cubemap;
+		bool draw_cubemap, draw_house;
 
 		int currentIndex;
 		int modelIndex;
-		unsigned int fbo, textureColorBuffer;
 		unsigned int cubemapVAO, cubemapVBO;
-		unsigned int quadVAO, quadVBO;
 		unsigned int ubo; // uniform buffer object
 
 		Control m_controls;
 		Camera m_camera;
 		GLFWwindow* m_window;
 
-		std::unique_ptr<Shader> m_Shader;
-		std::unique_ptr<Shader> m_Shader_Geometry;
-		std::unique_ptr<Shader> m_ShaderLight;
-		std::unique_ptr<Shader> m_ShaderReflectiveCube;
-		std::unique_ptr<Shader> m_ShaderFramebuffer;
+		std::unique_ptr<Model> m_ModelBackpack;
 		std::unique_ptr<Shader> m_ShaderCubemap;
+		std::unique_ptr<Shader> m_ShaderExplode;
+		std::unique_ptr<Shader> m_ShaderFramebuffer;
+		std::unique_ptr<Shader> m_ShaderGeometry;
+		std::unique_ptr<Shader> m_ShaderLight;
+		std::unique_ptr<Shader> m_ShaderModel;
+		std::unique_ptr<Shader> m_ShaderNormal;
+		std::unique_ptr<Shader> m_ShaderReflectiveCube;
 		std::unique_ptr<Texture> m_Texture;
-		std::unique_ptr<Texture> m_TextureSpecular;
 		std::unique_ptr<Texture> m_TextureGrass;
+		std::unique_ptr<Texture> m_TextureSpecular;
 		std::unique_ptr<Texture> m_TextureWindow;
 		std::unique_ptr<TextureCubemap> m_TextureCubemap;
 		std::unique_ptr<VertexArray> m_VAO;
@@ -64,6 +66,7 @@ namespace test {
 		std::unique_ptr<VertexBuffer> m_VertexBuffer;
 		std::unique_ptr<VertexBuffer> m_VertexBuffer_Point;
 		std::unique_ptr<IndexBuffer> m_IndexBuffer;
+		std::unique_ptr<Framebuffer> m_Framebuffer;
 		const char* inputModeNames[3] = {
 			"GLFW_CURSOR_NORMAL",
 			"GLFW_CURSOR_HIDDEN",

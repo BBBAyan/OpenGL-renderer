@@ -557,6 +557,10 @@
     <None Include="res\shaders\CubeTestModel.Shader" />
     <None Include="res\shaders\FramebufferScreen.Shader" />
     <None Include="res\shaders\Cubemap.Shader" />
+    <None Include="res\shaders\Geometry.Shader" />
+    <None Include="res\shaders\ReflectiveCube.Shader" />
+    <None Include="res\shaders\ModelExplode.Shader" />
+    <None Include="res\shaders\ModelNormal.Shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLEW\include\GL\eglew.h">
