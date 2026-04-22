@@ -100,8 +100,6 @@ std::vector<meshTexture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureT
 		if (!skip) {
 			meshTexture texture;
 			texture.id = TextureFromFile(str.C_Str(), this->directory);
-			// FDASKFASKFASLFL:SAIFJAS:LFJASFIASFLJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ
-			std::cout << typeName << std::endl;
 			texture.type = typeName;
 			texture.path = str.C_Str();
 			textures.push_back(texture);

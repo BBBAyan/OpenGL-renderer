@@ -210,7 +210,9 @@ namespace test
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         GLCall(glEnable(GL_STENCIL_TEST));
+        GLCall(glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE));
         GLCall(glEnable(GL_BLEND));
+        GLCall(glDepthFunc(GL_LEQUAL));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
         ImGui::SetWindowSize(ImVec2(480.0f, 250.0f));
     }
@@ -219,6 +221,9 @@ namespace test
     {
         isPauseClicked = 0;
         glfwSetWindowUserPointer(m_window, nullptr);
+        //glfwSetCursorPosCallback(m_window, nullptr);
+        glfwSetKeyCallback(m_window, nullptr);
+        glfwSetScrollCallback(m_window, nullptr);
     }
 
     void TestModel::OnUpdate(float curTime)
@@ -236,13 +241,9 @@ namespace test
 
     void TestModel::OnRender()
     {
+        GLCall(glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f));
         m_Framebuffer->Bind();
         GLCall(glEnable(GL_DEPTH_TEST));
-        GLCall(glDepthFunc(GL_LEQUAL));
-        GLCall(glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE));
-
-        GLCall(glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f));
-        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
         GLCall(glStencilMask(0x00));
 
@@ -282,8 +283,6 @@ namespace test
         m_ShaderReflectiveCube->Bind();
         model = glm::translate(model, glm::vec3(-3.0f, 0.0f, 0.0f));
         m_ShaderReflectiveCube->SetUniformMat4f("u_Model", model);
-        m_ShaderReflectiveCube->SetUniformMat4f("u_View", m_View);
-        m_ShaderReflectiveCube->SetUniformMat4f("u_Proj", m_Proj);
         m_ShaderReflectiveCube->SetUniform3f("viewPos", m_camera.Position);
         m_TextureCubemap->Bind(0);
         m_ShaderReflectiveCube->SetUniform1i("skybox", 0);
@@ -295,8 +294,6 @@ namespace test
         model = glm::translate(model, glm::vec3(lightPos.x, 0.0f, lightPos.z));
         model = glm::scale(model, glm::vec3(0.5f));
         m_ShaderLight->SetUniformMat4f("u_Model", model);
-        m_ShaderLight->SetUniformMat4f("u_View", m_View);
-        m_ShaderLight->SetUniformMat4f("u_Proj", m_Proj);
         m_ShaderLight->SetUniform3f("pointLightColor", glm::vec3(lightColor.r, lightColor.g, lightColor.b));
         renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderLight);
 
@@ -308,8 +305,6 @@ namespace test
         model = glm::scale(model, glm::vec3(1.1f));
         m_ShaderBorder->Bind();
         m_ShaderBorder->SetUniformMat4f("u_Model", model);
-        m_ShaderBorder->SetUniformMat4f("u_View", m_View);
-        m_ShaderBorder->SetUniformMat4f("u_Proj", m_Proj);
         renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderBorder);
         GLCall(glStencilFunc(GL_ALWAYS, 1, 0xFF));
         GLCall(glStencilMask(0xFF));
@@ -440,8 +435,6 @@ namespace test
         }
 
         m_ShaderTransparent->Bind();
-        m_ShaderTransparent->SetUniformMat4f("u_View", m_View);
-        m_ShaderTransparent->SetUniformMat4f("u_Proj", m_Proj);
         m_TextureWindow->Bind(0);
         m_ShaderTransparent->SetUniform1i("u_Texture", 0);
 
@@ -459,24 +452,17 @@ namespace test
         model = glm::scale(model, glm::vec3(1.1f));
         m_ShaderBorder->Bind();
         m_ShaderBorder->SetUniformMat4f("u_Model", model);
-        m_ShaderBorder->SetUniformMat4f("u_View", m_View);
-        m_ShaderBorder->SetUniformMat4f("u_Proj", m_Proj);
         if (m_Model) {
             m_Model->Draw(*m_ShaderBorder);
         }
 
-        GLCall(glStencilMask(0xFF));
-        GLCall(glStencilFunc(GL_ALWAYS, 0, 0xFF));
-
-        GLCall(glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f));
         m_Framebuffer->Unbind();
-        GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
         m_ShaderFramebuffer->Bind();
         GLCall(glActiveTexture(GL_TEXTURE0));
         GLCall(glBindTexture(GL_TEXTURE_2D, m_Framebuffer->getTextureColorBuffer()));
-
         m_Framebuffer->Draw();
+        GLCall(glBindVertexArray(0));
     }
 
     void TestModel::OnImGuiRender()

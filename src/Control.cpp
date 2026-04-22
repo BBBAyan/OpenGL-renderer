@@ -50,7 +50,7 @@ void Control::handleMouse(GLFWwindow* window, double xpos, double ypos)
 
     Control* instance = GetControlInstance(window);
     if (!instance) {
-        std::cout << "Control::handleMouse: no instance pointer" << std::endl;
+        //std::cout << "Control::handleMouse: no instance pointer" << std::endl;
         return;
     }
 

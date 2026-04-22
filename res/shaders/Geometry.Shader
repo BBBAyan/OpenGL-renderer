@@ -1,53 +1,58 @@
 #shader vertex
 #version 420 core
 
-layout (location = 0) in vec3 aPos;
+layout (location = 0) in vec2 aPos;
+layout (location = 1) in vec3 aColor;
 
-out vec3 vNormal
+out vec3 color;
+//out vec3 vNormal;
 
-int main() {
+void main() {
+    gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
+    color = aColor;
 
 }
 
 #shader geometry
 #version 420 core
 
-float point[] = {
-    -0.5f,  0.5f, //top left
-     0.5f,  0.5f, //top right
-    -0.5f, -0.5f, //bottom left
-     0.5f,  0.5f  //bottom right
-}
+layout (points) in;
+layout (triangle_strip, max_vertices = 5) out;
 
-layout (triangles) in;
-layout (points, max_vertices = 2) out;
+in vec3 color[];
 
-in vec3 vNormal[];
-in vec3 vfragPos[];
-in vec2 vTexCoords[];
+out vec3 gcolor;
 
-out vec3 Normal;
-out vec3 fragPos;
-out vec2 TexCoords;
-  
-void main() {    
-    for (int i = 0; i < points.size(); i++) {
-        gl_Position = gl_in[0].gl_Position + points[i];
-        Normal = vNormal[0];
-        fragPos = vfragPos[0];
-        TexCoords = vTexCoords[0];
+vec2 house[] = vec2[](
+    vec2(-0.1, -0.1), //left bottom
+    vec2(0.1, -0.1),  //right bottom
+    vec2(-0.1,  0.1), //left top
+    vec2(0.1,  0.1),  //right top
+    vec2(0.0,  0.2)   //top
+);
+
+void main() {
+    gcolor = color[0];
+    vec4 center = gl_in[0].gl_Position;
+    for (int i = 0; i < 5; i++) {
+        gl_Position = center + vec4(house[i], 0.0, 0.0);
         EmitVertex();
     }
-    
     EndPrimitive();
-}    
+}
+
 #shader fragment
 #version 420 core
 
-in vec3 Normal;
-in vec3 fragPos;
-in vec2 TexCoords;
+in vec3 gcolor;
+out vec4 FragColor;
 
-int main() {
+//in vec3 Normal;
+//in vec3 fragPos;
+//in vec2 TexCoords;
 
+void main() {
+    //if (gcolor = )
+    //FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+    FragColor = vec4(gcolor, 1.0);
 }
