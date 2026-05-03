@@ -48,7 +48,7 @@ int main(void)
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     // Create a windowed mode window and its OpenGL context
-    window = glfwCreateWindow(1490, 913, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(1490, 913, "OpenGL Renderer", NULL, NULL);
 
     if (!window)
     {
@@ -66,6 +66,16 @@ int main(void)
         std::cout << "ERROR GLEW_NOT_OK" << std::endl;
         return -1;
     }
+
+    int width, height, channels;
+    unsigned char* pixels = stbi_load("res/icons/dimensions.png", &width, &height, &channels, 4);
+
+    GLFWimage images[1];
+    images[0].width = width;
+    images[0].height = height;
+    images[0].pixels = pixels;
+
+    glfwSetWindowIcon(window, 1, images);
 
     std::cout << glGetString(GL_VERSION) << std::endl;
     {

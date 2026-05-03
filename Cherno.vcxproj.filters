@@ -561,6 +561,8 @@
     <None Include="res\shaders\ReflectiveCube.Shader" />
     <None Include="res\shaders\ModelExplode.Shader" />
     <None Include="res\shaders\ModelNormal.Shader" />
+    <None Include="res\shaders\Quad.Shader" />
+    <None Include="res\shaders\ModelAsteroid.Shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLEW\include\GL\eglew.h">

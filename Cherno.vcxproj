@@ -216,8 +216,10 @@
     <None Include="res\shaders\Land.Shader" />
     <None Include="res\shaders\Lighting.Shader" />
     <None Include="res\shaders\Model.Shader" />
+    <None Include="res\shaders\ModelAsteroid.Shader" />
     <None Include="res\shaders\ModelExplode.Shader" />
     <None Include="res\shaders\ModelNormal.Shader" />
+    <None Include="res\shaders\Quad.Shader" />
     <None Include="res\shaders\ReflectiveCube.Shader" />
     <None Include="res\shaders\Square.Shader" />
     <None Include="res\shaders\Transparent.Shader" />

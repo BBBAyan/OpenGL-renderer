@@ -4,12 +4,12 @@
 
 unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
 
-Model::Model(const std::string &path)
+Model::Model(const std::string& path)
 {
 	loadModel(path);
 }
 
-void Model::loadModel(const std::string &path)
+void Model::loadModel(const std::string& path)
 {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
@@ -118,7 +118,7 @@ void Model::Draw(Shader& shader)
 unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma) {
 	std::string filename = std::string(path);
 	filename = directory + '/' + filename;
-	
+
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
 

@@ -10,15 +10,16 @@
 namespace test
 {
     TestMain::TestMain(GLFWwindow* window)
-        : m_Proj(glm::perspective(glm::radians(45.0f), SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f)),
+        : m_Proj(glm::perspective(glm::radians(45.0f), SCR_WIDTH / SCR_HEIGHT, 0.1f, 1000.0f)),
+        m_Proj2D(glm::ortho(-SCR_WIDTH / SCR_HEIGHT, SCR_WIDTH / SCR_HEIGHT, -1.0f, 1.0f, -1.0f, 1.0f)),
         m_View(glm::lookAt(glm::vec3(0.0f, 0.0f, 0.3f),
             glm::vec3(0.0f, 0.0f, 0.0f),
             glm::vec3(0.0f, 1.0f, 0.0f))),
         m_camera{ glm::vec3(0.0f, 0.0f, 3.0f),
         glm::vec3(0.0f, 0.0f, -1.0f),
         glm::vec3(0.0f, 1.0f, 0.0f),
-        0.1f }, m_controls(window, SCR_WIDTH, SCR_HEIGHT, m_camera), draw_cubemap(0), draw_house(0),
-        m_window(window), currentIndex(2), modelIndex(0), m_animationTime(0.0f), m_lastTime(glfwGetTime())
+        0.1f }, m_controls(window, SCR_WIDTH, SCR_HEIGHT, m_camera), draw_cubemap(0), draw_house(0), draw_quads(0),
+        m_window(window), currentIndex(2), modelIndex(0), m_animationTime(0.0f), m_lastTime(float(glfwGetTime()))
     {
 		float positions[] = {
 			//position             //normals           //texCoord
@@ -125,6 +126,64 @@ namespace test
             -0.25f, -0.25f, 1.0f, 1.0f, 0.0f  //bottom left
         };
 
+        float quadVertices[] = {
+            // positions     // color
+            -0.05f,  0.05f, 1.0f, 0.0f, 0.0f,
+            -0.05f, -0.05f, 0.0f, 0.0f, 1.0f,
+             0.05f, -0.05f, 0.0f, 1.0f, 0.0f,
+
+             0.05f,  0.05f, 1.0f, 1.0f, 0.0f,
+            -0.05f,  0.05f, 1.0f, 0.0f, 0.0f,
+             0.05f, -0.05f, 0.0f, 1.0f, 0.0f
+        };
+
+        glm::vec2 translations[100];
+        int index = 0;
+        float offset = 0.1f;
+        for (int i = -10; i < 10; i += 2) {
+            for (int j = -10; j < 10; j += 2) {
+                glm::vec2 translation = glm::vec2(-i * offset, 0.1f + j * offset);
+                translations[index++] = translation;
+            }
+        }
+        GLCall(glGenBuffers(1, &instanceVBO));
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, instanceVBO));
+        GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW));
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+        planetPos = glm::vec3(15.0f, 0.0f, 0.0f);
+        rockAmount = 100000;
+        modelMatrices = new glm::mat4[rockAmount];
+        srand(glfwGetTime());
+        float radius = 50.0;
+        float height = 8.0f;
+        for (unsigned int i = 0; i < rockAmount; i++) {
+            glm::mat4 model = glm::mat4(1.0f);
+            /*
+            float angle = rand() % 360;
+            float distance = rand() % 4 + 7.0f;
+            float distance_x = cos(angle) * distance;
+            float distance_y = (rand() % int(height * 100)) / 100.0f;
+            float distance_z = sin(angle) * distance;
+            model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f) + glm::vec3(distance_x, distance_y, distance_z));
+            */
+            float angle = (float)i / (float)rockAmount * 360.0f;
+            float displacement = (rand() % (int)(2 * height * 100)) / 100.0f - height;
+            float x = sin(angle) * radius + displacement;
+            displacement = (rand() % (int)(2 * height * 100)) / 100.0f - height;
+            float y = displacement * 0.4f; // keep height of field smaller compared to width of x and z
+            displacement = (rand() % (int)(2 * height * 100)) / 100.0f - height;
+            float z = cos(angle) * radius + displacement;
+            model = glm::translate(model, planetPos + glm::vec3(x, y, z));
+            float scale = (rand() % 20) / 100 + 0.05;
+            model = glm::scale(model, glm::vec3(scale, scale, scale));
+            float rotAngle = rand() % 360;
+            model = glm::rotate(model, rotAngle, glm::vec3(0.3f, 0.5f, 0.2f));
+
+            modelMatrices[i] = model;
+        }
+
+
         GLCall(glGenVertexArrays(1, &cubemapVAO));
         GLCall(glGenBuffers(1, &cubemapVBO));
 
@@ -143,8 +202,10 @@ namespace test
 
         m_VAO = std::make_unique<VertexArray>();
         m_VAO_Point = std::make_unique<VertexArray>();
+        m_VAO_Quad = std::make_unique<VertexArray>();
         m_VertexBuffer = std::make_unique<VertexBuffer>(positions, sizeof(positions));
         m_VertexBuffer_Point = std::make_unique<VertexBuffer>(points, sizeof(points));
+        m_VertexBuffer_Quad = std::make_unique<VertexBuffer>(quadVertices, sizeof(quadVertices));
         m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 3 * 2 * 6);
         m_Framebuffer = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT);
 
@@ -159,21 +220,59 @@ namespace test
         layoutPoint.Push<float>(3);
         m_VAO_Point->AddBuffer(*m_VertexBuffer_Point, layoutPoint);
 
+        VertexBufferLayout layoutQuad;
+        layoutQuad.Push<float>(2);
+        layoutQuad.Push<float>(3);
+        m_VAO_Quad->AddBuffer(*m_VertexBuffer_Quad, layoutQuad);
+
+        GLCall(glEnableVertexAttribArray(1));
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, instanceVBO));
+        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0));
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        GLCall(glVertexAttribDivisor(1, 1));
+
         m_ShaderCubemap = std::make_unique<Shader>("res/shaders/Cubemap.Shader");
         m_ShaderExplode = std::make_unique<Shader>("res/shaders/ModelExplode.Shader");
         m_ShaderFramebuffer = std::make_unique<Shader>("res/shaders/FramebufferScreen.Shader");
         m_ShaderGeometry = std::make_unique<Shader>("res/shaders/Geometry.Shader");
         m_ShaderLight = std::make_unique<Shader>("res/shaders/Lighting.Shader");
         m_ShaderModel = std::make_unique<Shader>("res/shaders/Model.Shader");
+        m_ShaderModelAsteroid = std::make_unique<Shader>("res/shaders/ModelAsteroid.Shader");
         m_ShaderNormal = std::make_unique<Shader>("res/shaders/ModelNormal.Shader");
         m_ShaderReflectiveCube = std::make_unique<Shader>("res/shaders/ReflectiveCube.Shader");
+        m_ShaderQuad = std::make_unique<Shader>("res/shaders/Quad.Shader");
 
         m_Texture = std::make_unique<Texture>("res/textures/container.png");
         m_TextureSpecular = std::make_unique<Texture>("res/textures/container_specular.png");
         m_TextureGrass = std::make_unique<Texture>("res/textures/grass.png");
         m_TextureWindow = std::make_unique<Texture>("res/textures/blending_transparent_window.png");
 
-        m_ModelBackpack = std::make_unique<Model>("res/objects/backpack/backpack.obj");
+        m_ModelPlanet = std::make_unique<Model>("res/objects/planet/planet.obj");
+        m_ModelAsteroid = std::make_unique<Model>("res/objects/rock/rock.obj");
+
+        GLCall(glGenBuffers(1, &instanceRockVBO));
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, instanceRockVBO));
+        GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * rockAmount, &modelMatrices[0], GL_STATIC_DRAW));
+        for (unsigned int i = 0; i < m_ModelAsteroid->meshes.size(); i++) {
+            unsigned int VAO = m_ModelAsteroid->meshes[i].VAO;
+            glBindVertexArray(VAO);
+            std::size_t vec4Size = sizeof(glm::vec4);
+            glEnableVertexAttribArray(3);
+            GLCall(glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0));
+            glEnableVertexAttribArray(4);
+            GLCall(glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(1 * vec4Size)));
+            glEnableVertexAttribArray(5);
+            GLCall(glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size)));
+            glEnableVertexAttribArray(6);
+            GLCall(glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size)));
+            glVertexAttribDivisor(3, 1);
+            glVertexAttribDivisor(4, 1);
+            glVertexAttribDivisor(5, 1);
+            glVertexAttribDivisor(6, 1);
+
+            glBindVertexArray(0);
+        }
+
 
         std::vector<std::string> textures_faces{
         "res/textures/skybox/right.jpg",
@@ -204,7 +303,7 @@ namespace test
     {
         isPauseClicked = 0;
         glfwSetWindowUserPointer(m_window, nullptr);
-        glfwSetCursorPosCallback(m_window, nullptr);
+        //glfwSetCursorPosCallback(m_window, nullptr);
         glfwSetKeyCallback(m_window, nullptr);
         glfwSetScrollCallback(m_window, nullptr);
     }
@@ -241,13 +340,14 @@ namespace test
         cameraDir.z = sin(glm::radians(m_controls.getYaw())) * cos(glm::radians(m_controls.getPitch()));
         m_camera.Front = glm::normalize(cameraDir);
 
-        if (getControls().getCameraMode())
-            glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        else
-            glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        if (getControls().getCameraMode()) {
+            GLCall(glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
+        } else {
+            GLCall(glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL));
+        }
 
         ProcessInput(m_camera);
-        m_Proj = glm::perspective(glm::radians(m_controls.getFov()), SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
+        m_Proj = glm::perspective(glm::radians(m_controls.getFov()), SCR_WIDTH / SCR_HEIGHT, 0.1f, 1000.0f);
         m_View = glm::lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
 
         GLCall(glBindBuffer(GL_UNIFORM_BUFFER, ubo));
@@ -290,39 +390,23 @@ namespace test
             model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
             m_VAO_Point->Bind();
             m_VertexBuffer_Point->Bind();
-            glDrawArrays(GL_POINTS, 0, 4);
-            //renderer.Draw(*m_VAO_Point, *m_IndexBuffer, *m_ShaderGeometry);
+            GLCall(glDrawArrays(GL_POINTS, 0, 4));
         }
 
-        //GLCall(glDepthMask(0));
+        //100 quads
+        if (draw_quads){
+            m_ShaderQuad->Bind();
+            m_ShaderQuad->SetUniformMat4f("u_Proj", m_Proj2D);
+            m_VAO_Quad->Bind();
+            m_VertexBuffer_Quad->Bind();
+            GLCall(glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100));
+        }
 
-        //Backpack Model Explosion
-        model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(1.0f));
-        model = glm::translate(model, modelPos);
-        m_ShaderExplode->Bind();
-        m_ShaderExplode->SetUniformMat4f("u_Model", model);
-        m_ShaderExplode->SetUniform1f("time", glfwGetTime());
-        m_ShaderExplode->SetUniform3f("dirLight.direction", glm::normalize(glm::vec3(0.1f, -1.0f, 0.0f)));
-        m_ShaderExplode->SetUniform3f("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        m_ShaderExplode->SetUniform3f("dirLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        m_ShaderExplode->SetUniform3f("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        m_ShaderExplode->SetUniform1f("dirLight.intensity", 1.0f);
-        m_ShaderExplode->SetUniform3f("pointLight.position", glm::vec3(lightPos.x, lightPos.y, lightPos.z));
-        m_ShaderExplode->SetUniform3f("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        m_ShaderExplode->SetUniform3f("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        m_ShaderExplode->SetUniform3f("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        m_ShaderExplode->SetUniform1f("pointLight.constant", 1.0f);
-        m_ShaderExplode->SetUniform1f("pointLight.linear", 0.09f);
-        m_ShaderExplode->SetUniform1f("pointLight.quadratic", 0.032f);
-        m_ShaderExplode->SetUniform3f("viewPos", m_camera.Position);
-        m_ModelBackpack->Draw(*m_ShaderExplode);
-
-        //Backpack Model
-        model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(1.0f));
-        model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
+        //Planet
         m_ShaderModel->Bind();
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, planetPos);
+        model = glm::scale(model, glm::vec3(3.0f));
         m_ShaderModel->SetUniformMat4f("u_Model", model);
         m_ShaderModel->SetUniform3f("dirLight.direction", glm::normalize(glm::vec3(0.1f, -1.0f, 0.0f)));
         m_ShaderModel->SetUniform3f("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
@@ -337,33 +421,31 @@ namespace test
         m_ShaderModel->SetUniform1f("pointLight.linear", 0.09f);
         m_ShaderModel->SetUniform1f("pointLight.quadratic", 0.032f);
         m_ShaderModel->SetUniform3f("viewPos", m_camera.Position);
-        m_ModelBackpack->Draw(*m_ShaderModel);
+        m_ModelPlanet->Draw(*m_ShaderModel);
 
-        //Backpack Normals Visualisation
-        model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(1.0f));
-        model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
-        m_ShaderNormal->Bind();
-        m_ShaderNormal->SetUniformMat4f("u_View", m_View);
-        m_ShaderNormal->SetUniformMat4f("u_Model", model);
-        m_ShaderNormal->SetUniformMat4f("u_Proj", m_Proj);
-        m_ShaderNormal->SetUniform3f("dirLight.direction", glm::normalize(glm::vec3(0.1f, -1.0f, 0.0f)));
-        m_ShaderNormal->SetUniform3f("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        m_ShaderNormal->SetUniform3f("dirLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        m_ShaderNormal->SetUniform3f("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        m_ShaderNormal->SetUniform1f("dirLight.intensity", 1.0f);
-        m_ShaderNormal->SetUniform3f("pointLight.position", glm::vec3(lightPos.x, lightPos.y, lightPos.z));
-        m_ShaderNormal->SetUniform3f("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        m_ShaderNormal->SetUniform3f("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        m_ShaderNormal->SetUniform3f("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        m_ShaderNormal->SetUniform1f("pointLight.constant", 1.0f);
-        m_ShaderNormal->SetUniform1f("pointLight.linear", 0.09f);
-        m_ShaderNormal->SetUniform1f("pointLight.quadratic", 0.032f);
-        m_ShaderNormal->SetUniform3f("viewPos", m_camera.Position);
-        m_ModelBackpack->Draw(*m_ShaderNormal);
+        //Asteroid
+        m_ShaderModelAsteroid->Bind();
+        m_ShaderModelAsteroid->SetUniform3f("dirLight.direction", glm::normalize(glm::vec3(0.1f, -1.0f, 0.0f)));
+        m_ShaderModelAsteroid->SetUniform3f("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        m_ShaderModelAsteroid->SetUniform3f("dirLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        m_ShaderModelAsteroid->SetUniform3f("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        m_ShaderModelAsteroid->SetUniform1f("dirLight.intensity", 1.0f);
+        m_ShaderModelAsteroid->SetUniform3f("pointLight.position", glm::vec3(lightPos.x, lightPos.y, lightPos.z));
+        m_ShaderModelAsteroid->SetUniform3f("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        m_ShaderModelAsteroid->SetUniform3f("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        m_ShaderModelAsteroid->SetUniform3f("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        m_ShaderModelAsteroid->SetUniform1f("pointLight.constant", 1.0f);
+        m_ShaderModelAsteroid->SetUniform1f("pointLight.linear", 0.09f);
+        m_ShaderModelAsteroid->SetUniform1f("pointLight.quadratic", 0.032f);
+        for (unsigned int i = 0; i < m_ModelAsteroid->meshes.size(); i++) {
+            m_ShaderModelAsteroid->SetUniform3f("viewPos", m_camera.Position);
+            glBindVertexArray(m_ModelAsteroid->meshes[i].VAO);
+            GLCall(glDrawElementsInstanced(GL_TRIANGLES, m_ModelAsteroid->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, rockAmount));
+        }
 
         //skybox
-        if (draw_cubemap == true) {
+        if (draw_cubemap == true) 
+        {
             m_ShaderCubemap->Bind();
             glm::mat4 cubemapView = glm::mat4(glm::mat3(glm::lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up)));
             m_ShaderCubemap->SetUniformMat4f("u_Proj", m_Proj);
@@ -394,6 +476,7 @@ namespace test
         ImGui::SliderFloat("DirLight Intensity", &dirlightIntensity, 0.0f, 2.0f);
         ImGui::Checkbox("Draw a Cubemap", &draw_cubemap);
         ImGui::Checkbox("Draw a House", &draw_house);
+        ImGui::Checkbox("Draw 100 Quads", &draw_quads);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
         if (isPauseClicked) {
