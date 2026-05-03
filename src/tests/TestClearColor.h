@@ -3,11 +3,11 @@
 #include "Test.h"
 
 namespace test {
-	
+
 	class TestClearColor : public Test
 	{
 	public:
-		TestClearColor();
+		TestClearColor(GLFWwindow* window);
 		~TestClearColor();
 
 		void OnUpdate(float deltaTime) override;
@@ -16,4 +16,4 @@ namespace test {
 	private:
 		float m_ClearColor[4];
 	};
-}
+};
