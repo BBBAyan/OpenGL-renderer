@@ -10,7 +10,7 @@
 namespace test
 {
     TestModel::TestModel(GLFWwindow* window)
-        : m_Proj(glm::perspective(glm::radians(45.0f), SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f)),
+        : m_Proj(glm::perspective(glm::radians(45.0f), SCR_WIDTH / SCR_HEIGHT, 0.1f, 1000.0f)),
         m_View(glm::lookAt(glm::vec3(0.0f, 0.0f, 0.3f),
             glm::vec3(0.0f, 0.0f, 0.0f),
             glm::vec3(0.0f, 1.0f, 0.0f))),
@@ -172,7 +172,7 @@ namespace test
         m_ShaderFramebuffer = std::make_unique<Shader>("res/shaders/FramebufferScreen.Shader");
         m_ShaderCubemap = std::make_unique<Shader>("res/shaders/Cubemap.Shader");
 
-        m_Model_Land = std::make_unique<Model>("res/objects/mountain/mount.blend1.obj");
+        //m_Model_Land = std::make_unique<Model>("res/objects/mountain/mount.blend1.obj");
         m_Texture = std::make_unique<Texture>("res/textures/container.png");
         m_TextureSpecular = std::make_unique<Texture>("res/textures/container_specular.png");
         m_TextureGrass = std::make_unique<Texture>("res/textures/grass.png");
@@ -224,6 +224,12 @@ namespace test
         //glfwSetCursorPosCallback(m_window, nullptr);
         glfwSetKeyCallback(m_window, nullptr);
         glfwSetScrollCallback(m_window, nullptr);
+
+        GLCall(glBindVertexArray(0));
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+        GLCall(glBindBufferBase(GL_UNIFORM_BUFFER, 0, 0));
+        GLCall(glUseProgram(0));
     }
 
     void TestModel::OnUpdate(float curTime)
@@ -265,7 +271,7 @@ namespace test
             glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
         ProcessInput(m_camera);
-        m_Proj = glm::perspective(glm::radians(m_controls.getFov()), SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
+        m_Proj = glm::perspective(glm::radians(m_controls.getFov()), SCR_WIDTH / SCR_HEIGHT, 0.1f, 1000.0f);
         m_View = glm::lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
 
         GLCall(glBindBuffer(GL_UNIFORM_BUFFER, ubo));
@@ -457,6 +463,7 @@ namespace test
         }
 
         m_Framebuffer->Unbind();
+        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
         m_ShaderFramebuffer->Bind();
         GLCall(glActiveTexture(GL_TEXTURE0));
