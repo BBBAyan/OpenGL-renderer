@@ -74,6 +74,7 @@ namespace test {
 		std::unique_ptr<VertexBuffer> m_VertexBuffer_Quad;
 		std::unique_ptr<IndexBuffer> m_IndexBuffer;
 		std::unique_ptr<Framebuffer> m_Framebuffer;
+		std::unique_ptr<Framebuffer> m_FramebufferMultisample;
 		const char* inputModeNames[3] = {
 			"GLFW_CURSOR_NORMAL",
 			"GLFW_CURSOR_HIDDEN",

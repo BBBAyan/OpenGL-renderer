@@ -21,59 +21,59 @@ namespace test
         0.1f }, m_controls(window, SCR_WIDTH, SCR_HEIGHT, m_camera), draw_cubemap(0), draw_house(0), draw_quads(0),
         m_window(window), currentIndex(2), modelIndex(0), m_animationTime(0.0f), m_lastTime(float(glfwGetTime()))
     {
-		float positions[] = {
-			//position             //normals           //texCoord
-		   //front
-			 -0.5f,  0.5f,  -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, //Left Top
-			 -0.5f, -0.5f,  -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, //Left Bottom
-			  0.5f, -0.5f,  -0.5f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, //Right Bottom
-			  0.5f,  0.5f,  -0.5f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, //Right Top
+        float positions[] = {
+            //position             //normals           //texCoord
+           //front
+             -0.5f,  0.5f,  -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, //Left Top
+             -0.5f, -0.5f,  -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, //Left Bottom
+              0.5f, -0.5f,  -0.5f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, //Right Bottom
+              0.5f,  0.5f,  -0.5f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, //Right Top
 
-			//top
-			 -0.5f,  0.5f,   0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, //Left Back	
-			 -0.5f,  0.5f,  -0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, //Left Front	
-			  0.5f,  0.5f,  -0.5f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, //Right Front	
-			  0.5f,  0.5f,   0.5f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, //Right Back  	
+              //top
+               -0.5f,  0.5f,   0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, //Left Back	
+               -0.5f,  0.5f,  -0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, //Left Front	
+                0.5f,  0.5f,  -0.5f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, //Right Front	
+                0.5f,  0.5f,   0.5f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, //Right Back  	
 
-			//back	 
-			 -0.5f,  0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, //Left Top	  
-			 -0.5f, -0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, //Left Bottom	  
-			  0.5f, -0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, //Right Bottom	
-			  0.5f,  0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, //Right Top		
+                //back	 
+                 -0.5f,  0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, //Left Top	  
+                 -0.5f, -0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, //Left Bottom	  
+                  0.5f, -0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, //Right Bottom	
+                  0.5f,  0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, //Right Top		
 
-			//bottom		
-			 -0.5f, -0.5f,   0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, //Left Back		
-			 -0.5f, -0.5f,  -0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, //Left Front		
-			  0.5f, -0.5f,  -0.5f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, //Right Front		
-			  0.5f, -0.5f,   0.5f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, //Right Back		
+                  //bottom		
+                   -0.5f, -0.5f,   0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, //Left Back		
+                   -0.5f, -0.5f,  -0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, //Left Front		
+                    0.5f, -0.5f,  -0.5f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, //Right Front		
+                    0.5f, -0.5f,   0.5f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, //Right Back		
 
-			//left		   
-			 -0.5f,  0.5f,   0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, //Top Back			
-			 -0.5f, -0.5f,   0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, //Bottom Back			
-			 -0.5f, -0.5f,  -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, //Bottom Front			
-			 -0.5f,  0.5f,  -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, //Top Front			
+                    //left		   
+                     -0.5f,  0.5f,   0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, //Top Back			
+                     -0.5f, -0.5f,   0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, //Bottom Back			
+                     -0.5f, -0.5f,  -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, //Bottom Front			
+                     -0.5f,  0.5f,  -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, //Top Front			
 
-			//right			 
-			  0.5f,  0.5f,   0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, //Top Back				
-			  0.5f, -0.5f,   0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, //Bottom Back				
-			  0.5f, -0.5f,  -0.5f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, //Bottom Front				
-			  0.5f,  0.5f,  -0.5f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f  //Top Front				
-		};
+                     //right			 
+                       0.5f,  0.5f,   0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, //Top Back				
+                       0.5f, -0.5f,   0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, //Bottom Back				
+                       0.5f, -0.5f,  -0.5f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, //Bottom Front				
+                       0.5f,  0.5f,  -0.5f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f  //Top Front				
+        };
 
-		unsigned int indices[]{
-			0, 1, 2,
-			0, 2, 3,
-			4, 5, 6,
-			4, 6, 7,
-			11, 10, 9,
-			11, 9, 8,
-			13, 12, 15,
-			13, 15, 14,
-			16, 17, 18,
-			16, 18, 19,
-			23, 22, 21,
-			23, 21, 20
-		};
+        unsigned int indices[]{
+            0, 1, 2,
+            0, 2, 3,
+            4, 5, 6,
+            4, 6, 7,
+            11, 10, 9,
+            11, 9, 8,
+            13, 12, 15,
+            13, 15, 14,
+            16, 17, 18,
+            16, 18, 19,
+            23, 22, 21,
+            23, 21, 20
+        };
         float skyboxVertices[] = {
             // positions          
             -1.0f,  1.0f, -1.0f,
@@ -183,7 +183,6 @@ namespace test
             modelMatrices[i] = model;
         }
 
-
         GLCall(glGenVertexArrays(1, &cubemapVAO));
         GLCall(glGenBuffers(1, &cubemapVBO));
 
@@ -208,6 +207,7 @@ namespace test
         m_VertexBuffer_Quad = std::make_unique<VertexBuffer>(quadVertices, sizeof(quadVertices));
         m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 3 * 2 * 6);
         m_Framebuffer = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT);
+        m_FramebufferMultisample = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT, 4);
 
         VertexBufferLayout layout;
         layout.Push<float>(3);
@@ -273,7 +273,6 @@ namespace test
             glBindVertexArray(0);
         }
 
-
         std::vector<std::string> textures_faces{
         "res/textures/skybox/right.jpg",
         "res/textures/skybox/left.jpg",
@@ -292,6 +291,7 @@ namespace test
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         GLCall(glEnable(GL_STENCIL_TEST));
+        GLCall(glEnable(GL_MULTISAMPLE));
         GLCall(glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE));
         GLCall(glEnable(GL_BLEND));
         GLCall(glDepthFunc(GL_LEQUAL));
@@ -306,6 +306,22 @@ namespace test
         //glfwSetCursorPosCallback(m_window, nullptr);
         glfwSetKeyCallback(m_window, nullptr);
         glfwSetScrollCallback(m_window, nullptr);
+
+        glUseProgram(0);
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        GLCall(glBindFramebuffer(GL_READ_FRAMEBUFFER, 0));
+        GLCall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
+        GLCall(glDisable(GL_MULTISAMPLE));
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_STENCIL_TEST);
+        glDisable(GL_BLEND);
+        glDisable(GL_CULL_FACE);
+        glDepthMask(GL_TRUE);
+        glStencilMask(0xFF);
     }
 
     void TestMain::OnUpdate(float curTime)
@@ -323,7 +339,8 @@ namespace test
     void TestMain::OnRender()
     {
         GLCall(glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f));
-        m_Framebuffer->Bind();
+        m_FramebufferMultisample->Bind();
+
         GLCall(glEnable(GL_DEPTH_TEST));
 
         GLCall(glStencilMask(0x00));
@@ -342,7 +359,8 @@ namespace test
 
         if (getControls().getCameraMode()) {
             GLCall(glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
-        } else {
+        }
+        else {
             GLCall(glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL));
         }
 
@@ -360,7 +378,7 @@ namespace test
 
         GLCall(glEnable(GL_CULL_FACE));
         GLCall(glFrontFace(GL_CW));
-        
+
         //Reflective Cube
         m_ShaderReflectiveCube->Bind();
         model = glm::translate(model, glm::vec3(-3.0f, 0.0f, 0.0f));
@@ -394,7 +412,7 @@ namespace test
         }
 
         //100 quads
-        if (draw_quads){
+        if (draw_quads) {
             m_ShaderQuad->Bind();
             m_ShaderQuad->SetUniformMat4f("u_Proj", m_Proj2D);
             m_VAO_Quad->Bind();
@@ -444,7 +462,7 @@ namespace test
         }
 
         //skybox
-        if (draw_cubemap == true) 
+        if (draw_cubemap == true)
         {
             m_ShaderCubemap->Bind();
             glm::mat4 cubemapView = glm::mat4(glm::mat3(glm::lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up)));
@@ -458,8 +476,12 @@ namespace test
 
         GLCall(glDisable(GL_DEPTH_TEST));
 
-        m_Framebuffer->Unbind();
+        GLCall(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_FramebufferMultisample->getFBO()))
+        GLCall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Framebuffer->getFBO()));
+        GLCall(glBlitFramebuffer(0, 0, SCR_WIDTH, SCR_HEIGHT, 0, 0, SCR_WIDTH, SCR_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST));
 
+        m_FramebufferMultisample->Unbind();
+        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
         m_ShaderFramebuffer->Bind();
         GLCall(glActiveTexture(GL_TEXTURE0));
         GLCall(glBindTexture(GL_TEXTURE_2D, m_Framebuffer->getTextureColorBuffer()));
