@@ -31,19 +31,20 @@ namespace test {
 			float r, g, b;
 		};
 		Color clearColor = { 0.1f, 0.1f, 0.1f };
-		Color lightColor = { 0.54f, 0.0f, 1.0f };
-		glm::vec3 lightPos = { 1.0f, 2.0f, 2.0f };
+		Color lightColor = { 1.0f, 1.0f, 1.0f };
+		glm::vec3 lightPos = { 0.0f, 1.0f, 0.0f };
 		glm::vec3 modelPos = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 planetPos;
 		float dirlightIntensity = 1.0f;
 		float m_lastTime;
 		float m_animationTime;
-		bool draw_cubemap, draw_house, draw_quads;
+		float shininess = 32.0f;
+		bool draw_cubemap, blinn;
 
 		int currentIndex;
 		int modelIndex;
 		unsigned int cubemapVAO, cubemapVBO;
-		unsigned int ubo, instanceVBO, instanceRockVBO;
+		unsigned int ubo;
 
 		Control m_controls;
 		Camera m_camera;
@@ -53,6 +54,7 @@ namespace test {
 		std::unique_ptr<Model> m_ModelAsteroid;
 		std::unique_ptr<Shader> m_ShaderCubemap;
 		std::unique_ptr<Shader> m_ShaderExplode;
+		std::unique_ptr<Shader> m_ShaderFloor;
 		std::unique_ptr<Shader> m_ShaderFramebuffer;
 		std::unique_ptr<Shader> m_ShaderGeometry;
 		std::unique_ptr<Shader> m_ShaderLight;
@@ -60,19 +62,20 @@ namespace test {
 		std::unique_ptr<Shader> m_ShaderModelAsteroid;
 		std::unique_ptr<Shader> m_ShaderNormal;
 		std::unique_ptr<Shader> m_ShaderReflectiveCube;
-		std::unique_ptr<Shader> m_ShaderQuad;
 		std::unique_ptr<Texture> m_Texture;
+		std::unique_ptr<Texture> m_TextureFloor;
 		std::unique_ptr<Texture> m_TextureGrass;
 		std::unique_ptr<Texture> m_TextureSpecular;
 		std::unique_ptr<Texture> m_TextureWindow;
 		std::unique_ptr<TextureCubemap> m_TextureCubemap;
 		std::unique_ptr<VertexArray> m_VAO;
 		std::unique_ptr<VertexArray> m_VAO_Point;
-		std::unique_ptr<VertexArray> m_VAO_Quad;
+		std::unique_ptr<VertexArray> m_VAO_Square;
 		std::unique_ptr<VertexBuffer> m_VertexBuffer;
 		std::unique_ptr<VertexBuffer> m_VertexBuffer_Point;
-		std::unique_ptr<VertexBuffer> m_VertexBuffer_Quad;
+		std::unique_ptr<VertexBuffer> m_VertexBuffer_Square;
 		std::unique_ptr<IndexBuffer> m_IndexBuffer;
+		std::unique_ptr<IndexBuffer> m_IndexBufferSquare;
 		std::unique_ptr<Framebuffer> m_Framebuffer;
 		std::unique_ptr<Framebuffer> m_FramebufferMultisample;
 		const char* inputModeNames[3] = {

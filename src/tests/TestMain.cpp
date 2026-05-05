@@ -18,7 +18,7 @@ namespace test
         m_camera{ glm::vec3(0.0f, 0.0f, 3.0f),
         glm::vec3(0.0f, 0.0f, -1.0f),
         glm::vec3(0.0f, 1.0f, 0.0f),
-        0.1f }, m_controls(window, SCR_WIDTH, SCR_HEIGHT, m_camera), draw_cubemap(0), draw_house(0), draw_quads(0),
+        0.1f }, m_controls(window, SCR_WIDTH, SCR_HEIGHT, m_camera), draw_cubemap(0), blinn(1),
         m_window(window), currentIndex(2), modelIndex(0), m_animationTime(0.0f), m_lastTime(float(glfwGetTime()))
     {
         float positions[] = {
@@ -137,51 +137,17 @@ namespace test
              0.05f, -0.05f, 0.0f, 1.0f, 0.0f
         };
 
-        glm::vec2 translations[100];
-        int index = 0;
-        float offset = 0.1f;
-        for (int i = -10; i < 10; i += 2) {
-            for (int j = -10; j < 10; j += 2) {
-                glm::vec2 translation = glm::vec2(-i * offset, 0.1f + j * offset);
-                translations[index++] = translation;
-            }
-        }
-        GLCall(glGenBuffers(1, &instanceVBO));
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, instanceVBO));
-        GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW));
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        float square[] = {
+            -5.0f, 0.0f,  5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, //Left Top
+            -5.0f, 0.0f, -5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //Left Bottom
+             5.0f, 0.0f, -5.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, //Right Bottom
+             5.0f, 0.0f,  5.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f  //Right Top
+        };
 
-        planetPos = glm::vec3(15.0f, 0.0f, 0.0f);
-        rockAmount = 100000;
-        modelMatrices = new glm::mat4[rockAmount];
-        srand(glfwGetTime());
-        float radius = 50.0;
-        float height = 8.0f;
-        for (unsigned int i = 0; i < rockAmount; i++) {
-            glm::mat4 model = glm::mat4(1.0f);
-            /*
-            float angle = rand() % 360;
-            float distance = rand() % 4 + 7.0f;
-            float distance_x = cos(angle) * distance;
-            float distance_y = (rand() % int(height * 100)) / 100.0f;
-            float distance_z = sin(angle) * distance;
-            model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f) + glm::vec3(distance_x, distance_y, distance_z));
-            */
-            float angle = (float)i / (float)rockAmount * 360.0f;
-            float displacement = (rand() % (int)(2 * height * 100)) / 100.0f - height;
-            float x = sin(angle) * radius + displacement;
-            displacement = (rand() % (int)(2 * height * 100)) / 100.0f - height;
-            float y = displacement * 0.4f; // keep height of field smaller compared to width of x and z
-            displacement = (rand() % (int)(2 * height * 100)) / 100.0f - height;
-            float z = cos(angle) * radius + displacement;
-            model = glm::translate(model, planetPos + glm::vec3(x, y, z));
-            float scale = (rand() % 20) / 100 + 0.05;
-            model = glm::scale(model, glm::vec3(scale, scale, scale));
-            float rotAngle = rand() % 360;
-            model = glm::rotate(model, rotAngle, glm::vec3(0.3f, 0.5f, 0.2f));
-
-            modelMatrices[i] = model;
-        }
+        unsigned int squareIndices[] = {
+            0, 1, 2,
+            0, 2, 3
+        };
 
         GLCall(glGenVertexArrays(1, &cubemapVAO));
         GLCall(glGenBuffers(1, &cubemapVBO));
@@ -201,11 +167,12 @@ namespace test
 
         m_VAO = std::make_unique<VertexArray>();
         m_VAO_Point = std::make_unique<VertexArray>();
-        m_VAO_Quad = std::make_unique<VertexArray>();
+        m_VAO_Square = std::make_unique<VertexArray>();
         m_VertexBuffer = std::make_unique<VertexBuffer>(positions, sizeof(positions));
         m_VertexBuffer_Point = std::make_unique<VertexBuffer>(points, sizeof(points));
-        m_VertexBuffer_Quad = std::make_unique<VertexBuffer>(quadVertices, sizeof(quadVertices));
+        m_VertexBuffer_Square = std::make_unique<VertexBuffer>(square, sizeof(square));
         m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 3 * 2 * 6);
+        m_IndexBufferSquare = std::make_unique<IndexBuffer>(squareIndices, 3 * 2);
         m_Framebuffer = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT);
         m_FramebufferMultisample = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT, 4);
 
@@ -220,19 +187,15 @@ namespace test
         layoutPoint.Push<float>(3);
         m_VAO_Point->AddBuffer(*m_VertexBuffer_Point, layoutPoint);
 
-        VertexBufferLayout layoutQuad;
-        layoutQuad.Push<float>(2);
-        layoutQuad.Push<float>(3);
-        m_VAO_Quad->AddBuffer(*m_VertexBuffer_Quad, layoutQuad);
-
-        GLCall(glEnableVertexAttribArray(1));
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, instanceVBO));
-        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0));
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-        GLCall(glVertexAttribDivisor(1, 1));
+        VertexBufferLayout layoutSquare;
+        layoutSquare.Push<float>(3);
+        layoutSquare.Push<float>(3);
+        layoutSquare.Push<float>(2);
+        m_VAO_Square->AddBuffer(*m_VertexBuffer_Square, layoutSquare);
 
         m_ShaderCubemap = std::make_unique<Shader>("res/shaders/Cubemap.Shader");
         m_ShaderExplode = std::make_unique<Shader>("res/shaders/ModelExplode.Shader");
+        m_ShaderFloor = std::make_unique<Shader>("res/shaders/Floor.Shader");
         m_ShaderFramebuffer = std::make_unique<Shader>("res/shaders/FramebufferScreen.Shader");
         m_ShaderGeometry = std::make_unique<Shader>("res/shaders/Geometry.Shader");
         m_ShaderLight = std::make_unique<Shader>("res/shaders/Lighting.Shader");
@@ -240,38 +203,15 @@ namespace test
         m_ShaderModelAsteroid = std::make_unique<Shader>("res/shaders/ModelAsteroid.Shader");
         m_ShaderNormal = std::make_unique<Shader>("res/shaders/ModelNormal.Shader");
         m_ShaderReflectiveCube = std::make_unique<Shader>("res/shaders/ReflectiveCube.Shader");
-        m_ShaderQuad = std::make_unique<Shader>("res/shaders/Quad.Shader");
 
         m_Texture = std::make_unique<Texture>("res/textures/container.png");
         m_TextureSpecular = std::make_unique<Texture>("res/textures/container_specular.png");
         m_TextureGrass = std::make_unique<Texture>("res/textures/grass.png");
         m_TextureWindow = std::make_unique<Texture>("res/textures/blending_transparent_window.png");
+		m_TextureFloor = std::make_unique<Texture>("res/textures/floor.jpg");
 
         m_ModelPlanet = std::make_unique<Model>("res/objects/planet/planet.obj");
         m_ModelAsteroid = std::make_unique<Model>("res/objects/rock/rock.obj");
-
-        GLCall(glGenBuffers(1, &instanceRockVBO));
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, instanceRockVBO));
-        GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * rockAmount, &modelMatrices[0], GL_STATIC_DRAW));
-        for (unsigned int i = 0; i < m_ModelAsteroid->meshes.size(); i++) {
-            unsigned int VAO = m_ModelAsteroid->meshes[i].VAO;
-            glBindVertexArray(VAO);
-            std::size_t vec4Size = sizeof(glm::vec4);
-            glEnableVertexAttribArray(3);
-            GLCall(glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0));
-            glEnableVertexAttribArray(4);
-            GLCall(glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(1 * vec4Size)));
-            glEnableVertexAttribArray(5);
-            GLCall(glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size)));
-            glEnableVertexAttribArray(6);
-            GLCall(glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size)));
-            glVertexAttribDivisor(3, 1);
-            glVertexAttribDivisor(4, 1);
-            glVertexAttribDivisor(5, 1);
-            glVertexAttribDivisor(6, 1);
-
-            glBindVertexArray(0);
-        }
 
         std::vector<std::string> textures_faces{
         "res/textures/skybox/right.jpg",
@@ -326,6 +266,7 @@ namespace test
 
     void TestMain::OnUpdate(float curTime)
     {
+        /*
         float deltaTime = curTime - m_lastTime;
         m_lastTime = curTime;
 
@@ -334,6 +275,7 @@ namespace test
         }
         lightPos.x = 6 * std::sin(m_animationTime);
         lightPos.z = 6 * std::cos(m_animationTime);
+        */
     }
 
     void TestMain::OnRender()
@@ -350,6 +292,7 @@ namespace test
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        //lightPos.y = 5.0f;
 
         glm::vec3 cameraDir{};
         cameraDir.x = cos(glm::radians(m_controls.getYaw())) * cos(glm::radians(m_controls.getPitch()));
@@ -379,87 +322,38 @@ namespace test
         GLCall(glEnable(GL_CULL_FACE));
         GLCall(glFrontFace(GL_CW));
 
-        //Reflective Cube
-        m_ShaderReflectiveCube->Bind();
-        model = glm::translate(model, glm::vec3(-3.0f, 0.0f, 0.0f));
-        m_ShaderReflectiveCube->SetUniformMat4f("u_Model", model);
-        m_ShaderReflectiveCube->SetUniform3f("viewPos", m_camera.Position);
-        m_TextureCubemap->Bind(0);
-        m_ShaderReflectiveCube->SetUniform1i("skybox", 0);
-        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderReflectiveCube);
-
         // Light Object
         m_ShaderLight->Bind();
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(lightPos.x, 0.0f, lightPos.z));
         model = glm::scale(model, glm::vec3(0.5f));
+        model = glm::translate(model, glm::vec3(lightPos.x, lightPos.y, lightPos.z));
         m_ShaderLight->SetUniformMat4f("u_Model", model);
         m_ShaderLight->SetUniform3f("pointLightColor", glm::vec3(lightColor.r, lightColor.g, lightColor.b));
         renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderLight);
 
+        //Floor
+        m_ShaderFloor->Bind();
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(3.0f));
+        model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
+		m_ShaderFloor->SetUniformMat4f("u_Model", model);
+        m_ShaderFloor->SetUniform3f("viewPos", glm::vec3(m_camera.Position));
+        m_TextureFloor->Bind(0);
+        m_ShaderFloor->SetUniform1i("u_Texture", 0);
+        m_ShaderFloor->SetUniform3f("light.position", glm::vec3(lightPos.x, lightPos.y, lightPos.z));
+        m_ShaderFloor->SetUniform3f("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        m_ShaderFloor->SetUniform3f("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        m_ShaderFloor->SetUniform3f("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        m_ShaderFloor->SetUniform1f("light.shininess", shininess);
+        m_ShaderFloor->SetUniform1i("blinn", blinn);
+        //m_ShaderFloor->SetUniform1f("light.constant", 1.0f);
+        //m_ShaderFloor->SetUniform1f("light.linear", 0.09f);
+        //m_ShaderFloor->SetUniform1f("light.quadratic", 0.032f);
+		renderer.Draw(*m_VAO_Square, *m_IndexBufferSquare, *m_ShaderFloor);
+
         GLCall(glDisable(GL_CULL_FACE));
         GLCall(glStencilFunc(GL_ALWAYS, 1, 0xFF));
         GLCall(glStencilMask(0xFF));
-
-        //Geometry
-        if (draw_house)
-        {
-            m_ShaderGeometry->Bind();
-            model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
-            m_VAO_Point->Bind();
-            m_VertexBuffer_Point->Bind();
-            GLCall(glDrawArrays(GL_POINTS, 0, 4));
-        }
-
-        //100 quads
-        if (draw_quads) {
-            m_ShaderQuad->Bind();
-            m_ShaderQuad->SetUniformMat4f("u_Proj", m_Proj2D);
-            m_VAO_Quad->Bind();
-            m_VertexBuffer_Quad->Bind();
-            GLCall(glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100));
-        }
-
-        //Planet
-        m_ShaderModel->Bind();
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, planetPos);
-        model = glm::scale(model, glm::vec3(3.0f));
-        m_ShaderModel->SetUniformMat4f("u_Model", model);
-        m_ShaderModel->SetUniform3f("dirLight.direction", glm::normalize(glm::vec3(0.1f, -1.0f, 0.0f)));
-        m_ShaderModel->SetUniform3f("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        m_ShaderModel->SetUniform3f("dirLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        m_ShaderModel->SetUniform3f("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        m_ShaderModel->SetUniform1f("dirLight.intensity", 1.0f);
-        m_ShaderModel->SetUniform3f("pointLight.position", glm::vec3(lightPos.x, lightPos.y, lightPos.z));
-        m_ShaderModel->SetUniform3f("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        m_ShaderModel->SetUniform3f("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        m_ShaderModel->SetUniform3f("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        m_ShaderModel->SetUniform1f("pointLight.constant", 1.0f);
-        m_ShaderModel->SetUniform1f("pointLight.linear", 0.09f);
-        m_ShaderModel->SetUniform1f("pointLight.quadratic", 0.032f);
-        m_ShaderModel->SetUniform3f("viewPos", m_camera.Position);
-        m_ModelPlanet->Draw(*m_ShaderModel);
-
-        //Asteroid
-        m_ShaderModelAsteroid->Bind();
-        m_ShaderModelAsteroid->SetUniform3f("dirLight.direction", glm::normalize(glm::vec3(0.1f, -1.0f, 0.0f)));
-        m_ShaderModelAsteroid->SetUniform3f("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        m_ShaderModelAsteroid->SetUniform3f("dirLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        m_ShaderModelAsteroid->SetUniform3f("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        m_ShaderModelAsteroid->SetUniform1f("dirLight.intensity", 1.0f);
-        m_ShaderModelAsteroid->SetUniform3f("pointLight.position", glm::vec3(lightPos.x, lightPos.y, lightPos.z));
-        m_ShaderModelAsteroid->SetUniform3f("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        m_ShaderModelAsteroid->SetUniform3f("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        m_ShaderModelAsteroid->SetUniform3f("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        m_ShaderModelAsteroid->SetUniform1f("pointLight.constant", 1.0f);
-        m_ShaderModelAsteroid->SetUniform1f("pointLight.linear", 0.09f);
-        m_ShaderModelAsteroid->SetUniform1f("pointLight.quadratic", 0.032f);
-        for (unsigned int i = 0; i < m_ModelAsteroid->meshes.size(); i++) {
-            m_ShaderModelAsteroid->SetUniform3f("viewPos", m_camera.Position);
-            glBindVertexArray(m_ModelAsteroid->meshes[i].VAO);
-            GLCall(glDrawElementsInstanced(GL_TRIANGLES, m_ModelAsteroid->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, rockAmount));
-        }
 
         //skybox
         if (draw_cubemap == true)
@@ -469,8 +363,8 @@ namespace test
             m_ShaderCubemap->SetUniformMat4f("u_Proj", m_Proj);
             m_ShaderCubemap->SetUniformMat4f("u_View", cubemapView);
             GLCall(glBindVertexArray(cubemapVAO));
-            m_TextureCubemap->Bind(0);
-            m_ShaderCubemap->SetUniform1i("skybox", 0);
+            m_TextureCubemap->Bind(1);
+            m_ShaderCubemap->SetUniform1i("skybox", 1);
             GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
         }
 
@@ -497,8 +391,8 @@ namespace test
         ImGui::SliderFloat3("Light Position", &lightPos.x, -5.0f, 5.0f);
         ImGui::SliderFloat("DirLight Intensity", &dirlightIntensity, 0.0f, 2.0f);
         ImGui::Checkbox("Draw a Cubemap", &draw_cubemap);
-        ImGui::Checkbox("Draw a House", &draw_house);
-        ImGui::Checkbox("Draw 100 Quads", &draw_quads);
+        ImGui::Checkbox("1 - Blinn Phong, 0 - Regular Phong", &blinn);
+        ImGui::SliderFloat("Shininess", &shininess, 1.0f, 128.0f);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
         if (isPauseClicked) {
