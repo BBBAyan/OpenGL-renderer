@@ -21,28 +21,30 @@ namespace test {
 
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
+		void RenderScene();
 		void OnImGuiRender() override;
 		Control& getControls() { return m_controls; }
 		void ProcessInput(Camera& camera);
 	private:
 		glm::mat4* modelMatrices; int rockAmount;
-		glm::mat4 m_Proj, m_View, m_Proj2D;
+		glm::mat4 m_Proj, m_View, model, floorModel, m_Proj2D, lightSpaceMatrix;
+		std::vector<glm::mat4> pointShadowMatrices, boxModels;
 		struct Color {
 			float r, g, b;
 		};
 		Color clearColor = { 0.1f, 0.1f, 0.1f };
 		Color lightColor = { 1.0f, 1.0f, 1.0f };
-		glm::vec3 lightPos = { 0.0f, 1.0f, 0.0f };
-		glm::vec3 modelPos = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 planetPos;
+		glm::vec3 lightPos, dirLight;
+		glm::vec3 planetPos, modelPos = { 0.0f, 0.0f, 0.0f };
 		float dirlightIntensity = 1.0f;
 		float m_lastTime;
 		float m_animationTime;
+		float near_plane, far_plane;
 		float shininess = 32.0f;
 		bool draw_cubemap, blinn;
 
 		int currentIndex;
-		int modelIndex;
+		int modelIndex, SHADOW_WIDTH, SHADOW_HEIGHT;
 		unsigned int cubemapVAO, cubemapVBO;
 		unsigned int ubo;
 
@@ -52,6 +54,7 @@ namespace test {
 
 		std::unique_ptr<Model> m_ModelPlanet;
 		std::unique_ptr<Model> m_ModelAsteroid;
+		std::unique_ptr<Shader> m_ShaderCube;
 		std::unique_ptr<Shader> m_ShaderCubemap;
 		std::unique_ptr<Shader> m_ShaderExplode;
 		std::unique_ptr<Shader> m_ShaderFloor;
@@ -62,6 +65,8 @@ namespace test {
 		std::unique_ptr<Shader> m_ShaderModelAsteroid;
 		std::unique_ptr<Shader> m_ShaderNormal;
 		std::unique_ptr<Shader> m_ShaderReflectiveCube;
+		std::unique_ptr<Shader> m_ShaderDirShadow;
+		std::unique_ptr<Shader> m_ShaderPointShadow;
 		std::unique_ptr<Texture> m_Texture;
 		std::unique_ptr<Texture> m_TextureFloor;
 		std::unique_ptr<Texture> m_TextureGrass;
@@ -77,6 +82,8 @@ namespace test {
 		std::unique_ptr<IndexBuffer> m_IndexBuffer;
 		std::unique_ptr<IndexBuffer> m_IndexBufferSquare;
 		std::unique_ptr<Framebuffer> m_Framebuffer;
+		std::unique_ptr<Framebuffer> m_FramebufferDirShadow;
+		std::unique_ptr<Framebuffer> m_FramebufferPointShadow;
 		std::unique_ptr<Framebuffer> m_FramebufferMultisample;
 		const char* inputModeNames[3] = {
 			"GLFW_CURSOR_NORMAL",

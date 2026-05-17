@@ -173,10 +173,10 @@ namespace test
         m_ShaderCubemap = std::make_unique<Shader>("res/shaders/Cubemap.Shader");
 
         //m_Model_Land = std::make_unique<Model>("res/objects/mountain/mount.blend1.obj");
-        m_Texture = std::make_unique<Texture>("res/textures/container.png");
-        m_TextureSpecular = std::make_unique<Texture>("res/textures/container_specular.png");
-        m_TextureGrass = std::make_unique<Texture>("res/textures/grass.png");
-        m_TextureWindow = std::make_unique<Texture>("res/textures/blending_transparent_window.png");
+        m_Texture = std::make_unique<Texture>("res/textures/container.png", 1);
+        m_TextureSpecular = std::make_unique<Texture>("res/textures/container_specular.png", 1);
+        m_TextureGrass = std::make_unique<Texture>("res/textures/grass.png", 1);
+        m_TextureWindow = std::make_unique<Texture>("res/textures/blending_transparent_window.png", 1);
 
         windows.push_back(glm::vec3(5.0f, 0.0f, 0.0f));
         windows.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -467,7 +467,7 @@ namespace test
 
         m_ShaderFramebuffer->Bind();
         GLCall(glActiveTexture(GL_TEXTURE0));
-        GLCall(glBindTexture(GL_TEXTURE_2D, m_Framebuffer->getTextureColorBuffer()));
+        GLCall(glBindTexture(GL_TEXTURE_2D, m_Framebuffer->getTextureBuffer()));
         m_Framebuffer->Draw();
         GLCall(glBindVertexArray(0));
     }

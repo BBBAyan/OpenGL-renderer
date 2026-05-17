@@ -117,15 +117,15 @@ namespace test
         m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 3 * 2 * 6);
         m_Shader = std::make_unique<Shader>("res/shaders/Cube.shader");
         m_ShaderLight = std::make_unique<Shader>("res/shaders/Lighting.shader");
-        m_Texture = std::make_unique<Texture>("res/textures/container.png");
-        m_Texture_Specular = std::make_unique<Texture>("res/textures/container_specular.png");
-        m_Texture_Matrix = std::make_unique<Texture>("res/textures/matrix.jpg");
-        m_Texture_Light = std::make_unique<Texture>("res/textures/glowstone.jpg");
+        m_Texture = std::make_unique<Texture>("res/textures/container.png", 1);
+        m_Texture_Specular = std::make_unique<Texture>("res/textures/container_specular.png", 1);
+        m_Texture_Matrix = std::make_unique<Texture>("res/textures/matrix.jpg", 1);
+        m_Texture_Light = std::make_unique<Texture>("res/textures/glowstone.jpg", 1);
 
         m_IndexBuffer_Land = std::make_unique<IndexBuffer>(landIndices, 3 * 2);
         m_Shader_Land = std::make_unique<Shader>("res/shaders/Land.shader");
-        m_Texture_Land = std::make_unique<Texture>("res/textures/dirt.jpg");
-        m_Texture_Spotlight = std::make_unique<Texture>("res/textures/smile.png");
+        m_Texture_Land = std::make_unique<Texture>("res/textures/dirt.jpg", 1);
+        m_Texture_Spotlight = std::make_unique<Texture>("res/textures/smile.png", 1);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         GLCall(glEnable(GL_DEPTH_TEST));
         //GLCall(glEnable(GL_PROGRAM_POINT_SIZE));

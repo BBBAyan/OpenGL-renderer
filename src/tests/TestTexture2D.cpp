@@ -47,7 +47,7 @@ namespace test
         m_Shader->Bind();
         m_Shader->SetUniform4f("u_Color", 0.2f, 0.4f, 0.3f, 1.0f);
 
-        m_Texture = std::make_unique<Texture>("res/textures/Sekiro.png");
+        m_Texture = std::make_unique<Texture>("res/textures/Sekiro.png", 1);
         m_Shader->SetUniform1i("u_Texture", 0);
 	}
 

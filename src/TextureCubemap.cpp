@@ -21,7 +21,7 @@ TextureCubemap::TextureCubemap(const std::vector<std::string>& textures_faces)
 	{
 		unsigned char* data = stbi_load(textures_faces[i].c_str(), &m_Width, &m_Height, &m_BPP, 0);
 		if (data) {
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_SRGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 			stbi_image_free(data);
 		}
 		else {
