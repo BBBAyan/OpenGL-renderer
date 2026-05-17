@@ -130,9 +130,9 @@ unsigned int TextureFromFile(const char* path, const std::string& directory, boo
 		if (nComponents == 1)
 			format = GL_RED;
 		else if (nComponents == 3)
-			format = GL_RGB;
+			format = GL_SRGB;
 		else if (nComponents == 4)
-			format = GL_RGBA;
+			format = GL_SRGB_ALPHA;
 
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);

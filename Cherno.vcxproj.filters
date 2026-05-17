@@ -540,6 +540,9 @@
     <None Include="res\shaders\Floor.Shader" />
     <None Include="res\shaders\ModelAsteroid.Shader" />
     <None Include="res\shaders\Quad.Shader" />
+    <None Include="res\shaders\CubeShadow.Shader" />
+    <None Include="res\shaders_shadow\DirShadow.Shader" />
+    <None Include="res\shaders_shadow\PointShadow.Shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLEW\include\GL\eglew.h">

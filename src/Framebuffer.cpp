@@ -12,8 +12,8 @@ static const float quadVertices[] = {
      1.0f,  1.0f,  1.0f, 1.0f
 };
 
-Framebuffer::Framebuffer(int width, int height, int samples)
-	: m_width(width), m_height(height), m_samples(samples)
+Framebuffer::Framebuffer(int width, int height, int samples, int shadowmode)
+	: m_width(width), m_height(height), m_samples(samples), m_shadowmode(shadowmode)
 {
     GLCall(glGenVertexArrays(1, &quadVAO));
     GLCall(glGenBuffers(1, &quadVBO));
@@ -30,19 +30,50 @@ Framebuffer::Framebuffer(int width, int height, int samples)
         GLCall(glGenFramebuffers(1, &fbo));
         GLCall(glBindFramebuffer(GL_FRAMEBUFFER, fbo));
 
-        GLCall(glGenTextures(1, &textureColorBuffer));
-        GLCall(glBindTexture(GL_TEXTURE_2D, textureColorBuffer));
-        GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
-        GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-        GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-        GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0));
+        if (shadowmode == 0) {
+            GLCall(glGenTextures(1, &textureBuffer));
+            GLCall(glBindTexture(GL_TEXTURE_2D, textureBuffer));
+            GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
+            GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+            GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+            GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureBuffer, 0));
+            GLCall(glGenRenderbuffers(1, &rbo));
+            GLCall(glBindRenderbuffer(GL_RENDERBUFFER, rbo));
 
-        GLCall(glGenRenderbuffers(1, &rbo));
-        GLCall(glBindRenderbuffer(GL_RENDERBUFFER, rbo));
-
-        GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height));
-        GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo));
-
+            GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height));
+            GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo));
+        }
+        else if (shadowmode == 1){
+            GLCall(glGenTextures(1, &textureBuffer));
+            GLCall(glBindTexture(GL_TEXTURE_2D, textureBuffer));
+            GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
+            GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+            GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+            GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
+            GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
+			float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+            GLCall(glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor));
+            //GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+            //GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+            GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureBuffer, 0));
+            glDrawBuffer(GL_NONE);
+            glReadBuffer(GL_NONE);
+        } 
+        else if (shadowmode == 2) {
+            GLCall(glGenTextures(1, &textureBuffer));
+            GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, textureBuffer));
+            for (int i = 0; i < 6; i++) {
+                GLCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
+            }
+            GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+            GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+            GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+            GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+            GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
+            GLCall(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textureBuffer, 0));
+            glDrawBuffer(GL_NONE);
+            glReadBuffer(GL_NONE);
+        }
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             std::cout << "GL_FRAMEBUFFER_INCOMPLETE" << std::endl;
 
@@ -51,10 +82,10 @@ Framebuffer::Framebuffer(int width, int height, int samples)
     else {
         GLCall(glGenFramebuffers(1, &fbo));
         GLCall(glBindFramebuffer(GL_FRAMEBUFFER, fbo));
-        GLCall(glGenTextures(1, &textureColorBuffer));
-        GLCall(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureColorBuffer));
+        GLCall(glGenTextures(1, &textureBuffer));
+        GLCall(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureBuffer));
         GLCall(glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, width, height, GL_TRUE));
-        GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, textureColorBuffer, 0));
+        GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, textureBuffer, 0));
 
         GLCall(glGenRenderbuffers(1, &rbo));
         GLCall(glBindRenderbuffer(GL_RENDERBUFFER, rbo));
@@ -71,7 +102,7 @@ Framebuffer::Framebuffer(int width, int height, int samples)
 
 Framebuffer::~Framebuffer() {
     glDeleteFramebuffers(1, &fbo);
-    glDeleteTextures(1, &textureColorBuffer);
+    glDeleteTextures(1, &textureBuffer);
     glDeleteRenderbuffers(1, &rbo);
     glDeleteVertexArrays(1, &quadVAO);
     glDeleteBuffers(1, &quadVBO);

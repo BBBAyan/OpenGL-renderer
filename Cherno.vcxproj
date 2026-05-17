@@ -182,6 +182,7 @@
     <None Include="res\shaders\Border.Shader" />
     <None Include="res\shaders\Cube.Shader" />
     <None Include="res\shaders\Cubemap.Shader" />
+    <None Include="res\shaders\CubeShadow.Shader" />
     <None Include="res\shaders\CubeTestModel.Shader" />
     <None Include="res\shaders\Floor.Shader" />
     <None Include="res\shaders\FramebufferScreen.Shader" />
@@ -196,6 +197,8 @@
     <None Include="res\shaders\ReflectiveCube.Shader" />
     <None Include="res\shaders\Square.Shader" />
     <None Include="res\shaders\Transparent.Shader" />
+    <None Include="res\shaders_shadow\DirShadow.Shader" />
+    <None Include="res\shaders_shadow\PointShadow.Shader" />
     <None Include="src\vendor\glm\detail\func_common.inl" />
     <None Include="src\vendor\glm\detail\func_common_simd.inl" />
     <None Include="src\vendor\glm\detail\func_exponential.inl" />

@@ -1,4 +1,4 @@
-﻿#include "TestMain.h"
+#include "TestMain.h"
 
 #include <imgui/imgui.h>
 #include <iostream>
@@ -18,7 +18,7 @@ namespace test
         m_camera{ glm::vec3(0.0f, 0.0f, 3.0f),
         glm::vec3(0.0f, 0.0f, -1.0f),
         glm::vec3(0.0f, 1.0f, 0.0f),
-        0.1f }, m_controls(window, SCR_WIDTH, SCR_HEIGHT, m_camera), draw_cubemap(1), blinn(1), SHADOW_WIDTH(1024), SHADOW_HEIGHT(1024),
+		0.1f }, m_controls(window, SCR_WIDTH, SCR_HEIGHT, m_camera), draw_cubemap(1), blinn(1), SHADOW_WIDTH(1024), SHADOW_HEIGHT(1024),
         m_window(window), currentIndex(2), modelIndex(0), m_animationTime(0.0f), m_lastTime(float(glfwGetTime()))
     {
         float positions[] = {
@@ -29,35 +29,35 @@ namespace test
               0.5f, -0.5f,  -0.5f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, //Right Bottom
               0.5f,  0.5f,  -0.5f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, //Right Top
 
-           //top
-             -0.5f,  0.5f,   0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, //Left Back	
-             -0.5f,  0.5f,  -0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, //Left Front	
-              0.5f,  0.5f,  -0.5f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, //Right Front	
-              0.5f,  0.5f,   0.5f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, //Right Back  	
+              //top
+               -0.5f,  0.5f,   0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, //Left Back	
+               -0.5f,  0.5f,  -0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, //Left Front	
+                0.5f,  0.5f,  -0.5f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, //Right Front	
+                0.5f,  0.5f,   0.5f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, //Right Back  	
 
-           //back	 
-             -0.5f,  0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, //Left Top	  
-             -0.5f, -0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, //Left Bottom	  
-              0.5f, -0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, //Right Bottom	
-              0.5f,  0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, //Right Top		
+                //back	 
+                 -0.5f,  0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, //Left Top	  
+                 -0.5f, -0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, //Left Bottom	  
+                  0.5f, -0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, //Right Bottom	
+                  0.5f,  0.5f,   0.5f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, //Right Top		
 
-           //bottom		
-             -0.5f, -0.5f,   0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, //Left Back		
-             -0.5f, -0.5f,  -0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, //Left Front		
-              0.5f, -0.5f,  -0.5f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, //Right Front		
-              0.5f, -0.5f,   0.5f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, //Right Back		
+                  //bottom		
+                   -0.5f, -0.5f,   0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, //Left Back		
+                   -0.5f, -0.5f,  -0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, //Left Front		
+                    0.5f, -0.5f,  -0.5f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, //Right Front		
+                    0.5f, -0.5f,   0.5f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, //Right Back		
 
-           //left		   
-             -0.5f,  0.5f,   0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, //Top Back			
-             -0.5f, -0.5f,   0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, //Bottom Back			
-             -0.5f, -0.5f,  -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, //Bottom Front			
-             -0.5f,  0.5f,  -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, //Top Front			
+                    //left		   
+                     -0.5f,  0.5f,   0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, //Top Back			
+                     -0.5f, -0.5f,   0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, //Bottom Back			
+                     -0.5f, -0.5f,  -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, //Bottom Front			
+                     -0.5f,  0.5f,  -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, //Top Front			
 
-           //right			 
-              0.5f,  0.5f,   0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, //Top Back				
-              0.5f, -0.5f,   0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, //Bottom Back				
-              0.5f, -0.5f,  -0.5f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, //Bottom Front				
-              0.5f,  0.5f,  -0.5f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f  //Top Front				
+                     //right			 
+                       0.5f,  0.5f,   0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, //Top Back				
+                       0.5f, -0.5f,   0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, //Bottom Back				
+                       0.5f, -0.5f,  -0.5f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, //Bottom Front				
+                       0.5f,  0.5f,  -0.5f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f  //Top Front				
         };
 
         unsigned int indices[]{
@@ -174,8 +174,7 @@ namespace test
         m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 3 * 2 * 6);
         m_IndexBufferSquare = std::make_unique<IndexBuffer>(squareIndices, 3 * 2);
         m_Framebuffer = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT);
-        m_FramebufferDirShadow = std::make_unique<Framebuffer>(SHADOW_WIDTH, SHADOW_HEIGHT, 0, 1);
-        m_FramebufferPointShadow = std::make_unique<Framebuffer>(SHADOW_WIDTH, SHADOW_HEIGHT, 0, 2);
+        m_FramebufferShadow = std::make_unique<Framebuffer>(SHADOW_WIDTH, SHADOW_HEIGHT, 0, 1);
         m_FramebufferMultisample = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT, 4);
 
         VertexBufferLayout layout;
@@ -206,14 +205,13 @@ namespace test
         m_ShaderModelAsteroid = std::make_unique<Shader>("res/shaders/ModelAsteroid.Shader");
         m_ShaderNormal = std::make_unique<Shader>("res/shaders/ModelNormal.Shader");
         m_ShaderReflectiveCube = std::make_unique<Shader>("res/shaders/ReflectiveCube.Shader");
-        m_ShaderDirShadow = std::make_unique<Shader>("res/shaders_shadow/DirShadow.Shader");
-        m_ShaderPointShadow = std::make_unique<Shader>("res/shaders_shadow/PointShadow.Shader");
+        m_ShaderShadow = std::make_unique<Shader>("res/shaders_shadow/Cube.Shader");
 
         m_Texture = std::make_unique<Texture>("res/textures/container.png", 1);
         m_TextureSpecular = std::make_unique<Texture>("res/textures/container_specular.png", 1);
         m_TextureGrass = std::make_unique<Texture>("res/textures/grass.png", 1);
         m_TextureWindow = std::make_unique<Texture>("res/textures/blending_transparent_window.png", 1);
-        m_TextureFloor = std::make_unique<Texture>("res/textures/floor.jpg", 1);
+		m_TextureFloor = std::make_unique<Texture>("res/textures/floor.jpg", 1);
 
         m_ModelPlanet = std::make_unique<Model>("res/objects/planet/planet.obj");
         m_ModelAsteroid = std::make_unique<Model>("res/objects/rock/rock.obj");
@@ -229,37 +227,6 @@ namespace test
 
         m_TextureCubemap = std::make_unique<TextureCubemap>(textures_faces);
 
-		//Directed Light Shadow Mapping
-        float size = 10.0f;
-        near_plane = 1.0f; far_plane = 50.0f;
-        m_Proj = glm::ortho(-size, size, -size, size, near_plane, far_plane);
-        dirLight = glm::vec3(-4.0f, -8.0f, 2.0f);
-        m_View = glm::lookAt(-dirLight,
-            glm::vec3(0.0f, 0.0f, 0.0f),
-            glm::vec3(0.0f, 1.0f, 0.0f));
-        lightSpaceMatrix = m_Proj * m_View;
-
-		//Point Light Shadow Mapping
-        lightPos = { -4.0f, 6.0f, 6.0f };
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(2.0f, 1.0f, 0.0f));
-        boxModels.push_back(model);
-        model = glm::mat4(1.0f);
-        model = glm::rotate(model, 30.0f, glm::vec3(-1.0f, 3.5f, -1.0f));
-        model = glm::translate(model, glm::vec3(-1.0f, 3.5f, 1.0f));
-        boxModels.push_back(model);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -1.5f, 1.0f));
-        boxModels.push_back(model);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(2.0f, -0.5f, 3.0f));
-        boxModels.push_back(model);
-
-        floorModel = glm::mat4(1.0f);
-        floorModel = glm::translate(floorModel, glm::vec3(0.0f, -2.0f, 0.0f));
-        floorModel = glm::scale(floorModel, glm::vec3(3.0f));
-
         glfwSetWindowUserPointer(window, &m_controls);
         glfwSetKeyCallback(window, Control::handleKeyboard);
         glfwSetCursorPosCallback(window, Control::handleMouse);
@@ -271,7 +238,6 @@ namespace test
         GLCall(glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE));
         GLCall(glEnable(GL_BLEND));
         GLCall(glDepthFunc(GL_LEQUAL));
-        GLCall(glFrontFace(GL_CW));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
         ImGui::SetWindowSize(ImVec2(480.0f, 250.0f));
     }
@@ -318,57 +284,50 @@ namespace test
     void TestMain::OnRender()
     {
         GLCall(glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT));
-        m_FramebufferDirShadow->Bind();
+		m_FramebufferShadow->Bind();
         GLCall(glClear(GL_DEPTH_BUFFER_BIT));
-        glEnable(GL_DEPTH_TEST);
 
         Renderer renderer;
         ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        //Matrices
+        float near_plane = 0.1f, far_plane = 5.0f;
+        m_Proj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+        m_View = glm::lookAt(glm::vec3(2.0f, -4.0f, -1.0f),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f));
 
-        GLCall(glEnable(GL_CULL_FACE));
-        GLCall(glCullFace(GL_FRONT));
+        GLCall(glBindBuffer(GL_UNIFORM_BUFFER, ubo));
+        GLCall(glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, &m_Proj));
+        GLCall(glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, &m_View));
+        GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 
-        m_ShaderDirShadow->Bind();
-        m_ShaderDirShadow->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
-        for (unsigned int i = 0; i < boxModels.size(); i++) {
-            m_ShaderDirShadow->SetUniformMat4f("u_Model", boxModels[i]);
-            renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderDirShadow);
-        }
-        m_FramebufferDirShadow->Unbind();
+        m_ShaderShadow->Bind();
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.0f, -1.0f, 0.0f));
+        m_ShaderShadow->SetUniformMat4f("u_Model", model);
+        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderShadow);
 
-		m_FramebufferPointShadow->Bind();
-		GLCall(glClear(GL_DEPTH_BUFFER_BIT));
-
-		pointShadowMatrices.clear();
-        m_Proj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-
-        m_ShaderPointShadow->Bind();
-	    m_ShaderPointShadow->SetUniformMat4fv("lightSpaceMatrix", pointShadowMatrices.size(), pointShadowMatrices.data());
-        m_ShaderPointShadow->SetUniform3f("lightPos", lightPos);
-        m_ShaderPointShadow->SetUniform1f("near_plane", near_plane);
-        m_ShaderPointShadow->SetUniform1f("far_plane", far_plane);
-        for (unsigned int i = 0; i < boxModels.size(); i++) {
-            m_ShaderPointShadow->SetUniformMat4f("u_Model", boxModels[i]);
-            renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderPointShadow);
-        }
-		m_FramebufferPointShadow->Unbind();
+        //Floor
+        m_ShaderShadow->Bind();
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(3.0f));
+        model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
+        m_ShaderShadow->SetUniformMat4f("u_Model", model);
+        renderer.Draw(*m_VAO_Square, *m_IndexBufferSquare, *m_ShaderShadow);
+		m_FramebufferShadow->Unbind();
 
         //////////////////////////////////////////////////////////////////////////
         GLCall(glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT));
 
-        m_FramebufferMultisample->Bind();
+        //m_FramebufferMultisample->Bind();
+        /*
         GLCall(glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f));
-        //GLCall(glActiveTexture(GL_TEXTURE1));
-        //GLCall(glBindTexture(GL_TEXTURE_2D, m_FramebufferShadow->getTextureBuffer()));
+        GLCall(glActiveTexture(GL_TEXTURE1));
+		GLCall(glBindTexture(GL_TEXTURE_2D, m_FramebufferShadow->getTextureBuffer()));
+		
+        GLCall(glEnable(GL_DEPTH_TEST));
 
         GLCall(glStencilMask(0x00));
-		GLCall(glCullFace(GL_BACK));
         //lightPos.y = 5.0f;
 
         glm::vec3 cameraDir{};
@@ -376,6 +335,7 @@ namespace test
         cameraDir.y = sin(glm::radians(m_controls.getPitch()));
         cameraDir.z = sin(glm::radians(m_controls.getYaw())) * cos(glm::radians(m_controls.getPitch()));
         m_camera.Front = glm::normalize(cameraDir);
+        */
 
         if (getControls().getCameraMode()) {
             GLCall(glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
@@ -385,6 +345,7 @@ namespace test
         }
 
         ProcessInput(m_camera);
+        /*
         m_Proj = glm::perspective(glm::radians(m_controls.getFov()), SCR_WIDTH / SCR_HEIGHT, 0.1f, 1000.0f);
         m_View = glm::lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
 
@@ -396,76 +357,58 @@ namespace test
         GLCall(glStencilFunc(GL_ALWAYS, 1, 0xFF));
         GLCall(glStencilMask(0xFF));
 
-        //GLCall(glFrontFace(GL_CW));
+        GLCall(glEnable(GL_CULL_FACE));
+        GLCall(glFrontFace(GL_CW));
 
         // Light Object
-        m_ShaderLight->Bind();
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(lightPos));
-        model = glm::scale(model, glm::vec3(0.5f));
-        m_ShaderLight->SetUniformMat4f("u_Model", model);
-        m_ShaderLight->SetUniform3f("pointLightColor", glm::vec3(lightColor.r, lightColor.g, lightColor.b));
-        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderLight);
+        //m_ShaderLight->Bind();
+        //model = glm::mat4(1.0f);
+        //model = glm::scale(model, glm::vec3(0.5f));
+        //model = glm::translate(model, glm::vec3(lightPos));
+        //m_ShaderLight->SetUniformMat4f("u_Model", model);
+        //m_ShaderLight->SetUniform3f("pointLightColor", glm::vec3(lightColor.r, lightColor.g, lightColor.b));
+        //renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderLight);
 
         m_ShaderCube->Bind();
-        m_ShaderCube->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.0f, -1.0f, 0.0f));
+        m_ShaderCube->SetUniformMat4f("u_Model", model);
         m_TextureFloor->Bind(0);
         m_ShaderCube->SetUniform1i("material.diffuse", 0);
-		GLCall(glActiveTexture(GL_TEXTURE1));
-        GLCall(glBindTexture(GL_TEXTURE_2D, m_FramebufferDirShadow->getTextureBuffer()));
-        m_ShaderCube->SetUniform1i("shadowMap", 1);
-        GLCall(glActiveTexture(GL_TEXTURE2));
-        GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_FramebufferPointShadow->getTextureBuffer()));
-        m_ShaderCube->SetUniform1i("pointDepthMap", 2);
         m_ShaderCube->SetUniform1f("material.shininess", shininess);
-        m_ShaderCube->SetUniform3f("dirLight.direction", glm::normalize(dirLight));
-        m_ShaderCube->SetUniform3f("dirLight.ambient", glm::vec3(0.05f));
-        m_ShaderCube->SetUniform3f("dirLight.diffuse", glm::vec3(0.3f));
-        m_ShaderCube->SetUniform3f("dirLight.specular", glm::vec3(0.3f));
+        m_ShaderCube->SetUniform3f("dirLight.direction", glm::normalize(glm::vec3(0.1f, -1.0f, 0.0f)));
+        m_ShaderCube->SetUniform3f("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        m_ShaderCube->SetUniform3f("dirLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        m_ShaderCube->SetUniform3f("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
         m_ShaderCube->SetUniform1f("dirLight.intensity", dirlightIntensity);
-        m_ShaderCube->SetUniform3f("pointLight.position", glm::vec3(lightPos));
-        m_ShaderCube->SetUniform3f("pointLight.ambient", glm::vec3(0.05f));
-        m_ShaderCube->SetUniform3f("pointLight.diffuse", glm::vec3(1.0f));
-        m_ShaderCube->SetUniform3f("pointLight.specular", glm::vec3(0.5f));
-        m_ShaderCube->SetUniform1f("pointLight.constant", 1.0f);
-        m_ShaderCube->SetUniform1f("pointLight.linear", 0.02f);
-        m_ShaderCube->SetUniform1f("pointLight.quadratic", 0.005f);
-        m_ShaderCube->SetUniform1f("far_plane", far_plane);
-        m_ShaderCube->SetUniform1f("near_plane", near_plane);
-        for (unsigned int i = 0; i < boxModels.size(); i++) {
-            m_ShaderCube->SetUniformMat4f("u_Model", boxModels[i]);
-            renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderCube);
-        }
+        //m_ShaderCube->SetUniform3f("pointLightColor", glm::vec3(lightColor.r, lightColor.g, lightColor.b));
+        //m_ShaderCube->SetUniform3f("pointLight.position", glm::vec3(lightPos));
+        //m_ShaderCube->SetUniform3f("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        //m_ShaderCube->SetUniform3f("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        //m_ShaderCube->SetUniform3f("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        //m_ShaderCube->SetUniform1f("pointLight.constant", 1.0f);
+        //m_ShaderCube->SetUniform1f("pointLight.linear", 0.09f);
+        //m_ShaderCube->SetUniform1f("pointLight.quadratic", 0.032f);
+        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderCube);
 
         //Floor
         m_ShaderFloor->Bind();
-        m_ShaderFloor->SetUniformMat4f("u_Model", floorModel);
-        m_ShaderFloor->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(3.0f));
+        model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
+        m_ShaderFloor->SetUniformMat4f("u_Model", model);
         m_ShaderFloor->SetUniform3f("viewPos", glm::vec3(m_camera.Position));
         m_TextureFloor->Bind(0);
-        m_ShaderFloor->SetUniform1i("material.diffuse", 0);
-        GLCall(glActiveTexture(GL_TEXTURE1));
-        GLCall(glBindTexture(GL_TEXTURE_2D, m_FramebufferDirShadow->getTextureBuffer()));
-        m_ShaderFloor->SetUniform1i("shadowMap", 1);
-		GLCall(glActiveTexture(GL_TEXTURE2));
-        GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_FramebufferPointShadow->getTextureBuffer()));
-        m_ShaderFloor->SetUniform1i("pointDepthMap", 2);
-        m_ShaderFloor->SetUniform1f("material.shininess", shininess);
-        m_ShaderFloor->SetUniform3f("dirLight.direction", glm::normalize(dirLight));
-        m_ShaderFloor->SetUniform3f("dirLight.ambient", glm::vec3(0.05f));
-        m_ShaderFloor->SetUniform3f("dirLight.diffuse", glm::vec3(0.3f));
-        m_ShaderFloor->SetUniform3f("dirLight.specular", glm::vec3(0.3f));
-        m_ShaderFloor->SetUniform1f("dirLight.intensity", dirlightIntensity);
-        m_ShaderFloor->SetUniform3f("pointLight.position", glm::vec3(lightPos));
-        m_ShaderFloor->SetUniform3f("pointLight.ambient", glm::vec3(0.05f));
-        m_ShaderFloor->SetUniform3f("pointLight.diffuse", glm::vec3(1.0f));
-        m_ShaderFloor->SetUniform3f("pointLight.specular", glm::vec3(0.5f));
-        m_ShaderFloor->SetUniform1f("pointLight.constant", 1.0f);
-        m_ShaderFloor->SetUniform1f("pointLight.linear", 0.01f);
-        m_ShaderFloor->SetUniform1f("pointLight.quadratic", 0.002f);
+        m_ShaderFloor->SetUniform1i("u_Texture", 0);
+        m_ShaderFloor->SetUniform3f("light.position", glm::vec3(lightPos));
+        m_ShaderFloor->SetUniform3f("light.ambient", glm::vec3(0.02f));
+        m_ShaderFloor->SetUniform3f("light.diffuse", glm::vec3(0.5f));
+        m_ShaderFloor->SetUniform3f("light.specular", glm::vec3(1.0f));
+        m_ShaderFloor->SetUniform1f("light.shininess", shininess);
         m_ShaderFloor->SetUniform1i("blinn", blinn);
-        m_ShaderFloor->SetUniform1f("far_plane", far_plane);
-        m_ShaderFloor->SetUniform1f("near_plane", near_plane);
+        m_ShaderFloor->SetUniform1f("light.constant", 1.0f);
+        m_ShaderFloor->SetUniform1f("light.linear", 0.09f);
+        m_ShaderFloor->SetUniform1f("light.quadratic", 0.032f);
         renderer.Draw(*m_VAO_Square, *m_IndexBufferSquare, *m_ShaderFloor);
 
         GLCall(glDisable(GL_CULL_FACE));
@@ -490,18 +433,17 @@ namespace test
         GLCall(glBlitFramebuffer(0, 0, SCR_WIDTH, SCR_HEIGHT, 0, 0, SCR_WIDTH, SCR_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST));
 
         m_FramebufferMultisample->Unbind();
-
-        GLCall(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
-        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        */
 
         GLCall(glDisable(GL_DEPTH_TEST));
+        GLCall(glDisable(GL_CULL_FACE));
 
         m_ShaderFramebuffer->Bind();
         m_ShaderFramebuffer->SetUniform1i("screenTexture", 0);
         m_ShaderFramebuffer->SetUniform1f("near_plane", near_plane);
         m_ShaderFramebuffer->SetUniform1f("far_plane", far_plane);
         GLCall(glActiveTexture(GL_TEXTURE0));
-        GLCall(glBindTexture(GL_TEXTURE_2D, m_Framebuffer->getTextureBuffer()));
+        GLCall(glBindTexture(GL_TEXTURE_2D, m_FramebufferShadow->getTextureBuffer()));
         GLCall(glEnable(GL_FRAMEBUFFER_SRGB));
         m_Framebuffer->Draw();
         GLCall(glDisable(GL_FRAMEBUFFER_SRGB));
@@ -511,7 +453,6 @@ namespace test
     void TestMain::OnImGuiRender()
     {
         ImGui::Text("Mouse Pos: (%.1f, %.1f)", ImGui::GetIO().MousePos.x, ImGui::GetIO().MousePos.y);
-        ImGui::Text("Camera Pos: (%.1f, %.1f, %.1f)", m_camera.Position.x, m_camera.Position.y, m_camera.Position.z);
         ImGui::SliderFloat3("Clear Color", &clearColor.r, 0.0f, 1.0f);
         ImGui::SliderFloat3("Light Color", &lightColor.r, 0.0f, 1.0f);
         ImGui::SliderFloat3("Light Position", &lightPos.x, -5.0f, 5.0f);
