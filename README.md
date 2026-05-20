@@ -17,4 +17,4 @@ Study Project on C++/OpenGL including features like:
 Requirements: Visual Studio 2022, OpenGL 3.3+
 1. git clone ...
 2. Open Cherno.sln
-3. Build & RunSkybox added.
+3. Build & Run
