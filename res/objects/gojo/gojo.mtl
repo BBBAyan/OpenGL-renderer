@@ -1,0 +1,62 @@
+# Blender MTL File: 'gojo.obj'
+# Material Count: 5
+
+# --- CLOTHES & BODY ---
+newmtl MI_CP_050_00_Clothes
+map_Kd T_CP_050_00_Body_C.png
+
+newmtl MI_CP_050_00_Shoes
+map_Kd T_CP_050_00_Face_C.png
+
+newmtl MI_CP_050_00_Skin
+map_Kd T_CP_050_00_Body_C.png
+
+
+# --- FACE & EYES ---
+newmtl MI_CP_050_00_Face
+map_Kd T_CP_050_00_Face_C.png
+
+newmtl MI_CP_050_00_Faceparts_P2
+map_Kd T_CP_050_00_Face_C.png
+
+newmtl MI_CP_050_00_Eyes
+map_Kd T_CP_050_00_Eye_C.png
+
+newmtl MI_CP_050_00_EyesB
+map_Kd T_CP_050_00_Eye_C.png
+
+
+# --- HAIR ---
+newmtl MI_CP_050_00_Hair
+map_Kd T_CP_050_00_Hair_C.png
+
+newmtl MI_CP_050_00_Hair_P1
+map_Kd T_CP_050_00_Hair_C.png
+
+newmtl MI_CP_050_00_Hair_P2
+map_Kd T_CP_050_00_Hair_C.png
+
+
+# --- MASK ---
+newmtl MI_CP_050_00_Mask_P1
+map_Kd T_CP_050_00_Mask_C.png
+
+newmtl MI_CP_050_00_Mask_P2
+map_Kd T_CP_050_00_Mask_C.png
+
+
+# --- OUTLINES & DECALS (Unused or Solid Color Fallbacks) ---
+newmtl MI_CP_050_00_Decal
+map_Kd T_CP_050_00_Body_C.png
+
+newmtl MI_CP_050_00_DecayDecal
+map_Kd T_CP_050_00_Body_C.png
+
+newmtl MI_CP_050_00_Hair_Outline
+Kd 0.0 0.0 0.0
+
+newmtl MI_CP_050_00_Lashes_Outline_P2
+Kd 0.0 0.0 0.0
+
+newmtl MI_CP_050_00_Outline
+Kd 0.0 0.0 0.0

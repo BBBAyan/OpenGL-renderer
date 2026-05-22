@@ -26,16 +26,17 @@ namespace test {
 		Control& getControls() { return m_controls; }
 		void ProcessInput(Camera& camera);
 	private:
+		glm::mat4 m_Proj, m_View, model, m_Proj2D, lightSpaceMatrix;
 		glm::mat4* modelMatrices; int rockAmount;
-		glm::mat4 m_Proj, m_View, model, floorModel, m_Proj2D, lightSpaceMatrix;
+		glm::mat4 objectModel, floorModel, wallModel;
+		glm::mat3 normalMatrixFloor, normalMatrixWall;
 		std::vector<glm::mat4> pointShadowMatrices, boxModels;
-		struct Color {
-			float r, g, b;
-		};
+		struct Color { float r, g, b; };
 		Color clearColor = { 0.1f, 0.1f, 0.1f };
 		Color lightColor = { 1.0f, 1.0f, 1.0f };
 		glm::vec3 lightPos, dirLight;
 		glm::vec3 planetPos, modelPos = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 tangent1, tangent2, bitangent1, bitangent2;
 		float dirlightIntensity = 1.0f;
 		float m_lastTime;
 		float m_animationTime;
@@ -58,6 +59,7 @@ namespace test {
 		std::unique_ptr<Shader> m_ShaderCubemap;
 		std::unique_ptr<Shader> m_ShaderExplode;
 		std::unique_ptr<Shader> m_ShaderFloor;
+		std::unique_ptr<Shader> m_ShaderWall;
 		std::unique_ptr<Shader> m_ShaderFramebuffer;
 		std::unique_ptr<Shader> m_ShaderGeometry;
 		std::unique_ptr<Shader> m_ShaderLight;
@@ -69,17 +71,22 @@ namespace test {
 		std::unique_ptr<Shader> m_ShaderPointShadow;
 		std::unique_ptr<Texture> m_Texture;
 		std::unique_ptr<Texture> m_TextureFloor;
+		std::unique_ptr<Texture> m_TextureBrick;
+		std::unique_ptr<Texture> m_TextureBrickNormal;
 		std::unique_ptr<Texture> m_TextureGrass;
 		std::unique_ptr<Texture> m_TextureSpecular;
 		std::unique_ptr<Texture> m_TextureWindow;
 		std::unique_ptr<TextureCubemap> m_TextureCubemap;
 		std::unique_ptr<VertexArray> m_VAO;
 		std::unique_ptr<VertexArray> m_VAO_Point;
+		std::unique_ptr<VertexArray> m_VAO_Floor;
 		std::unique_ptr<VertexArray> m_VAO_Square;
 		std::unique_ptr<VertexBuffer> m_VertexBuffer;
 		std::unique_ptr<VertexBuffer> m_VertexBuffer_Point;
+		std::unique_ptr<VertexBuffer> m_VertexBuffer_Floor;
 		std::unique_ptr<VertexBuffer> m_VertexBuffer_Square;
 		std::unique_ptr<IndexBuffer> m_IndexBuffer;
+		std::unique_ptr<IndexBuffer> m_IndexBufferFloor;
 		std::unique_ptr<IndexBuffer> m_IndexBufferSquare;
 		std::unique_ptr<Framebuffer> m_Framebuffer;
 		std::unique_ptr<Framebuffer> m_FramebufferDirShadow;
