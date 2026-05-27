@@ -255,6 +255,7 @@ namespace test
         m_ShaderExplode = std::make_unique<Shader>("res/shaders/ModelExplode.Shader");
         m_ShaderFloor = std::make_unique<Shader>("res/shaders/Floor.Shader");
         m_ShaderWall = std::make_unique<Shader>("res/shaders/Wall.Shader");
+        m_ShaderWallParallax = std::make_unique<Shader>("res/shaders/WallParallax.Shader");
         m_ShaderFramebuffer = std::make_unique<Shader>("res/shaders/FramebufferScreen.Shader");
         m_ShaderGeometry = std::make_unique<Shader>("res/shaders/Geometry.Shader");
         m_ShaderLight = std::make_unique<Shader>("res/shaders/Lighting.Shader");
@@ -270,10 +271,9 @@ namespace test
         m_TextureGrass = std::make_unique<Texture>("res/textures/grass.png", 1);
         m_TextureWindow = std::make_unique<Texture>("res/textures/blending_transparent_window.png", 1);
         m_TextureFloor = std::make_unique<Texture>("res/textures/floor.jpg", 1);
-        //m_TextureBrick = std::make_unique<Texture>("res/textures/brick_wall2-diff-1024.tga", 1);
-        //m_TextureBrickNormal = std::make_unique<Texture>("res/textures/brick_wall2-nor-1024.tga", 1);
-        m_TextureBrick = std::make_unique<Texture>("res/textures/brickwall.jpg", 1);
-        m_TextureBrickNormal = std::make_unique<Texture>("res/textures/brickwall_normal.jpg", 1);
+        m_TextureBrick = std::make_unique<Texture>("res/textures/bricks2.jpg", 1);
+        m_TextureBrickNormal = std::make_unique<Texture>("res/textures/bricks2_normal.jpg", 1);
+		m_TextureBrickDisplacement = std::make_unique<Texture>("res/textures/bricks2_disp.jpg", 1);
 
         //m_ModelPlanet = std::make_unique<Model>("res/objects/planet/planet.obj");
         m_ModelPlanet = std::make_unique<Model>("res/objects/earth/Earth 2K.obj");
@@ -324,8 +324,12 @@ namespace test
 		normalMatrixFloor = glm::transpose(glm::inverse(glm::mat3(floorModel)));
 
         wallModel = glm::mat4(1.0f);
-		wallModel = glm::translate(wallModel, glm::vec3(0.0f, 3.0f, -15.0f)); 
-        wallModel = glm::scale(wallModel, glm::vec3(5.0f));
+		wallModel = glm::translate(wallModel, glm::vec3(-4.0f, 1.0f, -15.0f));
+        wallModel = glm::scale(wallModel, glm::vec3(3.0f));
+
+        wallModelParallax = glm::mat4(1.0f);
+        wallModelParallax = glm::translate(wallModelParallax, glm::vec3(4.0f, 1.0f, -15.0f));
+        wallModelParallax = glm::scale(wallModelParallax, glm::vec3(3.0f));
 
         objectModel = glm::mat4(1.0f);
         objectModel = glm::translate(objectModel, glm::vec3(0.0f, 3.0f, 0.0f));
@@ -577,6 +581,41 @@ namespace test
         m_ShaderWall->SetUniform1f("near_plane", near_plane);
         m_ShaderWall->SetUniform1f("repeatFactor", 1.0f);
         renderer.Draw(*m_VAO_Square, *m_IndexBufferSquare, *m_ShaderWall);
+
+        m_ShaderWallParallax->Bind();
+        m_ShaderWallParallax->SetUniformMat4f("u_Model", wallModelParallax);
+        m_ShaderWallParallax->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
+        m_ShaderWallParallax->SetUniform3f("lightPos", lightPos);
+        m_ShaderWallParallax->SetUniform3f("lightDir", glm::normalize(dirLight));
+        m_ShaderWallParallax->SetUniform3f("viewPos", m_camera.Position);
+        m_TextureBrick->Bind(0);
+        m_ShaderWallParallax->SetUniform1i("material.diffuse", 0);
+        m_TextureBrickNormal->Bind(1);
+        m_ShaderWallParallax->SetUniform1i("material.normal", 1);
+        m_TextureBrickDisplacement->Bind(2);
+        m_ShaderWallParallax->SetUniform1i("material.displacement", 2);
+        GLCall(glActiveTexture(GL_TEXTURE3));
+        GLCall(glBindTexture(GL_TEXTURE_2D, m_FramebufferDirShadow->getTextureBuffer()));
+        m_ShaderWallParallax->SetUniform1i("shadowMap", 3);
+        GLCall(glActiveTexture(GL_TEXTURE4));
+        GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_FramebufferPointShadow->getTextureBuffer()));
+        m_ShaderWallParallax->SetUniform1i("pointDepthMap", 4);
+        m_ShaderWallParallax->SetUniform1f("material.shininess", shininess);
+        m_ShaderWallParallax->SetUniform3f("dirLight.ambient", glm::vec3(0.05f));
+        m_ShaderWallParallax->SetUniform3f("dirLight.diffuse", glm::vec3(0.3f));
+        m_ShaderWallParallax->SetUniform3f("dirLight.specular", glm::vec3(0.3f));
+        m_ShaderWallParallax->SetUniform1f("dirLight.intensity", dirlightIntensity);
+        m_ShaderWallParallax->SetUniform3f("pointLight.ambient", glm::vec3(0.05f));
+        m_ShaderWallParallax->SetUniform3f("pointLight.diffuse", glm::vec3(1.0f));
+        m_ShaderWallParallax->SetUniform3f("pointLight.specular", glm::vec3(0.5f));
+        m_ShaderWallParallax->SetUniform1f("pointLight.constant", 1.0f);
+        m_ShaderWallParallax->SetUniform1f("pointLight.linear", 0.005f);
+        m_ShaderWallParallax->SetUniform1f("pointLight.quadratic", 0.0005f);
+        m_ShaderWallParallax->SetUniform1i("blinn", blinn);
+        m_ShaderWallParallax->SetUniform1f("far_plane", far_plane);
+        m_ShaderWallParallax->SetUniform1f("near_plane", near_plane);
+        m_ShaderWallParallax->SetUniform1f("repeatFactor", 1.0f);
+        renderer.Draw(*m_VAO_Square, *m_IndexBufferSquare, *m_ShaderWallParallax);
 
 		m_ShaderModel->Bind();
         m_ShaderModel->SetUniformMat4f("u_Model", objectModel);

@@ -28,7 +28,7 @@ namespace test {
 	private:
 		glm::mat4 m_Proj, m_View, model, m_Proj2D, lightSpaceMatrix;
 		glm::mat4* modelMatrices; int rockAmount;
-		glm::mat4 objectModel, floorModel, wallModel;
+		glm::mat4 objectModel, floorModel, wallModel, wallModelParallax;
 		glm::mat3 normalMatrixFloor, normalMatrixWall;
 		std::vector<glm::mat4> pointShadowMatrices, boxModels;
 		struct Color { float r, g, b; };
@@ -60,6 +60,7 @@ namespace test {
 		std::unique_ptr<Shader> m_ShaderExplode;
 		std::unique_ptr<Shader> m_ShaderFloor;
 		std::unique_ptr<Shader> m_ShaderWall;
+		std::unique_ptr<Shader> m_ShaderWallParallax;
 		std::unique_ptr<Shader> m_ShaderFramebuffer;
 		std::unique_ptr<Shader> m_ShaderGeometry;
 		std::unique_ptr<Shader> m_ShaderLight;
@@ -73,6 +74,7 @@ namespace test {
 		std::unique_ptr<Texture> m_TextureFloor;
 		std::unique_ptr<Texture> m_TextureBrick;
 		std::unique_ptr<Texture> m_TextureBrickNormal;
+		std::unique_ptr<Texture> m_TextureBrickDisplacement;
 		std::unique_ptr<Texture> m_TextureGrass;
 		std::unique_ptr<Texture> m_TextureSpecular;
 		std::unique_ptr<Texture> m_TextureWindow;
