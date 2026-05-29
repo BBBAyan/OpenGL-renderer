@@ -19,6 +19,8 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 uniform sampler2D screenTexture;
+uniform int hdr;
+uniform float exposure;
 uniform float near_plane;
 uniform float far_plane;
 
@@ -40,7 +42,11 @@ void main()
 //Regular
 void main()
 { 
-    FragColor = vec4(vec3(texture(screenTexture, TexCoords)), 1.0);
+    vec3 color = texture(screenTexture, TexCoords).rgb;
+    if (hdr == 1){
+        color = vec3(1.0) - exp(-color * exposure);
+    }
+    FragColor = vec4(color, 1.0);
 }
 /*Inversion
 void main()

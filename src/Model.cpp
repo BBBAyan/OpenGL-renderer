@@ -38,11 +38,13 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
 	std::vector<Vertex> vertices;
+	std::vector<NormalData> normalDatas;
 	std::vector<unsigned int> indices;
 	std::vector<meshTexture> textures;
 	//vertices
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
 		Vertex vertex;
+		NormalData normalData;
 		glm::vec3 vector;
 		vector.x = mesh->mVertices[i].x;
 		vector.y = mesh->mVertices[i].y;
@@ -59,11 +61,17 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			vec.x = mesh->mTextureCoords[0][i].x;
 			vec.y = mesh->mTextureCoords[0][i].y;
 			vertex.TexCoords = vec;
+
+			vector.x = mesh->mTangents[i].x;
+			vector.y = mesh->mTangents[i].y;
+			vector.z = mesh->mTangents[i].z;
+			normalData.Tangent = vector;
 		}
 		else {
 			vertex.TexCoords = glm::vec2(0.0f, 0.0f);
 		}
 		vertices.push_back(vertex);
+		normalDatas.push_back(normalData);
 	}
 	//indices
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
@@ -79,8 +87,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 		std::vector<meshTexture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+		std::vector<meshTexture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 	}
-	return Mesh(vertices, indices, textures);
+	return Mesh(vertices, indices, textures, normalDatas);
 }
 
 std::vector<meshTexture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
@@ -126,20 +136,24 @@ unsigned int TextureFromFile(const char* path, const std::string& directory, boo
 	stbi_set_flip_vertically_on_load(1);
 	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nComponents, 0);
 	if (data) {
-		GLenum format;
-		if (nComponents == 1)
-			format = GL_RED;
-		else if (nComponents == 3)
-			format = GL_SRGB;
-		else if (nComponents == 4)
-			format = GL_SRGB_ALPHA;
+		GLenum internalFormat = GL_RGB, pixelFormat = GL_RGB;
+		if (nComponents == 1) {
+			internalFormat = GL_RED;
+			pixelFormat = GL_RED;
+		} else if (nComponents == 3) {
+			internalFormat = GL_SRGB;
+			pixelFormat = GL_RGB;
+		} else if (nComponents == 4) {
+			internalFormat = GL_SRGB_ALPHA;
+			pixelFormat = GL_RGBA;
+		}
 
 		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, pixelFormat, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); //GL_REPEAT was there
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 

@@ -468,7 +468,9 @@ namespace test
         m_ShaderFramebuffer->Bind();
         GLCall(glActiveTexture(GL_TEXTURE0));
         GLCall(glBindTexture(GL_TEXTURE_2D, m_Framebuffer->getTextureBuffer()));
+        GLCall(glEnable(GL_FRAMEBUFFER_SRGB));
         m_Framebuffer->Draw();
+        GLCall(glDisable(GL_FRAMEBUFFER_SRGB));
         GLCall(glBindVertexArray(0));
     }
 

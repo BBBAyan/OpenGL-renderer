@@ -4,6 +4,8 @@
 layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec3 a_Normal;
 layout(location = 2) in vec2 a_TexCoords;
+layout(location = 3) in vec3 a_Tangent;
+layout(location = 4) in vec3 a_Bitangent;
 
 layout(std140, binding = 0) uniform Matrices
 {
@@ -12,6 +14,7 @@ layout(std140, binding = 0) uniform Matrices
 };
 uniform mat4 u_Model;
 uniform mat4 lightSpaceMatrix;
+uniform mat3 normalMatrix;
 
 out VS_OUT {
     vec2 TexCoords;
@@ -24,6 +27,7 @@ void main()
 {
     gl_Position = u_Proj * u_View * u_Model * vec4(a_Position, 1.0);
     vs_out.Normal = mat3(transpose(inverse(u_Model))) * a_Normal;
+    //vs_out.Normal = normalMatrix * a_Normal;
     vs_out.fragPos = vec3(u_Model * vec4(a_Position, 1.0));
     vs_out.TexCoords = a_TexCoords;
     vs_out.fragPosLightSpace = lightSpaceMatrix * vec4(vs_out.fragPos, 1.0);
@@ -79,14 +83,14 @@ uniform PointLight pointLight;
 uniform bool blinn;
 uniform float far_plane;
 uniform float near_plane;
+uniform float repeatFactor;
 
 void main()
 {
+    vec2 Coords = fs_in.TexCoords * repeatFactor;
     vec3 normal = normalize(fs_in.Normal);
     vec3 viewDir = normalize(viewPos - fs_in.fragPos);
 
-    float repeatFactor = 2.0;
-    vec2 Coords = fs_in.TexCoords * repeatFactor;
     vec3 ambientDir = dirLight.ambient * vec3(texture(material.diffuse, Coords));
     vec3 ambientPoint = pointLight.ambient * vec3(texture(material.diffuse, Coords));
 
@@ -129,7 +133,13 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 viewDir, float repeatFac
     vec3 specular = vec3(0.0);
     if (diff > 0.0) {
         vec3 reflectDir = reflect(-lightDir, normal);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+        vec3 halfwayDir = normalize(lightDir + viewDir);
+        float spec;
+        if (blinn) {
+            spec = pow(max(dot(halfwayDir, normal), 0.0), material.shininess * 4);
+        } else {
+            spec = pow(max(dot(reflectDir, viewDir), 0.0), material.shininess * 4);
+        }
         specular = light.specular * spec;
     }
 

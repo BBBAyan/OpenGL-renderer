@@ -6,9 +6,9 @@ class Framebuffer {
 private:
 	unsigned int fbo, rbo, textureBuffer;
 	unsigned int quadVAO, quadVBO;
-	int m_width, m_height, m_samples, m_shadowmode; // 0 - no shadow, 1 - directional shadow, 2 - point shadow
+	int m_width, m_height, m_samples, m_shadowmode, m_hdr; // 0 - no shadow, 1 - directional shadow, 2 - point shadow
 public:
-	Framebuffer(int width, int height, int samples = 0, int shadowmode = 0);
+	Framebuffer(int width, int height, int samples = 0, int shadowmode = 0, bool hdr = 0);
 	~Framebuffer();
 
 	void Bind() const;
