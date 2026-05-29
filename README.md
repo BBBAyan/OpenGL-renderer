@@ -1,5 +1,7 @@
 # OpenGL Renderer
 Study Project on C++/OpenGL including features like:
+- HDR
+- Normal & Parallax Mapping
 - Shadow mapping (both directional & point lights)
 - Blinn-Phong / Phong shading
 - Skybox (cubemap)
