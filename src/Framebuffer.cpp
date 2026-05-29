@@ -12,8 +12,8 @@ static const float quadVertices[] = {
      1.0f,  1.0f,  1.0f, 1.0f
 };
 
-Framebuffer::Framebuffer(int width, int height, int samples, int shadowmode)
-	: m_width(width), m_height(height), m_samples(samples), m_shadowmode(shadowmode)
+Framebuffer::Framebuffer(int width, int height, int samples, int shadowmode, bool hdr)
+    : m_width(width), m_height(height), m_samples(samples), m_shadowmode(shadowmode), m_hdr(hdr)
 {
     GLCall(glGenVertexArrays(1, &quadVAO));
     GLCall(glGenBuffers(1, &quadVBO));
@@ -33,7 +33,11 @@ Framebuffer::Framebuffer(int width, int height, int samples, int shadowmode)
         if (shadowmode == 0) {
             GLCall(glGenTextures(1, &textureBuffer));
             GLCall(glBindTexture(GL_TEXTURE_2D, textureBuffer));
-            GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
+            if (hdr) {
+                GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
+            } else {
+                GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
+            }
             GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
             GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
             GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureBuffer, 0));
@@ -42,8 +46,7 @@ Framebuffer::Framebuffer(int width, int height, int samples, int shadowmode)
 
             GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height));
             GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo));
-        }
-        else if (shadowmode == 1){
+        }else if (shadowmode == 1) {
             GLCall(glGenTextures(1, &textureBuffer));
             GLCall(glBindTexture(GL_TEXTURE_2D, textureBuffer));
             GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
@@ -58,8 +61,7 @@ Framebuffer::Framebuffer(int width, int height, int samples, int shadowmode)
             GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureBuffer, 0));
             glDrawBuffer(GL_NONE);
             glReadBuffer(GL_NONE);
-        } 
-        else if (shadowmode == 2) {
+		} else if (shadowmode == 2) {
             GLCall(glGenTextures(1, &textureBuffer));
             GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, textureBuffer));
             for (int i = 0; i < 6; i++) {
@@ -84,7 +86,11 @@ Framebuffer::Framebuffer(int width, int height, int samples, int shadowmode)
         GLCall(glBindFramebuffer(GL_FRAMEBUFFER, fbo));
         GLCall(glGenTextures(1, &textureBuffer));
         GLCall(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureBuffer));
-        GLCall(glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, width, height, GL_TRUE));
+        if (hdr) {
+            GLCall(glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB16F, width, height, GL_TRUE));
+        } else {
+            GLCall(glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, width, height, GL_TRUE));
+        }
         GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, textureBuffer, 0));
 
         GLCall(glGenRenderbuffers(1, &rbo));

@@ -21,10 +21,11 @@ namespace test {
 
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
-		void RenderScene();
 		void OnImGuiRender() override;
 		Control& getControls() { return m_controls; }
 		void ProcessInput(Camera& camera);
+
+		void HDRSetup();
 	private:
 		glm::mat4 m_Proj, m_View, model, m_Proj2D, lightSpaceMatrix;
 		glm::mat4* modelMatrices; int rockAmount;
@@ -32,17 +33,33 @@ namespace test {
 		glm::mat3 normalMatrixFloor, normalMatrixWall;
 		std::vector<glm::mat4> pointShadowMatrices, boxModels;
 		struct Color { float r, g, b; };
+		struct DirLight {
+			glm::vec3 direction;
+			glm::vec3 ambient;
+			glm::vec3 diffuse;
+			glm::vec3 specular;
+			float intensity;
+		};
+		struct PointLight {
+			glm::vec3 position;
+			glm::vec3 ambient;
+			glm::vec3 diffuse;
+			glm::vec3 specular;
+			float constant;
+			float linear;
+			float quadratic;
+		};
+		DirLight directionalLight;
+		PointLight pointLight;
 		Color clearColor = { 0.1f, 0.1f, 0.1f };
 		Color lightColor = { 1.0f, 1.0f, 1.0f };
-		glm::vec3 lightPos, dirLight;
 		glm::vec3 planetPos, modelPos = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 tangent1, tangent2, bitangent1, bitangent2;
-		float dirlightIntensity = 1.0f;
 		float m_lastTime;
 		float m_animationTime;
-		float near_plane, far_plane;
+		float near_plane, far_plane, exposure;
 		float shininess = 32.0f;
-		bool draw_cubemap, blinn;
+		bool draw_cubemap, blinn, hdr, prev_hdr, exposure_adaptation;
 
 		int currentIndex;
 		int modelIndex, SHADOW_WIDTH, SHADOW_HEIGHT;
@@ -94,6 +111,7 @@ namespace test {
 		std::unique_ptr<Framebuffer> m_FramebufferDirShadow;
 		std::unique_ptr<Framebuffer> m_FramebufferPointShadow;
 		std::unique_ptr<Framebuffer> m_FramebufferMultisample;
+		std::unique_ptr<Framebuffer> m_FramebufferMultisampleHDR;
 		const char* inputModeNames[3] = {
 			"GLFW_CURSOR_NORMAL",
 			"GLFW_CURSOR_HIDDEN",

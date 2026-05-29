@@ -18,8 +18,10 @@ namespace test
         m_camera{ glm::vec3(0.0f, 0.0f, 3.0f),
         glm::vec3(0.0f, 0.0f, -1.0f),
         glm::vec3(0.0f, 1.0f, 0.0f),
-        0.1f }, m_controls(window, SCR_WIDTH, SCR_HEIGHT, m_camera), draw_cubemap(1), blinn(1), SHADOW_WIDTH(1024), SHADOW_HEIGHT(1024),
-        m_window(window), currentIndex(2), modelIndex(0), m_animationTime(0.0f), m_lastTime(float(glfwGetTime()))
+        0.1f }, m_controls(window, SCR_WIDTH, SCR_HEIGHT, m_camera),
+        draw_cubemap(1), blinn(1), hdr(0), prev_hdr(0), exposure_adaptation(0),
+        SHADOW_WIDTH(1024), SHADOW_HEIGHT(1024), m_window(window), 
+        currentIndex(2), modelIndex(0), m_animationTime(0.0f), m_lastTime(float(glfwGetTime()))
     {
         float positions[] = {
             //position             //normals           //texCoord
@@ -223,7 +225,8 @@ namespace test
         m_Framebuffer = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT);
         m_FramebufferDirShadow = std::make_unique<Framebuffer>(SHADOW_WIDTH, SHADOW_HEIGHT, 0, 1);
         m_FramebufferPointShadow = std::make_unique<Framebuffer>(SHADOW_WIDTH, SHADOW_HEIGHT, 0, 2);
-        m_FramebufferMultisample = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT, 4);
+        m_FramebufferMultisample = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT, 4, 0, false);
+        m_FramebufferMultisampleHDR = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT, 4, 0, true);
 
         VertexBufferLayout layout;
         layout.Push<float>(3);
@@ -292,16 +295,13 @@ namespace test
 
 		//Directed Light Shadow Mapping
         float size = 10.0f;
-        near_plane = 1.0f; far_plane = 50.0f;
+        near_plane = 1.0f; far_plane = 50.0f; exposure = 5.0f;
         m_Proj = glm::ortho(-size, size, -size, size, near_plane, far_plane);
-        dirLight = glm::vec3(-4.0f, -8.0f, 2.0f);
-        m_View = glm::lookAt(-dirLight,
+        directionalLight.direction = glm::vec3(-4.0f, -8.0f, 2.0f);
+        m_View = glm::lookAt(-directionalLight.direction,
             glm::vec3(0.0f, 0.0f, 0.0f),
             glm::vec3(0.0f, 1.0f, 0.0f));
         lightSpaceMatrix = m_Proj * m_View;
-
-		//Point Light Shadow Mapping
-        lightPos = { -4.0f, 6.0f, 6.0f };
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(2.0f, 1.0f, 0.0f));
@@ -335,6 +335,19 @@ namespace test
         objectModel = glm::translate(objectModel, glm::vec3(0.0f, 3.0f, 0.0f));
         objectModel = glm::scale(objectModel, glm::vec3(0.5f));
 		objectModel = glm::rotate(objectModel, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        
+		directionalLight.ambient = glm::vec3(0.2f);
+        directionalLight.diffuse = glm::vec3(1.0f);// glm::vec3(8.0f, 7.8f, 7.0f);
+		directionalLight.specular = glm::vec3(0.3f);
+		directionalLight.intensity = 1.0f;
+
+		pointLight.position = glm::vec3( -4.0f, 6.0f, 6.0f);
+		pointLight.ambient = glm::vec3(0.1f);
+		pointLight.diffuse = glm::vec3(1.0f);
+		pointLight.specular = glm::vec3(0.5f);
+		pointLight.constant = 1.0f;
+		pointLight.linear = 0.005f;
+		pointLight.quadratic = 0.0005f;
 
         glfwSetWindowUserPointer(window, &m_controls);
         glfwSetKeyCallback(window, Control::handleKeyboard);
@@ -410,6 +423,8 @@ namespace test
             m_ShaderDirShadow->SetUniformMat4f("u_Model", boxModels[i]);
             renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderDirShadow);
         }
+        m_ShaderDirShadow->SetUniformMat4f("u_Model", objectModel);
+        m_ModelPlanet->Draw(*m_ShaderDirShadow);
         m_FramebufferDirShadow->Unbind();
 
 		m_FramebufferPointShadow->Bind();
@@ -417,16 +432,16 @@ namespace test
 
 		pointShadowMatrices.clear();
         m_Proj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.position, pointLight.position + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.position, pointLight.position + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.position, pointLight.position + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.position, pointLight.position + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.position, pointLight.position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.position, pointLight.position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
         m_ShaderPointShadow->Bind();
 	    m_ShaderPointShadow->SetUniformMat4fv("lightSpaceMatrix", pointShadowMatrices.size(), pointShadowMatrices.data());
-        m_ShaderPointShadow->SetUniform3f("lightPos", lightPos);
+        m_ShaderPointShadow->SetUniform3f("lightPos", pointLight.position);
         m_ShaderPointShadow->SetUniform1f("near_plane", near_plane);
         m_ShaderPointShadow->SetUniform1f("far_plane", far_plane);
         for (unsigned int i = 0; i < boxModels.size(); i++) {
@@ -474,12 +489,13 @@ namespace test
         GLCall(glStencilFunc(GL_ALWAYS, 1, 0xFF));
         GLCall(glStencilMask(0xFF));
 
-        //GLCall(glFrontFace(GL_CW));
+        //Setting Up light Values
+        HDRSetup();
 
         // Light Object
         m_ShaderLight->Bind();
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(lightPos));
+        model = glm::translate(model, glm::vec3(pointLight.position));
         model = glm::scale(model, glm::vec3(0.5f));
         m_ShaderLight->SetUniformMat4f("u_Model", model);
         m_ShaderLight->SetUniform3f("pointLightColor", glm::vec3(lightColor.r, lightColor.g, lightColor.b));
@@ -496,18 +512,18 @@ namespace test
         GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_FramebufferPointShadow->getTextureBuffer()));
         m_ShaderCube->SetUniform1i("pointDepthMap", 2);
         m_ShaderCube->SetUniform1f("material.shininess", shininess);
-        m_ShaderCube->SetUniform3f("dirLight.direction", glm::normalize(dirLight));
-        m_ShaderCube->SetUniform3f("dirLight.ambient", glm::vec3(0.05f));
-        m_ShaderCube->SetUniform3f("dirLight.diffuse", glm::vec3(0.3f));
-        m_ShaderCube->SetUniform3f("dirLight.specular", glm::vec3(0.3f));
-        m_ShaderCube->SetUniform1f("dirLight.intensity", dirlightIntensity);
-        m_ShaderCube->SetUniform3f("pointLight.position", glm::vec3(lightPos));
-        m_ShaderCube->SetUniform3f("pointLight.ambient", glm::vec3(0.05f));
-        m_ShaderCube->SetUniform3f("pointLight.diffuse", glm::vec3(1.0f));
-        m_ShaderCube->SetUniform3f("pointLight.specular", glm::vec3(0.5f));
-        m_ShaderCube->SetUniform1f("pointLight.constant", 1.0f);
-        m_ShaderCube->SetUniform1f("pointLight.linear", 0.02f);
-        m_ShaderCube->SetUniform1f("pointLight.quadratic", 0.005f);
+        m_ShaderCube->SetUniform3f("dirLight.direction", glm::normalize(directionalLight.direction));
+        m_ShaderCube->SetUniform3f("dirLight.ambient", directionalLight.ambient);
+        m_ShaderCube->SetUniform3f("dirLight.diffuse", directionalLight.diffuse);
+        m_ShaderCube->SetUniform3f("dirLight.specular", directionalLight.specular);
+        m_ShaderCube->SetUniform1f("dirLight.intensity", directionalLight.intensity);
+        m_ShaderCube->SetUniform3f("pointLight.position", pointLight.position);
+        m_ShaderCube->SetUniform3f("pointLight.ambient", pointLight.ambient);
+        m_ShaderCube->SetUniform3f("pointLight.diffuse", pointLight.diffuse);
+        m_ShaderCube->SetUniform3f("pointLight.specular", pointLight.specular);
+        m_ShaderCube->SetUniform1f("pointLight.constant", pointLight.constant);
+        m_ShaderCube->SetUniform1f("pointLight.linear", pointLight.linear);
+        m_ShaderCube->SetUniform1f("pointLight.quadratic", pointLight.quadratic);
         m_ShaderCube->SetUniform1f("far_plane", far_plane);
         m_ShaderCube->SetUniform1f("near_plane", near_plane);
         for (unsigned int i = 0; i < boxModels.size(); i++) {
@@ -531,18 +547,18 @@ namespace test
         GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_FramebufferPointShadow->getTextureBuffer()));
         m_ShaderFloor->SetUniform1i("pointDepthMap", 2);
         m_ShaderFloor->SetUniform1f("material.shininess", shininess);
-        m_ShaderFloor->SetUniform3f("dirLight.direction", glm::normalize(dirLight));
-        m_ShaderFloor->SetUniform3f("dirLight.ambient", glm::vec3(0.05f));
-        m_ShaderFloor->SetUniform3f("dirLight.diffuse", glm::vec3(0.3f));
-        m_ShaderFloor->SetUniform3f("dirLight.specular", glm::vec3(0.3f));
-        m_ShaderFloor->SetUniform1f("dirLight.intensity", dirlightIntensity);
-        m_ShaderFloor->SetUniform3f("pointLight.position", lightPos);
-        m_ShaderFloor->SetUniform3f("pointLight.ambient", glm::vec3(0.05f));
-        m_ShaderFloor->SetUniform3f("pointLight.diffuse", glm::vec3(1.0f));
-        m_ShaderFloor->SetUniform3f("pointLight.specular", glm::vec3(0.5f));
-        m_ShaderFloor->SetUniform1f("pointLight.constant", 1.0f);
-        m_ShaderFloor->SetUniform1f("pointLight.linear", 0.005f);
-        m_ShaderFloor->SetUniform1f("pointLight.quadratic", 0.0005f);
+        m_ShaderFloor->SetUniform3f("dirLight.direction", glm::normalize(directionalLight.direction));
+        m_ShaderFloor->SetUniform3f("dirLight.ambient", directionalLight.ambient);
+        m_ShaderFloor->SetUniform3f("dirLight.diffuse", directionalLight.diffuse);
+        m_ShaderFloor->SetUniform3f("dirLight.specular", directionalLight.specular);
+        m_ShaderFloor->SetUniform1f("dirLight.intensity", directionalLight.intensity);
+        m_ShaderFloor->SetUniform3f("pointLight.position", pointLight.position);
+        m_ShaderFloor->SetUniform3f("pointLight.ambient", pointLight.ambient);
+        m_ShaderFloor->SetUniform3f("pointLight.diffuse", pointLight.diffuse);
+        m_ShaderFloor->SetUniform3f("pointLight.specular", pointLight.specular);
+        m_ShaderFloor->SetUniform1f("pointLight.constant", pointLight.constant);
+        m_ShaderFloor->SetUniform1f("pointLight.linear", pointLight.linear);
+        m_ShaderFloor->SetUniform1f("pointLight.quadratic", pointLight.quadratic);
         m_ShaderFloor->SetUniform1i("blinn", blinn);
         m_ShaderFloor->SetUniform1f("far_plane", far_plane);
         m_ShaderFloor->SetUniform1f("near_plane", near_plane);
@@ -552,8 +568,8 @@ namespace test
 		m_ShaderWall->Bind();
 		m_ShaderWall->SetUniformMat4f("u_Model", wallModel);
         m_ShaderWall->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
-        m_ShaderWall->SetUniform3f("lightPos", lightPos);
-        m_ShaderWall->SetUniform3f("lightDir", glm::normalize(dirLight));
+        m_ShaderWall->SetUniform3f("lightPos", pointLight.position);
+        m_ShaderWall->SetUniform3f("lightDir", glm::normalize(directionalLight.direction));
         m_ShaderWall->SetUniform3f("viewPos", m_camera.Position);
         m_TextureBrick->Bind(0);
         m_ShaderWall->SetUniform1i("material.diffuse", 0);
@@ -566,16 +582,16 @@ namespace test
         GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_FramebufferPointShadow->getTextureBuffer()));
         m_ShaderWall->SetUniform1i("pointDepthMap", 3);
         m_ShaderWall->SetUniform1f("material.shininess", shininess);
-        m_ShaderWall->SetUniform3f("dirLight.ambient", glm::vec3(0.05f));
-        m_ShaderWall->SetUniform3f("dirLight.diffuse", glm::vec3(0.3f));
-        m_ShaderWall->SetUniform3f("dirLight.specular", glm::vec3(0.3f));
-        m_ShaderWall->SetUniform1f("dirLight.intensity", dirlightIntensity);
-        m_ShaderWall->SetUniform3f("pointLight.ambient", glm::vec3(0.05f));
-        m_ShaderWall->SetUniform3f("pointLight.diffuse", glm::vec3(1.0f));
-        m_ShaderWall->SetUniform3f("pointLight.specular", glm::vec3(0.5f));
-        m_ShaderWall->SetUniform1f("pointLight.constant", 1.0f);
-        m_ShaderWall->SetUniform1f("pointLight.linear", 0.005f);
-        m_ShaderWall->SetUniform1f("pointLight.quadratic", 0.0005f);
+        m_ShaderWall->SetUniform3f("dirLight.ambient", directionalLight.ambient);
+        m_ShaderWall->SetUniform3f("dirLight.diffuse", directionalLight.diffuse);
+        m_ShaderWall->SetUniform3f("dirLight.specular", directionalLight.specular);
+        m_ShaderWall->SetUniform1f("dirLight.intensity", directionalLight.intensity);
+        m_ShaderWall->SetUniform3f("pointLight.ambient", pointLight.ambient);
+        m_ShaderWall->SetUniform3f("pointLight.diffuse", pointLight.diffuse);
+        m_ShaderWall->SetUniform3f("pointLight.specular", pointLight.specular);
+        m_ShaderWall->SetUniform1f("pointLight.constant", pointLight.constant);
+        m_ShaderWall->SetUniform1f("pointLight.linear", pointLight.linear);
+        m_ShaderWall->SetUniform1f("pointLight.quadratic", pointLight.quadratic);
         m_ShaderWall->SetUniform1i("blinn", blinn);
         m_ShaderWall->SetUniform1f("far_plane", far_plane);
         m_ShaderWall->SetUniform1f("near_plane", near_plane);
@@ -585,8 +601,8 @@ namespace test
         m_ShaderWallParallax->Bind();
         m_ShaderWallParallax->SetUniformMat4f("u_Model", wallModelParallax);
         m_ShaderWallParallax->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
-        m_ShaderWallParallax->SetUniform3f("lightPos", lightPos);
-        m_ShaderWallParallax->SetUniform3f("lightDir", glm::normalize(dirLight));
+        m_ShaderWallParallax->SetUniform3f("lightPos", pointLight.position);
+        m_ShaderWallParallax->SetUniform3f("lightDir", glm::normalize(directionalLight.direction));
         m_ShaderWallParallax->SetUniform3f("viewPos", m_camera.Position);
         m_TextureBrick->Bind(0);
         m_ShaderWallParallax->SetUniform1i("material.diffuse", 0);
@@ -601,16 +617,16 @@ namespace test
         GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_FramebufferPointShadow->getTextureBuffer()));
         m_ShaderWallParallax->SetUniform1i("pointDepthMap", 4);
         m_ShaderWallParallax->SetUniform1f("material.shininess", shininess);
-        m_ShaderWallParallax->SetUniform3f("dirLight.ambient", glm::vec3(0.05f));
-        m_ShaderWallParallax->SetUniform3f("dirLight.diffuse", glm::vec3(0.3f));
-        m_ShaderWallParallax->SetUniform3f("dirLight.specular", glm::vec3(0.3f));
-        m_ShaderWallParallax->SetUniform1f("dirLight.intensity", dirlightIntensity);
-        m_ShaderWallParallax->SetUniform3f("pointLight.ambient", glm::vec3(0.05f));
-        m_ShaderWallParallax->SetUniform3f("pointLight.diffuse", glm::vec3(1.0f));
-        m_ShaderWallParallax->SetUniform3f("pointLight.specular", glm::vec3(0.5f));
-        m_ShaderWallParallax->SetUniform1f("pointLight.constant", 1.0f);
-        m_ShaderWallParallax->SetUniform1f("pointLight.linear", 0.005f);
-        m_ShaderWallParallax->SetUniform1f("pointLight.quadratic", 0.0005f);
+        m_ShaderWallParallax->SetUniform3f("dirLight.ambient", directionalLight.ambient);
+        m_ShaderWallParallax->SetUniform3f("dirLight.diffuse", directionalLight.diffuse);
+        m_ShaderWallParallax->SetUniform3f("dirLight.specular", directionalLight.specular);
+        m_ShaderWallParallax->SetUniform1f("dirLight.intensity", directionalLight.intensity);
+        m_ShaderWallParallax->SetUniform3f("pointLight.ambient", pointLight.ambient);
+        m_ShaderWallParallax->SetUniform3f("pointLight.diffuse", pointLight.diffuse);
+        m_ShaderWallParallax->SetUniform3f("pointLight.specular", pointLight.specular);
+        m_ShaderWallParallax->SetUniform1f("pointLight.constant", pointLight.constant);
+        m_ShaderWallParallax->SetUniform1f("pointLight.linear", pointLight.linear);
+        m_ShaderWallParallax->SetUniform1f("pointLight.quadratic", pointLight.quadratic);
         m_ShaderWallParallax->SetUniform1i("blinn", blinn);
         m_ShaderWallParallax->SetUniform1f("far_plane", far_plane);
         m_ShaderWallParallax->SetUniform1f("near_plane", near_plane);
@@ -621,26 +637,24 @@ namespace test
         m_ShaderModel->SetUniformMat4f("u_Model", objectModel);
         m_ShaderModel->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
         m_ShaderModel->SetUniform3f("viewPos", m_camera.Position);
-        m_ShaderModel->SetUniform3f("lightPos", lightPos);
-        m_ShaderModel->SetUniform3f("lightDir", glm::normalize(dirLight));
+        m_ShaderModel->SetUniform3f("lightPos", pointLight.position);
+        m_ShaderModel->SetUniform3f("lightDir", glm::normalize(directionalLight.direction));
         GLCall(glActiveTexture(GL_TEXTURE10));
         GLCall(glBindTexture(GL_TEXTURE_2D, m_FramebufferDirShadow->getTextureBuffer()));
         m_ShaderModel->SetUniform1i("shadowMap", 10);
         GLCall(glActiveTexture(GL_TEXTURE11));
         GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_FramebufferPointShadow->getTextureBuffer()));
         m_ShaderModel->SetUniform1i("pointDepthMap", 11);
-        m_ShaderModel->SetUniform3f("dirLight.direction", glm::normalize(glm::vec3(0.1f, -1.0f, 0.0f)));
-        m_ShaderModel->SetUniform3f("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        m_ShaderModel->SetUniform3f("dirLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        m_ShaderModel->SetUniform3f("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        m_ShaderModel->SetUniform1f("dirLight.intensity", 1.0f);
-        m_ShaderModel->SetUniform3f("pointLight.position", glm::vec3(lightPos.x, lightPos.y, lightPos.z));
-        m_ShaderModel->SetUniform3f("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        m_ShaderModel->SetUniform3f("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        m_ShaderModel->SetUniform3f("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        m_ShaderModel->SetUniform1f("pointLight.constant", 1.0f);
-        m_ShaderModel->SetUniform1f("pointLight.linear", 0.09f);
-        m_ShaderModel->SetUniform1f("pointLight.quadratic", 0.032f);
+        m_ShaderModel->SetUniform3f("dirLight.ambient", directionalLight.ambient);
+        m_ShaderModel->SetUniform3f("dirLight.diffuse", directionalLight.diffuse);
+        m_ShaderModel->SetUniform3f("dirLight.specular", directionalLight.specular);
+        m_ShaderModel->SetUniform1f("dirLight.intensity", directionalLight.intensity);
+        m_ShaderModel->SetUniform3f("pointLight.ambient", pointLight.ambient);
+        m_ShaderModel->SetUniform3f("pointLight.diffuse", pointLight.diffuse);
+        m_ShaderModel->SetUniform3f("pointLight.specular", pointLight.specular);
+        m_ShaderModel->SetUniform1f("pointLight.constant", pointLight.constant);
+        m_ShaderModel->SetUniform1f("pointLight.linear", pointLight.linear);
+        m_ShaderModel->SetUniform1f("pointLight.quadratic", pointLight.quadratic);
         m_ShaderModel->SetUniform1f("far_plane", far_plane);
         m_ShaderModel->SetUniform1f("near_plane", near_plane);
 		m_ModelPlanet->Draw(*m_ShaderModel);
@@ -674,10 +688,25 @@ namespace test
 
         m_ShaderFramebuffer->Bind();
         m_ShaderFramebuffer->SetUniform1i("screenTexture", 0);
-        m_ShaderFramebuffer->SetUniform1f("near_plane", near_plane);
-        m_ShaderFramebuffer->SetUniform1f("far_plane", far_plane);
         GLCall(glActiveTexture(GL_TEXTURE0));
         GLCall(glBindTexture(GL_TEXTURE_2D, m_Framebuffer->getTextureBuffer()));
+        if (exposure_adaptation){
+            glGenerateMipmap(GL_TEXTURE_2D);
+            glm::vec3 luminescence;
+            GLint maxDimension = static_cast<GLint>(glm::floor(glm::log2(std::max(SCR_WIDTH, SCR_HEIGHT))));
+            glGetTexImage(GL_TEXTURE_2D, maxDimension, GL_RGB, GL_FLOAT, &luminescence);
+            const float lum = 0.2126f * luminescence.r + 0.7152f * luminescence.g + 0.0722f * luminescence.b;
+
+            const float adjSpeed = 0.01f;
+
+            exposure = glm::mix(exposure, 0.5f / lum, adjSpeed);
+            exposure = glm::clamp(exposure, 0.1f, 5.0f);
+        }
+
+        m_ShaderFramebuffer->SetUniform1f("exposure", exposure);
+        m_ShaderFramebuffer->SetUniform1i("hdr", hdr);
+        m_ShaderFramebuffer->SetUniform1f("near_plane", near_plane);
+        m_ShaderFramebuffer->SetUniform1f("far_plane", far_plane);
         GLCall(glEnable(GL_FRAMEBUFFER_SRGB));
         m_Framebuffer->Draw();
         GLCall(glDisable(GL_FRAMEBUFFER_SRGB));
@@ -690,10 +719,14 @@ namespace test
         ImGui::Text("Camera Pos: (%.1f, %.1f, %.1f)", m_camera.Position.x, m_camera.Position.y, m_camera.Position.z);
         ImGui::SliderFloat3("Clear Color", &clearColor.r, 0.0f, 1.0f);
         ImGui::SliderFloat3("Light Color", &lightColor.r, 0.0f, 1.0f);
-        ImGui::SliderFloat3("Light Position", &lightPos.x, -5.0f, 5.0f);
-        ImGui::SliderFloat("DirLight Intensity", &dirlightIntensity, 0.0f, 2.0f);
+        ImGui::SliderFloat3("Light Position", &pointLight.position.x, -5.0f, 5.0f);
+        ImGui::SliderFloat("Exposure", &exposure, 0.0f, 5.0f);
+        ImGui::SliderFloat("DirLight Intensity", &directionalLight.intensity, 0.0f, 2.0f);
         ImGui::Checkbox("Draw a Cubemap", &draw_cubemap);
         ImGui::Checkbox("1 - Blinn Phong, 0 - Regular Phong", &blinn);
+        prev_hdr = hdr;
+        ImGui::Checkbox("HDR", &hdr);
+        ImGui::Checkbox("Exposure Adaptation", &exposure_adaptation);
         ImGui::SliderFloat("Shininess", &shininess, 1.0f, 128.0f);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
@@ -732,5 +765,25 @@ namespace test
 
         for (auto& [k, st] : keys)
             st.wasDown = st.isDown;
+    }
+
+    void TestMain::HDRSetup()
+    {
+        if (hdr == prev_hdr) return;
+
+        if (hdr == false){
+            //LDR
+            directionalLight.ambient = glm::vec3(0.05f);
+            directionalLight.diffuse = glm::vec3(1.0f);
+
+            pointLight.ambient = glm::vec3(0.05f);
+        }
+        else {
+            //HDR
+            directionalLight.ambient = glm::vec3(0.2f);
+            directionalLight.diffuse = glm::vec3(8.0f, 7.8f, 7.0f);
+
+            pointLight.ambient = glm::vec3(0.2f);
+        }
     }
 }
