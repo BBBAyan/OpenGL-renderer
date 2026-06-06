@@ -41,7 +41,7 @@ namespace test {
 			float intensity;
 		};
 		struct PointLight {
-			glm::vec3 position;
+			std::vector<glm::vec3> positions;
 			glm::vec3 ambient;
 			glm::vec3 diffuse;
 			glm::vec3 specular;
@@ -79,6 +79,8 @@ namespace test {
 		std::unique_ptr<Shader> m_ShaderWall;
 		std::unique_ptr<Shader> m_ShaderWallParallax;
 		std::unique_ptr<Shader> m_ShaderFramebuffer;
+		std::unique_ptr<Shader> m_ShaderFramebufferDouble;
+		std::unique_ptr<Shader> m_ShaderFramebufferBloom;
 		std::unique_ptr<Shader> m_ShaderGeometry;
 		std::unique_ptr<Shader> m_ShaderLight;
 		std::unique_ptr<Shader> m_ShaderModel;
@@ -107,11 +109,14 @@ namespace test {
 		std::unique_ptr<IndexBuffer> m_IndexBuffer;
 		std::unique_ptr<IndexBuffer> m_IndexBufferFloor;
 		std::unique_ptr<IndexBuffer> m_IndexBufferSquare;
-		std::unique_ptr<Framebuffer> m_Framebuffer;
+		std::unique_ptr<Framebuffer> m_FramebufferIntermediate;
+		std::unique_ptr<Framebuffer> m_FramebufferDouble;
+		std::unique_ptr<Framebuffer> m_FramebufferBloomHorizontal;
+		std::unique_ptr<Framebuffer> m_FramebufferBloomVertical;
+		std::unique_ptr<Framebuffer> m_FramebufferFinal;
 		std::unique_ptr<Framebuffer> m_FramebufferDirShadow;
 		std::unique_ptr<Framebuffer> m_FramebufferPointShadow;
 		std::unique_ptr<Framebuffer> m_FramebufferMultisample;
-		std::unique_ptr<Framebuffer> m_FramebufferMultisampleHDR;
 		const char* inputModeNames[3] = {
 			"GLFW_CURSOR_NORMAL",
 			"GLFW_CURSOR_HIDDEN",
