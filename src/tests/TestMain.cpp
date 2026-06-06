@@ -222,11 +222,13 @@ namespace test
         m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 3 * 2 * 6);
         m_IndexBufferFloor = std::make_unique<IndexBuffer>(floorIndices, 3 * 2);
 		m_IndexBufferSquare = std::make_unique<IndexBuffer>(squareIndices2, 3 * 2);
-        m_Framebuffer = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT);
+        m_FramebufferIntermediate = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT, 0, 0, true); // container
+        m_FramebufferDouble = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT, 0, 0, true, true); // separating to FragColor and BrightColor textures
+        m_FramebufferBloomHorizontal = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT, 0, 0, true); // blurring bright color texture
+        m_FramebufferBloomVertical = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT, 0, 0, true); // blurring bright color texture
+		m_FramebufferFinal = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT); // connecting the bloom texture to the default framebuffer
         m_FramebufferDirShadow = std::make_unique<Framebuffer>(SHADOW_WIDTH, SHADOW_HEIGHT, 0, 1);
-        m_FramebufferPointShadow = std::make_unique<Framebuffer>(SHADOW_WIDTH, SHADOW_HEIGHT, 0, 2);
-        m_FramebufferMultisample = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT, 4, 0, false);
-        m_FramebufferMultisampleHDR = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT, 4, 0, true);
+        m_FramebufferMultisample = std::make_unique<Framebuffer>(SCR_WIDTH, SCR_HEIGHT, 4, 0, true);
 
         VertexBufferLayout layout;
         layout.Push<float>(3);
@@ -260,6 +262,8 @@ namespace test
         m_ShaderWall = std::make_unique<Shader>("res/shaders/Wall.Shader");
         m_ShaderWallParallax = std::make_unique<Shader>("res/shaders/WallParallax.Shader");
         m_ShaderFramebuffer = std::make_unique<Shader>("res/shaders/FramebufferScreen.Shader");
+        m_ShaderFramebufferDouble = std::make_unique<Shader>("res/shaders/FramebufferDouble.Shader");
+		m_ShaderFramebufferBloom = std::make_unique<Shader>("res/shaders/FramebufferBloom.Shader");
         m_ShaderGeometry = std::make_unique<Shader>("res/shaders/Geometry.Shader");
         m_ShaderLight = std::make_unique<Shader>("res/shaders/Lighting.Shader");
         m_ShaderModel = std::make_unique<Shader>("res/shaders/ModelNormalMapping.Shader");
@@ -341,7 +345,8 @@ namespace test
 		directionalLight.specular = glm::vec3(0.3f);
 		directionalLight.intensity = 1.0f;
 
-		pointLight.position = glm::vec3( -4.0f, 6.0f, 6.0f);
+        pointLight.positions.push_back(glm::vec3(-4.0f, 6.0f, 6.0f));
+        m_FramebufferPointShadow = std::make_unique<Framebuffer>(SHADOW_WIDTH, SHADOW_HEIGHT, 0, 2, false, false, pointLight.positions.size());
 		pointLight.ambient = glm::vec3(0.1f);
 		pointLight.diffuse = glm::vec3(1.0f);
 		pointLight.specular = glm::vec3(0.5f);
@@ -430,26 +435,26 @@ namespace test
 		m_FramebufferPointShadow->Bind();
 		GLCall(glClear(GL_DEPTH_BUFFER_BIT));
 
-		pointShadowMatrices.clear();
+        pointShadowMatrices.clear();
         m_Proj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.position, pointLight.position + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.position, pointLight.position + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.position, pointLight.position + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.position, pointLight.position + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.position, pointLight.position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.position, pointLight.position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.positions[0], pointLight.positions[0] + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.positions[0], pointLight.positions[0] + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.positions[0], pointLight.positions[0] + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.positions[0], pointLight.positions[0] + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.positions[0], pointLight.positions[0] + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+        pointShadowMatrices.push_back(m_Proj * glm::lookAt(pointLight.positions[0], pointLight.positions[0] + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
         m_ShaderPointShadow->Bind();
-	    m_ShaderPointShadow->SetUniformMat4fv("lightSpaceMatrix", pointShadowMatrices.size(), pointShadowMatrices.data());
-        m_ShaderPointShadow->SetUniform3f("lightPos", pointLight.position);
+        m_ShaderPointShadow->SetUniformMat4fv("lightSpaceMatrix", pointShadowMatrices.size(), pointShadowMatrices.data());
+        m_ShaderPointShadow->SetUniform3f("lightPos", pointLight.positions[0]);
         m_ShaderPointShadow->SetUniform1f("near_plane", near_plane);
         m_ShaderPointShadow->SetUniform1f("far_plane", far_plane);
         for (unsigned int i = 0; i < boxModels.size(); i++) {
             m_ShaderPointShadow->SetUniformMat4f("u_Model", boxModels[i]);
             renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderPointShadow);
         }
-		m_ShaderPointShadow->SetUniformMat4f("u_Model", objectModel);
-		m_ModelPlanet->Draw(*m_ShaderPointShadow);
+        m_ShaderPointShadow->SetUniformMat4f("u_Model", objectModel);
+        m_ModelPlanet->Draw(*m_ShaderPointShadow);
 		m_FramebufferPointShadow->Unbind();
 
         //////////////////////////////////////////////////////////////////////////
@@ -494,12 +499,14 @@ namespace test
 
         // Light Object
         m_ShaderLight->Bind();
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(pointLight.position));
-        model = glm::scale(model, glm::vec3(0.5f));
-        m_ShaderLight->SetUniformMat4f("u_Model", model);
         m_ShaderLight->SetUniform3f("pointLightColor", glm::vec3(lightColor.r, lightColor.g, lightColor.b));
-        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderLight);
+        for (int i = 0; i < pointLight.positions.size(); i++) {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(pointLight.positions[i]));
+            model = glm::scale(model, glm::vec3(0.5f));
+            m_ShaderLight->SetUniformMat4f("u_Model", model);
+            renderer.Draw(*m_VAO, *m_IndexBuffer, *m_ShaderLight);
+        }
 
         m_ShaderCube->Bind();
         m_ShaderCube->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
@@ -517,7 +524,7 @@ namespace test
         m_ShaderCube->SetUniform3f("dirLight.diffuse", directionalLight.diffuse);
         m_ShaderCube->SetUniform3f("dirLight.specular", directionalLight.specular);
         m_ShaderCube->SetUniform1f("dirLight.intensity", directionalLight.intensity);
-        m_ShaderCube->SetUniform3f("pointLight.position", pointLight.position);
+        m_ShaderCube->SetUniform3f("pointLight.position", pointLight.positions[0]);
         m_ShaderCube->SetUniform3f("pointLight.ambient", pointLight.ambient);
         m_ShaderCube->SetUniform3f("pointLight.diffuse", pointLight.diffuse);
         m_ShaderCube->SetUniform3f("pointLight.specular", pointLight.specular);
@@ -552,7 +559,7 @@ namespace test
         m_ShaderFloor->SetUniform3f("dirLight.diffuse", directionalLight.diffuse);
         m_ShaderFloor->SetUniform3f("dirLight.specular", directionalLight.specular);
         m_ShaderFloor->SetUniform1f("dirLight.intensity", directionalLight.intensity);
-        m_ShaderFloor->SetUniform3f("pointLight.position", pointLight.position);
+        m_ShaderFloor->SetUniform3f("pointLight.position", pointLight.positions[0]);
         m_ShaderFloor->SetUniform3f("pointLight.ambient", pointLight.ambient);
         m_ShaderFloor->SetUniform3f("pointLight.diffuse", pointLight.diffuse);
         m_ShaderFloor->SetUniform3f("pointLight.specular", pointLight.specular);
@@ -568,7 +575,7 @@ namespace test
 		m_ShaderWall->Bind();
 		m_ShaderWall->SetUniformMat4f("u_Model", wallModel);
         m_ShaderWall->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
-        m_ShaderWall->SetUniform3f("lightPos", pointLight.position);
+        m_ShaderWall->SetUniform3f("lightPos", pointLight.positions[0]);
         m_ShaderWall->SetUniform3f("lightDir", glm::normalize(directionalLight.direction));
         m_ShaderWall->SetUniform3f("viewPos", m_camera.Position);
         m_TextureBrick->Bind(0);
@@ -601,7 +608,7 @@ namespace test
         m_ShaderWallParallax->Bind();
         m_ShaderWallParallax->SetUniformMat4f("u_Model", wallModelParallax);
         m_ShaderWallParallax->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
-        m_ShaderWallParallax->SetUniform3f("lightPos", pointLight.position);
+        m_ShaderWallParallax->SetUniform3f("lightPos", pointLight.positions[0]);
         m_ShaderWallParallax->SetUniform3f("lightDir", glm::normalize(directionalLight.direction));
         m_ShaderWallParallax->SetUniform3f("viewPos", m_camera.Position);
         m_TextureBrick->Bind(0);
@@ -637,7 +644,7 @@ namespace test
         m_ShaderModel->SetUniformMat4f("u_Model", objectModel);
         m_ShaderModel->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
         m_ShaderModel->SetUniform3f("viewPos", m_camera.Position);
-        m_ShaderModel->SetUniform3f("lightPos", pointLight.position);
+        m_ShaderModel->SetUniform3f("lightPos", pointLight.positions[0]);
         m_ShaderModel->SetUniform3f("lightDir", glm::normalize(directionalLight.direction));
         GLCall(glActiveTexture(GL_TEXTURE10));
         GLCall(glBindTexture(GL_TEXTURE_2D, m_FramebufferDirShadow->getTextureBuffer()));
@@ -676,10 +683,51 @@ namespace test
         }
 
         GLCall(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_FramebufferMultisample->getFBO()));
-        GLCall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Framebuffer->getFBO()));
+        GLCall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FramebufferIntermediate->getFBO()));
         GLCall(glBlitFramebuffer(0, 0, SCR_WIDTH, SCR_HEIGHT, 0, 0, SCR_WIDTH, SCR_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST));
 
         m_FramebufferMultisample->Unbind();
+
+        m_FramebufferDouble->Bind();
+        m_ShaderFramebufferDouble->Bind();
+		GLCall(glActiveTexture(GL_TEXTURE0));
+		GLCall(glBindTexture(GL_TEXTURE_2D, m_FramebufferIntermediate->getTextureBuffer()));
+		m_ShaderFramebufferDouble->SetUniform1i("screenTexture", 0);
+        m_FramebufferDouble->Draw();
+        m_FramebufferDouble->Unbind();
+
+		bool horizontal = true, first_iteration = true;
+        m_ShaderFramebufferBloom->Bind();
+        for (int i = 0; i < 30; i++) {
+			if (horizontal) m_FramebufferBloomHorizontal->Bind();
+			else m_FramebufferBloomVertical->Bind();
+
+            GLCall(glActiveTexture(GL_TEXTURE0));
+            if (first_iteration) {
+                GLCall(glBindTexture(GL_TEXTURE_2D, m_FramebufferDouble->getTextureBuffer(1)));
+                first_iteration = false;
+            }
+            else {
+				if (horizontal) {
+					GLCall(glBindTexture(GL_TEXTURE_2D, m_FramebufferBloomVertical->getTextureBuffer()));
+				}
+				else {
+					GLCall(glBindTexture(GL_TEXTURE_2D, m_FramebufferBloomHorizontal->getTextureBuffer()));
+				}
+            }
+            m_ShaderFramebufferBloom->SetUniform1i("screenTexture", 0);
+            m_ShaderFramebufferBloom->SetUniform1i("horizontal", horizontal);
+
+            if (horizontal) {
+                m_FramebufferBloomHorizontal->Draw();
+                m_FramebufferBloomHorizontal->Unbind();
+            }
+            else {
+                m_FramebufferBloomVertical->Draw();
+                m_FramebufferBloomVertical->Unbind();
+            }
+			horizontal = !horizontal;
+        }
 
         GLCall(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
         GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
@@ -689,7 +737,7 @@ namespace test
         m_ShaderFramebuffer->Bind();
         m_ShaderFramebuffer->SetUniform1i("screenTexture", 0);
         GLCall(glActiveTexture(GL_TEXTURE0));
-        GLCall(glBindTexture(GL_TEXTURE_2D, m_Framebuffer->getTextureBuffer()));
+        GLCall(glBindTexture(GL_TEXTURE_2D, m_FramebufferDouble->getTextureBuffer(0)));
         if (exposure_adaptation){
             glGenerateMipmap(GL_TEXTURE_2D);
             glm::vec3 luminescence;
@@ -702,13 +750,15 @@ namespace test
             exposure = glm::mix(exposure, 0.5f / lum, adjSpeed);
             exposure = glm::clamp(exposure, 0.1f, 5.0f);
         }
-
         m_ShaderFramebuffer->SetUniform1f("exposure", exposure);
+        m_ShaderFramebuffer->SetUniform1i("brightTexture", 1);
+		GLCall(glActiveTexture(GL_TEXTURE1));
+		GLCall(glBindTexture(GL_TEXTURE_2D, m_FramebufferBloomVertical->getTextureBuffer()));
         m_ShaderFramebuffer->SetUniform1i("hdr", hdr);
         m_ShaderFramebuffer->SetUniform1f("near_plane", near_plane);
         m_ShaderFramebuffer->SetUniform1f("far_plane", far_plane);
         GLCall(glEnable(GL_FRAMEBUFFER_SRGB));
-        m_Framebuffer->Draw();
+        m_FramebufferFinal->Draw();
         GLCall(glDisable(GL_FRAMEBUFFER_SRGB));
         GLCall(glBindVertexArray(0));
     }
@@ -719,7 +769,7 @@ namespace test
         ImGui::Text("Camera Pos: (%.1f, %.1f, %.1f)", m_camera.Position.x, m_camera.Position.y, m_camera.Position.z);
         ImGui::SliderFloat3("Clear Color", &clearColor.r, 0.0f, 1.0f);
         ImGui::SliderFloat3("Light Color", &lightColor.r, 0.0f, 1.0f);
-        ImGui::SliderFloat3("Light Position", &pointLight.position.x, -5.0f, 5.0f);
+        ImGui::SliderFloat3("Light_1 Position", &pointLight.positions[0].x, -5.0f, 5.0f);
         ImGui::SliderFloat("Exposure", &exposure, 0.0f, 5.0f);
         ImGui::SliderFloat("DirLight Intensity", &directionalLight.intensity, 0.0f, 2.0f);
         ImGui::Checkbox("Draw a Cubemap", &draw_cubemap);

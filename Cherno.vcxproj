@@ -168,6 +168,7 @@
     <ClCompile Include="src\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".github\copilot-instructions.md" />
     <None Include="Dependencies\GLEW\doc\advanced.html" />
     <None Include="Dependencies\GLEW\doc\basic.html" />
     <None Include="Dependencies\GLEW\doc\build.html" />

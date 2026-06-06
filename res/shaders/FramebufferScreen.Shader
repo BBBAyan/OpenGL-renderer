@@ -19,6 +19,7 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 uniform sampler2D screenTexture;
+uniform sampler2D brightTexture;
 uniform int hdr;
 uniform float exposure;
 uniform float near_plane;
@@ -43,6 +44,7 @@ void main()
 void main()
 { 
     vec3 color = texture(screenTexture, TexCoords).rgb;
+    color += texture(brightTexture, TexCoords).rgb;
     if (hdr == 1){
         color = vec3(1.0) - exp(-color * exposure);
     }
